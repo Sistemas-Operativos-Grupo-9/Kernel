@@ -5,6 +5,7 @@
 #include <video.h>
 #include <stdbool.h>
 #include "interrupts/time.h"
+#include "interrupts/keyboard.h"
 #include "interrupts/idtLoader.h"
 
 extern uint8_t text;
@@ -101,11 +102,11 @@ int main()
 	print("[Finished]\n");
 
 	int line = getCursorY();
-	int i = 0;
 	while (true) {
 		setCursorAt(0, line);
-		printUnsigned(ticks_elapsed(), 10, 10);
-		i++;
+		printUnsigned(getLastKey(), 8, 2);
+		// printChar('\n');
+		// printUnsigned(ticks_elapsed(), 10, 10);
 	}
 	return 0;
 }
