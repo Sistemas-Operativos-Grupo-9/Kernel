@@ -2,7 +2,10 @@
 #include <string.h>
 #include <lib.h>
 #include <moduleLoader.h>
-#include <naiveConsole.h>
+#include <video.h>
+#include <stdbool.h>
+#include "interrupts/time.h"
+#include "interrupts/idtLoader.h"
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -37,68 +40,72 @@ void * initializeKernelBinary()
 {
 	char buffer[10];
 
-	ncPrint("[x64BareBones]");
-	ncNewline();
+	print("[x64BareBones]\n");
 
-	ncPrint("CPU Vendor:");
-	ncPrint(cpuVendor(buffer));
-	ncNewline();
+	print("CPU Vendor:");
+	print(cpuVendor(buffer));
+	printChar('\n');
 
-	ncPrint("[Loading modules]");
-	ncNewline();
+	print("[Loading modules]\n");
 	void * moduleAddresses[] = {
 		sampleCodeModuleAddress,
 		sampleDataModuleAddress
 	};
 
 	loadModules(&endOfKernelBinary, moduleAddresses);
-	ncPrint("[Done]");
-	ncNewline();
-	ncNewline();
+	print("[Done]\n\n");
 
-	ncPrint("[Initializing kernel's binary]");
-	ncNewline();
+	print("[Initializing kernel's binary]\n");
 
 	clearBSS(&bss, &endOfKernel - &bss);
 
-	ncPrint("  text: 0x");
-	ncPrintHex((uint64_t)&text);
-	ncNewline();
-	ncPrint("  rodata: 0x");
-	ncPrintHex((uint64_t)&rodata);
-	ncNewline();
-	ncPrint("  data: 0x");
-	ncPrintHex((uint64_t)&data);
-	ncNewline();
-	ncPrint("  bss: 0x");
-	ncPrintHex((uint64_t)&bss);
-	ncNewline();
+	print("  text: 0x");
+	printUnsigned((uint64_t)&text, 8, 16);
+	printChar('\n');
+	print("  rodata: 0x");
+	printUnsigned((uint64_t)&rodata, 8, 16);
+	printChar('\n');
+	print("  data: 0x");
+	printUnsigned((uint64_t)&data, 8, 16);
+	printChar('\n');
+	print("  bss: 0x");
+	printUnsigned((uint64_t)&bss, 8, 16);
+	printChar('\n');
 
-	ncPrint("[Done]");
-	ncNewline();
-	ncNewline();
+	print("[Done]");
+	printChar('\n');
+	printChar('\n');
 	return getStackBase();
 }
 
 int main()
-{	
-	ncPrint("[Kernel Main]");
-	ncNewline();
-	ncPrint("  Sample code module at 0x");
-	ncPrintHex((uint64_t)sampleCodeModuleAddress);
-	ncNewline();
-	ncPrint("  Calling the sample code module returned: ");
-	ncPrintHex(((EntryPoint)sampleCodeModuleAddress)());
-	ncNewline();
-	ncNewline();
+{
+	load_idt();
+	print("[Kernel Main]");
+	printChar('\n');
+	print("  Sample code module at 0x");
+	printUnsigned((uint64_t)sampleCodeModuleAddress, 8, 16);
+	printChar('\n');
+	print("  Calling the sample code module returned: ");
+	printUnsigned(((EntryPoint)sampleCodeModuleAddress)(), 8, 16);
+	printChar('\n');
+	printChar('\n');
 
-	ncPrint("  Sample data module at 0x");
-	ncPrintHex((uint64_t)sampleDataModuleAddress);
-	ncNewline();
-	ncPrint("  Sample data module contents: ");
-	ncPrint((char*)sampleDataModuleAddress);
-	ncNewline();
+	print("  Sample data module at 0x");
+	printUnsigned((uint64_t)sampleDataModuleAddress, 8, 16);
+	printChar('\n');
+	print("  Sample data module contents: ");
+	print((char*)sampleDataModuleAddress);
+	printChar('\n');
 
-	ncPrint("[Finished]");
+	print("[Finished]\n");
+
+	int line = getCursorY();
+	int i = 0;
+	while (true) {
+		setCursorAt(0, line);
+		printUnsigned(ticks_elapsed(), 10, 10);
+		i++;
+	}
 	return 0;
 }
