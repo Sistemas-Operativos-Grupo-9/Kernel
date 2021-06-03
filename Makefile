@@ -1,5 +1,5 @@
 
-all:  bootloader kernel userland image
+all: bootloader kernel userland image
 
 bootloader:
 	cd Bootloader; make all
@@ -10,6 +10,9 @@ kernel:
 userland:
 	cd Userland; make all
 
+toolchain:
+	cd Toolchain; make all
+
 image: kernel bootloader userland
 	cd Image; make all
 
@@ -19,4 +22,4 @@ clean:
 	cd Kernel; make clean
 	cd Userland; make clean
 
-.PHONY: bootloader image collections kernel userland all clean
+.PHONY: toolchain bootloader image collections kernel userland all clean
