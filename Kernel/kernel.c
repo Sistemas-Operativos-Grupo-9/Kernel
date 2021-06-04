@@ -103,8 +103,8 @@ int main()
 
 	int line = getCursorY();
 	while (true) {
-		setCursorAt(0, line);
-		printChar(getLastChar());
+		// setCursorAt(0, line);
+		// printChar(getLastChar());
 		// printChar('\n');
 		// printUnsigned(ticks_elapsed(), 10, 10);
 	}
