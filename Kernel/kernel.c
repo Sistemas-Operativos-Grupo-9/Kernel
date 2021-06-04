@@ -104,7 +104,7 @@ int main()
 	int line = getCursorY();
 	while (true) {
 		setCursorAt(0, line);
-		printUnsigned(getLastKey(), 8, 2);
+		printChar(getLastChar());
 		// printChar('\n');
 		// printUnsigned(ticks_elapsed(), 10, 10);
 	}
