@@ -1,12 +1,10 @@
 #include <stdbool.h>
 #include "keyboard.h"
 #include "port.h"
-#include "Layouts/US.h"
+#include "Layouts/Spanish.h"
 #include "video.h"
 
-static unsigned long ticks = 0;
 static char lastChar = 0;
-// char *chars = "  1234567890-=  qwertyuiop[]  asdfghjkl;'`\\zxcvbnm,./ *"
 
 #define K_LSHIFT 0x2A
 #define K_RSHIFT 0x36
@@ -20,8 +18,22 @@ bool shift = false;
 bool ctrl = false;
 bool alt = false;
 
+bool deadActive = false;
+uint8_t lastDeadKey = 0;
+
 uint8_t getShiftState() {
     return (shift ^ (caps_state == 1 || caps_state == 2)) | ctrl << 1 | alt << 2;
+}
+
+char translate(char from) {
+    char *orig = deadKeyTables[lastDeadKey][0];
+    char *dest = deadKeyTables[lastDeadKey][1];
+
+    int i = 0;
+    while (orig[i] != '\0' && orig[i] != from) i++;
+    if (orig[i] == '\0')
+        return from;
+    return dest[i];
 }
 
 void keyboard_handler() {
@@ -38,8 +50,24 @@ void keyboard_handler() {
         ctrl = pressed;
     } else {
         if (pressed) {
-            lastChar = charMap[key][getShiftState()];
-            printChar(lastChar);
+            uint8_t shiftState = getShiftState();
+            bool newKey = false;
+            if (deadActive) {
+                lastChar = translate(charMap[key][shiftState]);
+                deadActive = false;
+                newKey = true;
+            } else {
+                if (isDeadKey[key][shiftState]) {
+                    deadActive = true;
+                    lastDeadKey = charMap[key][shiftState];
+                } else {
+                    lastChar = charMap[key][shiftState];
+                    newKey = true;
+                }
+            }
+            if (newKey) {
+                printChar(lastChar);
+            }
         }
     }
 }
