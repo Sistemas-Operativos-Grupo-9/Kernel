@@ -22,4 +22,6 @@ clean:
 	cd Kernel; make clean
 	cd Userland; make clean
 
+rebuild: clean all
+
 .PHONY: toolchain bootloader image collections kernel userland all clean
