@@ -77,3 +77,9 @@ void printUnsigned(unsigned value, uint8_t digits, uint8_t base) {
     unsignedToString(value, digits, str, base);
     print(str);
 }
+
+void printHexByte(uint8_t value) {
+    printChar('0');
+    printChar('x');
+    printUnsigned(value, 2, 16);
+}

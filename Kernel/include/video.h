@@ -30,4 +30,5 @@ void print(char *str);
 void printChar(char ch);
 void printInt(int value, uint8_t digits, uint8_t base);
 void printUnsigned(unsigned value, uint8_t digits, uint8_t base);
+void printHexByte(uint8_t value);
 void clear();
