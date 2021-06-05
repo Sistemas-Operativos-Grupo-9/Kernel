@@ -36,14 +36,16 @@ uint8_t getShiftState() {
 }
 
 char translate(char from) {
-    char *orig = deadKeyTables[lastDeadKey][0];
-    char *dest = deadKeyTables[lastDeadKey][1];
-
-    int i = 0;
-    while (orig[i] != '\0' && orig[i] != from) i++;
-    if (orig[i] == '\0')
-        return from;
-    return dest[i];
+    for (int i = 0; i < deadKeyTables.tablesCount; i++) {
+        if (deadKeyTables.tables[i].deadCode == lastDeadKey) {
+            for (int c = 0; c < deadKeyTables.tables[i].translationCount; c++) {
+                if (deadKeyTables.tables[i].translations[c].from == from) {
+                    return deadKeyTables.tables[i].translations[c].to;
+                }
+            }
+        }
+    }
+    return from;
 }
 
 void sendChar(char c) {

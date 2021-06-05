@@ -60,6 +60,10 @@ clearcs:
 	mov ax, 0x0003			; Set to normal (80x25 text) video mode
 	int 0x10
 
+; Change to 13h mode
+	mov ax, 0x13
+	int 0x10
+
 ; Disable blinking
 	mov ax, 0x1003
 	mov bx, 0x0000

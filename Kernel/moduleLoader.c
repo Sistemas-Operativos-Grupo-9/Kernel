@@ -21,11 +21,11 @@ static void loadModule(uint8_t ** module, void * targetModuleAddress)
 	uint32_t moduleSize = readUint32(module);
 
 	print("  Will copy module at 0x");
-	printUnsigned((uint64_t)*module, 8, 16);
+	printHexPointer((uint64_t)*module);
 	print(" to 0x");
-	printUnsigned((uint64_t)targetModuleAddress, 8, 16);
+	printHexPointer((uint64_t)targetModuleAddress);
 	print(" (");
-	printUnsigned(moduleSize, 8, 10);
+	printUnsigned(moduleSize, 10);
 	print(" bytes)");
 
 	memcpy(targetModuleAddress, *module, moduleSize);

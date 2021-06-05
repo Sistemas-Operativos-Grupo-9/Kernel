@@ -39,13 +39,34 @@ void * getStackBase()
 
 void * initializeKernelBinary()
 {
+
 	char buffer[10];
+	clearBSS(&bss, &endOfKernel - &bss);
+	initVideo();
 
 	print("[x64BareBones]\n");
 
 	print("CPU Vendor:");
 	print(cpuVendor(buffer));
 	printChar('\n');
+
+	print("[Initializing kernel's binary]\n");
+
+
+	print("  text: 0x");
+	printHexPointer(&text);
+	printChar('\n');
+	print("  rodata: 0x");
+	printHexPointer(&rodata);
+	printChar('\n');
+	print("  data: 0x");
+	printHexPointer(&data);
+	printChar('\n');
+	print("  bss: 0x");
+	printHexPointer(&bss);
+	printChar('\n');
+
+	print("[Done]\n");
 
 	print("[Loading modules]\n");
 	void * moduleAddresses[] = {
@@ -56,44 +77,27 @@ void * initializeKernelBinary()
 	loadModules(&endOfKernelBinary, moduleAddresses);
 	print("[Done]\n\n");
 
-	print("[Initializing kernel's binary]\n");
-
-	clearBSS(&bss, &endOfKernel - &bss);
-
-	print("  text: 0x");
-	printUnsigned((uint64_t)&text, 8, 16);
-	printChar('\n');
-	print("  rodata: 0x");
-	printUnsigned((uint64_t)&rodata, 8, 16);
-	printChar('\n');
-	print("  data: 0x");
-	printUnsigned((uint64_t)&data, 8, 16);
-	printChar('\n');
-	print("  bss: 0x");
-	printUnsigned((uint64_t)&bss, 8, 16);
 	printChar('\n');
 
-	print("[Done]");
-	printChar('\n');
-	printChar('\n');
 	return getStackBase();
 }
 
 int main()
 {
 	load_idt();
+
 	print("[Kernel Main]");
 	printChar('\n');
 	print("  Sample code module at 0x");
-	printUnsigned((uint64_t)sampleCodeModuleAddress, 8, 16);
+	printHexPointer(sampleCodeModuleAddress);
 	printChar('\n');
 	print("  Calling the sample code module returned: ");
-	printUnsigned(((EntryPoint)sampleCodeModuleAddress)(), 8, 16);
+	printHexPointer(((EntryPoint)sampleCodeModuleAddress)());
 	printChar('\n');
 	printChar('\n');
 
 	print("  Sample data module at 0x");
-	printUnsigned((uint64_t)sampleDataModuleAddress, 8, 16);
+	printHexPointer(sampleDataModuleAddress);
 	printChar('\n');
 	print("  Sample data module contents: ");
 	print((char*)sampleDataModuleAddress);
@@ -101,12 +105,12 @@ int main()
 
 	print("[Finished]\n");
 
-	int line = getCursorY();
+	setCursorAt(0, 0);
+	clear();
+	printTestData();
+	
 	while (true) {
-		// setCursorAt(0, line);
-		// printChar(getLastChar());
-		// printChar('\n');
-		// printUnsigned(ticks_elapsed(), 10, 10);
+		
 	}
 	return 0;
 }

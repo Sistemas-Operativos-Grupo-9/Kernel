@@ -27,6 +27,15 @@ uint64_t pow(unsigned base, unsigned exponent) {
     return res;
 }
 
+uint8_t countDigits(unsigned num, uint8_t base) {
+    uint8_t digits = 1;
+    while (num >= 10) {
+        num /= base;
+        digits++;
+    }
+    return digits;
+}
+
 void unsignedToString(int num, uint8_t digits, char out[static digits + 1], uint8_t base) {
     long long unsigned div = pow(base, digits - 1);
 
