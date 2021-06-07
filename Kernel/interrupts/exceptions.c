@@ -2,8 +2,6 @@
 #define ZERO_EXCEPTION_ID 0
 #include "video.h"
 
-static void zero_division();
-
 void exceptionDispatcher(int exception) {
 	print("Exception: ");
 	printUnsigned(exception, 10);
