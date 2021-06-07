@@ -14,6 +14,8 @@ GLOBAL _irq04Handler
 GLOBAL _irq05Handler
 
 GLOBAL _exception0Handler
+GLOBAL _exception6Handler
+GLOBAL _exception13Handler
 
 EXTERN irqDispatcher
 EXTERN exceptionDispatcher
@@ -142,6 +144,10 @@ _irq05Handler:
 ;Zero Division Exception
 _exception0Handler:
 	exceptionHandler 0
+_exception6Handler:
+	exceptionHandler 6
+_exception13Handler:
+	exceptionHandler 13
 
 haltcpu:
 	cli

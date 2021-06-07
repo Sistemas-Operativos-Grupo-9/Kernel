@@ -92,7 +92,7 @@ int main()
 	printHexPointer(sampleCodeModuleAddress);
 	printChar('\n');
 	print("  Calling the sample code module returned: ");
-	printHexPointer((void *)(uint64_t)((EntryPoint)sampleCodeModuleAddress)());
+	printUnsigned(((EntryPoint)sampleCodeModuleAddress)(), 16);
 	printChar('\n');
 	printChar('\n');
 
@@ -106,7 +106,7 @@ int main()
 	print("[Finished]\n");
 
 	setCursorAt(0, 0);
-	clear();
+	// clear();
 	printTestData();
 	
 	while (true) {
