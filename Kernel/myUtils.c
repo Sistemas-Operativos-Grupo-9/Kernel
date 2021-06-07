@@ -29,7 +29,7 @@ uint64_t pow(unsigned base, unsigned exponent) {
 
 uint8_t countDigits(unsigned num, uint8_t base) {
     uint8_t digits = 1;
-    while (num >= 10) {
+    while (num >= base) {
         num /= base;
         digits++;
     }

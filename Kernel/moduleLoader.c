@@ -20,9 +20,9 @@ static void loadModule(uint8_t ** module, void * targetModuleAddress)
 {
 	uint32_t moduleSize = readUint32(module);
 
-	print("  Will copy module at 0x");
+	print("  Will copy module at ");
 	printHexPointer(*module);
-	print(" to 0x");
+	print(" to ");
 	printHexPointer(targetModuleAddress);
 	print(" (");
 	printUnsigned(moduleSize, 10);

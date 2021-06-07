@@ -88,7 +88,7 @@ int main()
 
 	print("[Kernel Main]");
 	printChar('\n');
-	print("  Sample code module at 0x");
+	print("  Sample code module at ");
 	printHexPointer(sampleCodeModuleAddress);
 	printChar('\n');
 	print("  Calling the sample code module returned: ");
@@ -96,7 +96,7 @@ int main()
 	printChar('\n');
 	printChar('\n');
 
-	print("  Sample data module at 0x");
+	print("  Sample data module at ");
 	printHexPointer(sampleDataModuleAddress);
 	printChar('\n');
 	print("  Sample data module contents: ");
@@ -105,12 +105,8 @@ int main()
 
 	print("[Finished]\n");
 
-	setCursorAt(0, 0);
-	// clear();
-	printTestData();
+	// setCursorAt(0, 0);
+	// printTestData();
 	
-	while (true) {
-		
-	}
 	return 0;
 }

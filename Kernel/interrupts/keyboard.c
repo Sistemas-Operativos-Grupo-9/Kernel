@@ -3,6 +3,7 @@
 #include "port.h"
 #include "Layouts/Latin American.h"
 #include "video.h"
+#include "keyboardBuffer.h"
 
 static char lastChar = 0;
 
@@ -49,7 +50,7 @@ char translate(char from) {
 }
 
 void sendChar(char c) {
-    printChar(c);
+    writeChar(c);
 }
 
 void handleSingleByteKey(uint8_t key, bool pressed) {
