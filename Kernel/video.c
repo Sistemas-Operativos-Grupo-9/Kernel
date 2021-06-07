@@ -2,8 +2,10 @@
 #include <myUtils.h>
 #include <lib.h>
 // #include "Fonts/font.h"
-#include "Fonts/RobotoMono-Regular.h"
+#include "Fonts/monogram.h"
 #include <stdbool.h>
+
+#define FONT_SCALE 2
 
 typedef struct {
     Color foreground;
@@ -51,14 +53,20 @@ void setPixel(Color color, int x, int y) {
     // pix[2] = color.red;
 }
 void setChar(char ch) {
-    uint32_t *l = font[(uint8_t)ch];
+    FONT_ROW_TYPE *l = font_letters[font_mapping[(uint8_t)ch]];
     for (int y = 0; y < FONT_HEIGHT; y++) {
         for (int x = 0; x < FONT_WIDTH; x++) {
             Color color;
-            int val = (l[y] >> ((FONT_WIDTH - x - 1) * FONT_BPP)) & 0b11;
-            colorLerp(currentColor.background, currentColor.foreground, &color, val * (255 / 0b11));
+            // int val = (l[y] >> ((FONT_WIDTH - x - 1) * FONT_BPP)) & 0b11;
+            // colorLerp(currentColor.background, currentColor.foreground, &color, val * (255 / 0b11));
+            int val = (l[y] >> ((FONT_WIDTH - x - 1) * FONT_BPP)) & 0b1;
+            colorLerp(currentColor.background, currentColor.foreground, &color, val * (255 / 0b1));
             
-            setPixel(color, cursorX * FONT_WIDTH + x, cursorY * FONT_HEIGHT + y);
+            for (int sy = 0; sy < FONT_SCALE; sy++) {
+                for (int sx = 0; sx < FONT_SCALE; sx++) {
+                    setPixel(color, cursorX * (FONT_WIDTH * FONT_SCALE) + (x * FONT_SCALE + sx), cursorY * (FONT_HEIGHT * FONT_SCALE) + (y * FONT_SCALE + sy));
+                }
+            }
         }
     }
 }
