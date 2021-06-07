@@ -9,3 +9,5 @@
 
 #Object files
 *.o
+
+/.vscode
