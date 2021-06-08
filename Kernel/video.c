@@ -1,32 +1,28 @@
 #include <video.h>
 #include <myUtils.h>
 #include <lib.h>
-// #include "Fonts/font.h"
-#include "Fonts/monogram.h"
 #include <stdbool.h>
+#include "keys.h"
+#include "basicVideo.h"
 
-#define FONT_SCALE 2
 
-typedef struct {
+struct {
     Color foreground;
     Color background;
-} __attribute__((packed)) TextColor;
+} __attribute__((packed)) currentColor = {.background = {0, 0, 0}, .foreground = {255, 255, 255}};
 
-mode_info_block * const infoBlock = (mode_info_block *)0x0000000000005C00;
 static int cursorX = 0;
 static int cursorY = 0;
-const uint32_t TEXT_WIDTH = 80;
-const uint32_t TEXT_HEIGHT = 25;
-uint32_t WIDTH;
-uint32_t HEIGHT;
-static TextColor currentColor = {.background = {0, 0, 0}, .foreground = {255, 255, 255}};
 
-void initVideo() {
-    WIDTH = infoBlock->x_res;
-    HEIGHT = infoBlock->y_res;
+#define TEXT_WIDTH 80
+#define TEXT_HEIGHT 25
 
-    setCursorAt(0, 0);
-}
+#define TEXT_BUFFER_WIDTH TEXT_WIDTH
+#define TEXT_BUFFER_HEIGHT TEXT_HEIGHT * 10
+
+char TEXT_BUFFER[TEXT_BUFFER_HEIGHT][TEXT_BUFFER_WIDTH];
+int scrollY = 0; // First line being shown from TEXT_BUFFER
+
 
 void setForeground(Color color) {
     currentColor.foreground = color;
@@ -35,55 +31,119 @@ void setBackground(Color color) {
     currentColor.background = color;
 }
 
-void colorLerp(Color a, Color b, Color *out, uint8_t lerp) {
-    *out = (Color) {
-        .red = a.red + (b.red - a.red) * lerp / 255,
-        .green = a.green + (b.green - a.green) * lerp / 255,
-        .blue = a.blue + (b.blue - a.blue) * lerp / 255
-    };
+Color invertColor(Color color) {
+    return (Color) {.red = 255 - color.red, .green = 255 - color.green, .blue = 255 - color.blue};
 }
-
-void setPixel(Color color, int x, int y) {
-    ((Color *)infoBlock->physbase)[x + y * WIDTH] = color;
-    // video[x + y * WIDTH] = color;
-    // unsigned char * pix = (unsigned char *) ((uint64_t) infoBlock->physbase + x*infoBlock->bpp / 8 + (int) y*infoBlock->pitch);
-    // pix[0] = color.blue;
-    // pix[1] = color.green;
-    // pix[2] = color.red;
+void redrawCharInverted(uint32_t x, uint32_t y) {
+    drawCharAt(TEXT_BUFFER[y][x], x, y - scrollY, currentColor.foreground, currentColor.background);
+}
+void redrawChar(uint32_t x, uint32_t y) {
+    drawCharAt(TEXT_BUFFER[y][x], x, y - scrollY, currentColor.background, currentColor.foreground);
 }
 void setChar(char ch) {
-    FONT_ROW_TYPE *l = font_letters[font_mapping[(uint8_t)ch]];
-    for (int y = 0; y < FONT_HEIGHT; y++) {
-        for (int x = 0; x < FONT_WIDTH; x++) {
-            Color color;
-            // int val = (l[y] >> ((FONT_WIDTH - x - 1) * FONT_BPP)) & 0b11;
-            // colorLerp(currentColor.background, currentColor.foreground, &color, val * (255 / 0b11));
-            int val = (l[y] >> ((FONT_WIDTH - x - 1) * FONT_BPP)) & 0b1;
-            colorLerp(currentColor.background, currentColor.foreground, &color, val * (255 / 0b1));
-            
-            for (int sy = 0; sy < FONT_SCALE; sy++) {
-                for (int sx = 0; sx < FONT_SCALE; sx++) {
-                    setPixel(color, cursorX * (FONT_WIDTH * FONT_SCALE) + (x * FONT_SCALE + sx), cursorY * (FONT_HEIGHT * FONT_SCALE) + (y * FONT_SCALE + sy));
-                }
-            }
-        }
+    TEXT_BUFFER[cursorY][cursorX] = ch;
+    redrawChar(cursorX, cursorY);
+}
+
+
+static char output_buffer[256];
+static int output_length = 0;
+void consume(int count) {
+    output_length -= count;
+    for (int i = 0; i < output_length; i++) {
+        output_buffer[i] = output_buffer[i + count];
     }
+}
+
+bool isPrintable(char ch) {
+    return ((ch >= 0x20 && ch <= 0x7E) ||
+        (ch >= 0x82 && ch <= 0x8C) ||
+        (ch >= 0x91 && ch <= 0x9C) ||
+        (ch == 0x9F) || (ch >= 0xA1));
 }
 
 void printChar(char ch) {
-    if (ch == '\n') {
-        setCursorAt(0, getCursorY() + 1);
-    } else {
-        setChar(ch);
-        cursorX++;
-        if (cursorX >= TEXT_WIDTH) {
-            cursorX = 0;
-            cursorY++;
+    output_buffer[output_length++] = ch;
+
+    int newCursorX = cursorX, newCursorY = cursorY;
+
+    bool finish = false;
+    while (!finish && output_length > 0) {
+        finish = true;
+        if (output_buffer[0] == ESC) {
+            if (output_length > 1 && output_buffer[1] == BRACKET) {
+                if (output_length > 2) {
+                    enum Arrow arrow = output_buffer[2];
+                    switch (arrow)
+                    {
+                    case ARROW_LEFT:
+                        newCursorX--;
+                        break;
+                    case ARROW_RIGHT:
+                        newCursorX++;
+                        break;
+                    default:
+                        break;
+                    }
+                    consume(3);
+                    finish = false;
+                }
+            }
+        } else if (output_buffer[0] == '\n') {
+            newCursorX = 0;
+            newCursorY++;
+            consume(1);
+            finish = false;
+        } else if (output_buffer[0] == '\b') {
+            newCursorX--;
+            setCursorAt(newCursorX, newCursorY);
+            setChar(' ');
+            redrawCharInverted(cursorX, cursorY);
+            consume(1);
+            finish = false;
+        } else if (isPrintable(output_buffer[0])) {
+            setChar(output_buffer[0]);
+            consume(1);
+            newCursorX++;
+            finish = false;
+        } else {
+            consume(1);
+            finish = false;
         }
     }
+    setCursorAt(newCursorX, newCursorY);
 }
 
-void setCursorAt(uint32_t x, uint32_t y) {
+void reDraw() {
+
+    for (int y = 0; y < TEXT_HEIGHT; y++) {
+        for (int x = 0; x < TEXT_WIDTH; x++) {
+            drawCharAt(TEXT_BUFFER[y + scrollY][x], x, y, currentColor.background, currentColor.foreground);
+        }
+    }
+    redrawCharInverted(cursorX, cursorY);
+}
+
+void setCursorAt(int x, int y) {
+    while (x >= (int)TEXT_WIDTH) {
+        x = 0;
+        y++;
+    }
+    while (x < 0) {
+        x = TEXT_WIDTH - 1;
+        y--;
+    }
+    if (y >= scrollY + TEXT_HEIGHT) {
+        scrollY = y - TEXT_HEIGHT + 1;
+        reDraw();
+    } else if (y < scrollY) {
+        scrollY = y;
+        reDraw();
+    }
+    if (cursorX != x || cursorY != y) {
+        redrawChar(cursorX, cursorY);
+        redrawCharInverted(x, y);
+    }
     cursorX = x;
     cursorY = y;
 }
@@ -101,15 +161,18 @@ void print(char *str) {
 }
 
 void clear() {
-    for (int y = 0; y < HEIGHT; y++) {
-        for (int x = 0; x < WIDTH; x++) {
-            setPixel(currentColor.background, x, y);
+    scrollY = 0;
+    for (int y = 0; y < TEXT_BUFFER_HEIGHT; y++) {
+        for (int x = 0; x < TEXT_BUFFER_WIDTH; x++) {
+            TEXT_BUFFER[y][x] = ' ';
         }
     }
-
-    // memset((char *) ((uint64_t) infoBlock->physbase), 0, HEIGHT * WIDTH * infoBlock->bpp/8);
+    cursorX = 0;
+    cursorY = 0;
+    reDraw();
 }
 
+// Helper print functions for Kernel space
 void printIntN(int value, uint8_t digits, uint8_t base) {
     char str[digits + 1];
     numToString(value, digits, str, base);
@@ -142,17 +205,4 @@ void printHexByte(uint8_t value) {
 void printHexPointer(void *ptr) {
     printHexPrefix();
     printUnsignedN((uint64_t) ptr, 16, 16);
-}
-
-void printTestData() {
-    print("Resolution: ");
-    printUnsigned(WIDTH, 10);
-    printChar('x');
-    printUnsigned(HEIGHT, 10);
-    printChar('\n');
-
-    print("Video MEM: ");
-    printHexPointer((void *)(uint64_t)infoBlock->physbase);
-    printChar('\n');
-    
 }
