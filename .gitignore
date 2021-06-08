@@ -11,3 +11,6 @@
 *.o
 
 /.vscode
+
+*.elf
+/.gdb_history
