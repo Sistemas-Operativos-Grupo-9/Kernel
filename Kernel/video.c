@@ -17,13 +17,11 @@ static int cursorX = 0;
 static int cursorY = 0;
 const uint32_t TEXT_WIDTH = 80;
 const uint32_t TEXT_HEIGHT = 25;
-Color * video;
 uint32_t WIDTH;
 uint32_t HEIGHT;
 static TextColor currentColor = {.background = {0, 0, 0}, .foreground = {255, 255, 255}};
 
 void initVideo() {
-    video = (Color *) (uint64_t)infoBlock->physbase;
     WIDTH = infoBlock->x_res;
     HEIGHT = infoBlock->y_res;
 
@@ -46,7 +44,8 @@ void colorLerp(Color a, Color b, Color *out, uint8_t lerp) {
 }
 
 void setPixel(Color color, int x, int y) {
-    video[x + y * WIDTH] = color;
+    ((Color *)infoBlock->physbase)[x + y * WIDTH] = color;
+    // video[x + y * WIDTH] = color;
     // unsigned char * pix = (unsigned char *) ((uint64_t) infoBlock->physbase + x*infoBlock->bpp / 8 + (int) y*infoBlock->pitch);
     // pix[0] = color.blue;
     // pix[1] = color.green;
@@ -150,10 +149,6 @@ void printTestData() {
     printUnsigned(WIDTH, 10);
     printChar('x');
     printUnsigned(HEIGHT, 10);
-    printChar('\n');
-
-    print("Video MEM: ");
-    printHexPointer(video);
     printChar('\n');
 
     print("Video MEM: ");

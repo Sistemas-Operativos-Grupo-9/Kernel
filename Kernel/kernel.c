@@ -41,32 +41,18 @@ void * initializeKernelBinary()
 {
 
 	char buffer[10];
-	clearBSS(&bss, &endOfKernel - &bss);
-	initVideo();
+	char infoBuffer[256];
+	int infoIndex = 0;
+	#define printChar(ch) infoBuffer[infoIndex++] = ch
+	#define print(str) {char *ptr = str;while(*ptr) printChar(*(ptr++));}
+	#define printHexPointer(ptr) print("0x"); unsignedToString(ptr, 16, infoBuffer + infoIndex, 16); infoIndex += 16
+
 
 	print("[x64BareBones]\n");
 
 	print("CPU Vendor:");
 	print(cpuVendor(buffer));
 	printChar('\n');
-
-	print("[Initializing kernel's binary]\n");
-
-
-	print("  text: 0x");
-	printHexPointer(&text);
-	printChar('\n');
-	print("  rodata: 0x");
-	printHexPointer(&rodata);
-	printChar('\n');
-	print("  data: 0x");
-	printHexPointer(&data);
-	printChar('\n');
-	print("  bss: 0x");
-	printHexPointer(&bss);
-	printChar('\n');
-
-	print("[Done]\n");
 
 	print("[Loading modules]\n");
 	void * moduleAddresses[] = {
@@ -77,7 +63,32 @@ void * initializeKernelBinary()
 	loadModules(&endOfKernelBinary, moduleAddresses);
 	print("[Done]\n\n");
 
+	print("[Initializing kernel's binary]\n");
+	clearBSS(&bss, &endOfKernel - &bss);
+
+	print("  text: ");
+	printHexPointer(&text);
 	printChar('\n');
+	print("  rodata: ");
+	printHexPointer(&rodata);
+	printChar('\n');
+	print("  data: ");
+	printHexPointer(&data);
+	printChar('\n');
+	print("  bss: ");
+	printHexPointer(&bss);
+	printChar('\n');
+
+	print("[Done]\n");
+
+	printChar('\n');
+	printChar('\0');
+	#undef print
+	#undef printChar
+	#undef printHexPointer
+	initVideo();
+	clear();
+	print(infoBuffer);
 
 	return getStackBase();
 }
