@@ -16,9 +16,16 @@ GLOBAL _irq05Handler
 GLOBAL _exception0Handler
 GLOBAL _exception6Handler
 GLOBAL _exception13Handler
+GLOBAL _syscallHandler
 
 EXTERN irqDispatcher
 EXTERN exceptionDispatcher
+EXTERN syscallDispatcher
+
+; EXTERN printUnsignedN
+; EXTERN printChar
+; EXTERN print
+; GLOBAL _printRegisters
 
 SECTION .text
 
@@ -58,26 +65,60 @@ SECTION .text
 	pop rax
 %endmacro
 
+
+; %macro newLine 0
+; 	mov rdi, 0Ah
+; 	call printChar
+; %endmacro
+
+%macro EOI 0 
+	; signal pic EOI (End of Interrupt)
+	mov al, 20h
+	out 20h, al
+%endmacro
+
 %macro irqHandlerMaster 1
 	pushState
 
 	mov rdi, %1 ; pasaje de parametro
 	call irqDispatcher
 
-	; signal pic EOI (End of Interrupt)
-	mov al, 20h
-	out 20h, al
+	EOI
 
 	popState
 	iretq
 %endmacro
 
+; %macro print64bit 1
+; 	mov rdi, %1
+; 	mov rsi, 16
+; 	mov rdx, 16
+; 	call printUnsignedN
+; %endmacro
 
+; %macro printStackValue 1
+; 	print64bit [esp + %1 * 8]
+; 	newLine
+; %endmacro
+
+; %macro printStack 0
+; 	printStackValue 0
+; 	printStackValue 1
+; 	printStackValue 2
+; 	printStackValue 3
+; 	printStackValue 4
+; 	printStackValue 5
+; 	printStackValue 6
+; 	printStackValue 7
+; %endmacro
 
 %macro exceptionHandler 1
 	pushState
 
+	; newLine
+	; printStack
 	mov rdi, %1 ; pasaje de parametro
+	; mov rsi, rsp
 	call exceptionDispatcher
 
 	popState
@@ -140,6 +181,71 @@ _irq04Handler:
 _irq05Handler:
 	irqHandlerMaster 5
 
+_syscallHandler:
+	sub rsp, 8
+	call syscallDispatcher
+	add rsp, 8
+	iretq
+
+
+; GLOBAL _exception0Handler
+; GLOBAL _exception6Handler
+; GLOBAL _exception13Handler
+; ;Zero Division Exception
+; _exception0Handler:
+; 	exceptionHandler 0
+; ;Invalid Opcode
+; _exception6Handler:
+; 	exceptionHandler 6
+; ;General Protection Exception
+; _exception13Handler:
+; 	exceptionHandler 13
+
+; GLOBAL _generalExceptionHandler
+; _generalExceptionHandler:
+; 	exceptionHandler -1
+
+; %macro exceptionHandlerMaster 1
+; GLOBAL _exception%+%1%+Handler
+; _exception%+%1%+Handler:
+; 	exceptionHandler %1
+; %endmacro
+
+; exceptionHandlerMaster 0
+; exceptionHandlerMaster 1
+; exceptionHandlerMaster 2
+; exceptionHandlerMaster 3
+; exceptionHandlerMaster 4
+; exceptionHandlerMaster 5
+; exceptionHandlerMaster 6
+; exceptionHandlerMaster 7
+; exceptionHandlerMaster 8
+; exceptionHandlerMaster 9
+; exceptionHandlerMaster 10
+; exceptionHandlerMaster 11
+; exceptionHandlerMaster 12
+; exceptionHandlerMaster 13
+; exceptionHandlerMaster 14
+; exceptionHandlerMaster 15
+; exceptionHandlerMaster 16
+; exceptionHandlerMaster 17
+; exceptionHandlerMaster 18
+; exceptionHandlerMaster 19
+; exceptionHandlerMaster 20
+
+; %macro printRegister 1
+; 	pushState
+; 	push %1
+; 	mov rdi, %1%+String
+; 	call print
+; 	mov rdi, equalString
+; 	call print
+
+; 	pop rdi
+; 	print64bit rdi
+; 	newLine
+; 	popState
+; %endmacro
 
 ;Zero Division Exception
 _exception0Handler:
@@ -149,12 +255,53 @@ _exception6Handler:
 _exception13Handler:
 	exceptionHandler 13
 
+; _printRegisters:
+; 	printRegister rdi
+; 	printRegister rsi
+; 	printRegister rax
+; 	printRegister rbx
+; 	printRegister rcx
+; 	printRegister rdx
+; 	printRegister rsp
+; 	printRegister rbp
+; 	; printRegister rip
+; 	printRegister r8
+; 	printRegister r9
+; 	printRegister r10
+; 	printRegister r11
+; 	printRegister r12
+; 	printRegister r13
+; 	printRegister r14
+; 	printRegister r15
+; 	newLine
+; 	ret
+
 haltcpu:
 	cli
 	hlt
 	ret
 
 
+; SECTION .rodata
+; 	equalString db " = ", 0
+
+; 	rdiString db "RDI", 0
+; 	rsiString db "RSI", 0
+; 	raxString db "RAX", 0
+; 	rbxString db "RBX", 0
+; 	rcxString db "RCX", 0
+; 	rdxString db "RDX", 0
+; 	rspString db "RSP", 0
+; 	rbpString db "RBP", 0
+; 	ripString db "RIP", 0
+; 	r8String  db "R8 ", 0
+; 	r9String  db "R9 ", 0
+; 	r10String  db "R10", 0
+; 	r11String  db "R11", 0
+; 	r12String  db "R12", 0
+; 	r13String  db "R13", 0
+; 	r14String  db "R14", 0
+; 	r15String  db "R15", 0
 
 SECTION .bss
 	aux resq 1

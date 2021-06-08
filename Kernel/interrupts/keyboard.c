@@ -4,6 +4,7 @@
 #include "Layouts/Latin American.h"
 #include "video.h"
 #include "keyboardBuffer.h"
+#include "keys.h"
 
 static char lastChar = 0;
 
@@ -64,6 +65,8 @@ void handleSingleByteKey(uint8_t key, bool pressed) {
         ctrl = pressed;
     } else if (key == K_RETURN && pressed) {
         sendChar('\n');
+    } else if (key == K_BACKSPACE && pressed) {
+        sendChar('\b');
     } else {
         if (pressed) {
             uint8_t shiftState = getShiftState();
@@ -106,8 +109,8 @@ void keyboard_handler() {
         keyBufferSize = 0;
 
         if ((code == K_UP || code == K_DOWN || code == K_RIGHT || code == K_LEFT) && pressed) {
-            sendChar(0x1b);
-            sendChar(0x5b);
+            sendChar(ESC);
+            sendChar(BRACKET);
             char arrowChar;
             switch (code) {
                 case K_UP:

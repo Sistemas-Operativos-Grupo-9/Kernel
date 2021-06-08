@@ -3,10 +3,12 @@
 #include <lib.h>
 #include <moduleLoader.h>
 #include <video.h>
+#include "basicVideo.h"
 #include <stdbool.h>
 #include "interrupts/time.h"
 #include "interrupts/keyboard.h"
 #include "interrupts/idtLoader.h"
+#include "myUtils.h"
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -45,8 +47,7 @@ void * initializeKernelBinary()
 	int infoIndex = 0;
 	#define printChar(ch) infoBuffer[infoIndex++] = ch
 	#define print(str) {char *ptr = str;while(*ptr) printChar(*(ptr++));}
-	#define printHexPointer(ptr) print("0x"); unsignedToString(ptr, 16, infoBuffer + infoIndex, 16); infoIndex += 16
-
+	#define printHexPointer(ptr) print("0x"); unsignedToString((uint64_t)ptr, 16, infoBuffer + infoIndex, 16); infoIndex += 16
 
 	print("[x64BareBones]\n");
 
@@ -83,6 +84,7 @@ void * initializeKernelBinary()
 
 	printChar('\n');
 	printChar('\0');
+
 	#undef print
 	#undef printChar
 	#undef printHexPointer
@@ -97,24 +99,30 @@ int main()
 {
 	load_idt();
 
-	print("[Kernel Main]");
-	printChar('\n');
-	print("  Sample code module at ");
-	printHexPointer(sampleCodeModuleAddress);
-	printChar('\n');
-	print("  Calling the sample code module returned: ");
-	printUnsigned(((EntryPoint)sampleCodeModuleAddress)(), 16);
-	printChar('\n');
-	printChar('\n');
+	// while(true);
+	setCursorAt(0, 0);
+	clear();
 
-	print("  Sample data module at ");
-	printHexPointer(sampleDataModuleAddress);
-	printChar('\n');
-	print("  Sample data module contents: ");
-	print((char*)sampleDataModuleAddress);
-	printChar('\n');
+	// print("[Kernel Main]");
+	// printChar('\n');
+	// print("  Sample code module at ");
+	// printHexPointer(sampleCodeModuleAddress);
+	// printChar('\n');
+	// print("  Calling the sample code module returned: ");
+	uint64_t returnCode = ((EntryPoint)sampleCodeModuleAddress)();
+	print("\n\nReturn code: ");
+	printUnsigned(returnCode, 16);
+	// printChar('\n');
+	// printChar('\n');
 
-	print("[Finished]\n");
+	// print("  Sample data module at ");
+	// printHexPointer(sampleDataModuleAddress);
+	// printChar('\n');
+	// print("  Sample data module contents: ");
+	// print((char*)sampleDataModuleAddress);
+	// printChar('\n');
+
+	print("\n[Finished]\n");
 
 	// setCursorAt(0, 0);
 	// printTestData();
