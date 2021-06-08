@@ -2,7 +2,7 @@
 
 Pure64 must be loaded to the 16-bit memory address `0x0000:0x8000`
 
-Pure64 expects that the up to 26KiB of data after it is the software that will be loaded to address `0x0000000000100000`.
+Pure64 expects that the up to 256KiB of data after it is the software that will be loaded to address `0x0000000000100000`.
 
 
 ## System Requirements
