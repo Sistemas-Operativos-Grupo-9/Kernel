@@ -1,18 +1,22 @@
 include Makefile.inc
 
-SAMPLE_DATA=0001-sampleDataModule.bin
+# DATAFILES=0001-sampleDataModule.bin
+PROGRAMS=SampleCodeModule
+OUTDIR  = BUILD
+OUTPUTS = $(PROGRAMS:%=$(OUTDIR)/%.bin)
 
-all: sampleCodeModule sampleDataModule
+all: libc $(OUTPUTS)
 
-sampleCodeModule:
-	cd SampleCodeModule; make
-
-sampleDataModule:
-	printf "This is sample data." > $(SAMPLE_DATA) && dd if=/dev/zero bs=1 count=1 >> $(SAMPLE_DATA)
+# sampleDataModule:
+# 	printf "This is sample data." > $(SAMPLE_DATA) && dd if=/dev/zero bs=1 count=1 >> $(SAMPLE_DATA)
+$(OUTDIR)/%.bin:
+	$(MAKE) -C $* -f ../ProgramMakefile.mk all
 
 clean:
-	cd SampleCodeModule; make clean
-	rm -rf *.bin
+	rm -rf $(OUTDIR)
+	cd libc; make clean
 
+libc:
+	cd libc; make libc.a
 
-.PHONY: sampleCodeModule all clean
+.PHONY: libc all clean
