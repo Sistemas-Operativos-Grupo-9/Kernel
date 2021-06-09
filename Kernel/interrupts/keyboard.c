@@ -3,10 +3,9 @@
 #include "port.h"
 #include "Layouts/Latin American.h"
 #include "video.h"
-#include "keyboardBuffer.h"
 #include "keys.h"
-
-static char lastChar = 0;
+#include "process.h"
+#include "views.h"
 
 #define K_RETURN 0x1C
 #define K_LSHIFT 0x2A
@@ -21,6 +20,10 @@ static char lastChar = 0;
 #define K_RIGHT 0x4D
 #define K_LEFT 0x4B
 #define K_ALT 0x38
+#define K_F1 0x3B
+#define K_F2 0x3C
+#define K_F3 0x3D
+#define K_F4 0x3E
 
 uint8_t caps_state = 0;
 bool shift = false;
@@ -51,8 +54,13 @@ char translate(char from) {
 }
 
 void sendChar(char c) {
-    writeChar(c);
+    writeChar(getFocusedProcess().tty, c);
 }
+void sendEOF() {
+    getFocusedProcess().fdTable->eof = true;
+}
+
+extern bool eof;
 
 void handleSingleByteKey(uint8_t key, bool pressed) {
     if (key == K_LSHIFT || key == K_RSHIFT) {
@@ -67,12 +75,23 @@ void handleSingleByteKey(uint8_t key, bool pressed) {
         sendChar('\n');
     } else if (key == K_BACKSPACE && pressed) {
         sendChar('\b');
+    } else if ((key == K_F1 || key == K_F2 || key == K_F3 || key == K_F4) && pressed) {
+        if (key == K_F1) {
+            setFocus(0);
+        } else if (key == K_F2) {
+            setFocus(1);
+        }
+        // sendChar(ESC);
+        // sendChar('O');
+        // sendChar(code);
+        deadActive = false;
     } else {
         if (pressed) {
             uint8_t shiftState = getShiftState();
+            char ch;
             bool newKey = false;
             if (deadActive) {
-                lastChar = translate(charMap[key][shiftState]);
+                ch = translate(charMap[key][shiftState]);
                 deadActive = false;
                 newKey = true;
             } else {
@@ -80,12 +99,16 @@ void handleSingleByteKey(uint8_t key, bool pressed) {
                     deadActive = true;
                     lastDeadKey = charMap[key][shiftState];
                 } else {
-                    lastChar = charMap[key][shiftState];
+                    ch = charMap[key][shiftState];
                     newKey = true;
                 }
             }
             if (newKey) {
-                sendChar(lastChar);
+                if ((ch == 'd' || ch == 'D') && ctrl) {
+                    sendEOF();
+                } else {
+                    sendChar(ch);
+                }
             }
         }
     }
@@ -100,13 +123,14 @@ void keyboard_handler() {
     // Process buffer
     bool pressed = key >> 7 == 0;
 
-    // If escape for arrows is detected
+    // If escape is detected
     if (keyBuffer[0] == 0xE0) {
         if (keyBufferSize < 2)
             return; // We need more data to determine the key
         uint8_t code = keyBuffer[1];
         code &= ~0x80;
         keyBufferSize = 0;
+
 
         if ((code == K_UP || code == K_DOWN || code == K_RIGHT || code == K_LEFT) && pressed) {
             sendChar(ESC);
@@ -143,8 +167,4 @@ void keyboard_handler() {
 
     handleSingleByteKey(keyBuffer[0] & ~0x80, pressed);
     keyBufferSize = 0;
-}
-
-uint8_t getLastChar() {
-    return lastChar;
 }

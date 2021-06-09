@@ -8,6 +8,7 @@
 #include "interrupts/keyboard.h"
 #include "interrupts/idtLoader.h"
 #include "myUtils.h"
+#include "process.h"
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -88,17 +89,18 @@ void * initializeKernelBinary()
 	#undef printChar
 	#undef printHexPointer
 	initVideo();
-	clear();
-	print(infoBuffer);
+	initColors();
+	clear(0);
+	print(0, infoBuffer);
 
 	return getStackBase();
 }
 
 void run(void *address) {
 	uint64_t returnCode = ((EntryPoint)address)();
-	print("\n\nReturn code: ");
-	printUnsigned(returnCode, 16);
-	printChar('\n');
+	// print(0, "\n\nReturn code: ");
+	// printUnsigned(returnCode, 16);
+	// printChar(0, '\n');
 }
 
 int main()
@@ -106,10 +108,18 @@ int main()
 	load_idt();
 
 	// while(true);
-	setCursorAt(0, 0);
-	clear();
+	setCursorAt(0, 0, 0);
+	clear(0);
+	// print(0, "Hola");
 
+
+	createProcess(0);
 	run(sampleCodeModuleAddress);
+	// run(shell);
+	createProcess(1);
+	setFocus(1);
+	nextProcess();
+	clear(1);
 	run(shell);
 
 	// print("[Kernel Main]");
@@ -128,8 +138,8 @@ int main()
 	// print((char*)sampleDataModuleAddress);
 	// printChar('\n');
 
-	print("\n[Finished]\n");
-
+	print(0, "\n[Finished]\n");
+	while (1);
 	// setCursorAt(0, 0);
 	// printTestData();
 	

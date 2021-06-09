@@ -6,9 +6,9 @@
 #define GENERAL_PROTECTION_EXCEPTION_ID 13
 
 void exceptionDispatcher(int exception) {
-	print("Exception: ");
+	print(0, "Exception: ");
 	printUnsigned(exception, 10);
-	printChar('\n');
+	printChar(0, '\n');
 	
 	// printHexPointer((void *)returnAddress);
 	// printChar('\n');

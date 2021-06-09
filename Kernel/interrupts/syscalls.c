@@ -1,28 +1,23 @@
 
 #include <stdint.h>
 #include "video.h"
-#include "keyboardBuffer.h"
 #include "syscalls.h"
-
+#include <stdbool.h>
+#include "process.h"
 
 int64_t read(uint64_t fd, char *buf, uint64_t count) {
-    int read;
-    for (read = 0; read < count; read++) {
-        // while (getAvailable() == 0);
-        if (getAvailable() == 0)
-            break;
-        buf[read] = readChar();
-    }
-    return read;
+    struct ProcessDescriptor process = getCurrentProcess();
+    if (fd == 0)
+        return process.fdTable[0].read(process.tty, buf, count);
+    return 0;
 }
 
 
 int64_t write(uint64_t fd, char *buf, uint64_t count) {
-    int i;
-    for (i = 0; i < count; i++) {
-        printChar(buf[i]);
-    }
-    return i;
+    struct ProcessDescriptor process = getCurrentProcess();
+    if (fd == 1 || fd == 2)
+        return process.fdTable[fd].write(process.tty, buf, count);
+    return 0;
 }
 
 

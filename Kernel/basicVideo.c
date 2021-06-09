@@ -23,13 +23,6 @@ uint32_t getHeight() {
     return HEIGHT;
 }
 
-void colorLerp(Color a, Color b, Color *out, uint8_t lerp) {
-    *out = (Color) {
-        .red = a.red + (b.red - a.red) * lerp / 255,
-        .green = a.green + (b.green - a.green) * lerp / 255,
-        .blue = a.blue + (b.blue - a.blue) * lerp / 255
-    };
-}
 void setPixel(Color color, int x, int y) {
     ((Color *)(uint64_t)infoBlock->physbase)[x + y * WIDTH] = color;
 }
@@ -37,9 +30,8 @@ void drawCharAt(char ch, uint8_t x, uint8_t y, Color background, Color foregroun
     FONT_ROW_TYPE *l = font_letters[font_mapping[(uint8_t)ch]];
     for (int fontY = 0; fontY < FONT_HEIGHT; fontY++) {
         for (int fontX = 0; fontX < FONT_WIDTH; fontX++) {
-            Color color;
             int val = (l[fontY] >> ((FONT_WIDTH - fontX - 1) * FONT_BPP)) & 0b11;
-            colorLerp(background, foreground, &color, val * (255 / 0b11));
+            Color color = colorLerp(background, foreground, val * (255 / 0b11));
             // int val = (l[fontY] >> ((FONT_WIDTH - fontX - 1) * FONT_BPP)) & 0b1;
             // colorLerp(background, foreground, &color, val * (255 / 0b1));
             

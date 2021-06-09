@@ -1,6 +1,7 @@
 #include "syscall.h"
 #include "stdio.h"
 #include "stdbool.h"
+#include "syscalls.h"
 
 void putCSI() {
 	putchar(ESC);
@@ -18,7 +19,7 @@ void moveCursorLeft() {
 }
 
 void putchar(char ch) {
-	write(0, &ch, 1);
+	write(1, &ch, 1);
 }
 
 void puts(char *str) {
@@ -28,7 +29,7 @@ void puts(char *str) {
 	}
 }
 
-char getch() {
+int getch() {
 	char ch;
 	int r;
 	do {
@@ -38,14 +39,22 @@ char getch() {
 }
 
 KeyStroke readKeyStroke() {
-	char first = getch();
+	#define getchReturnIfEOF()  ({																			\
+		int ch = getch(); 																					\
+		if (ch == EOF) return (KeyStroke) {.isEOF = true, .isPrintable = false, .arrow = NO_ARROW}; 		\
+		ch;})
+
+	char first = getchReturnIfEOF();
 	// If byte is scape
 	if (first == ESC) {
-		char second = getch();
+		char second = getchReturnIfEOF();
 		if (second == BRACKET) {
-			char arrow = getch();
+			char arrow = getchReturnIfEOF();
 			return (KeyStroke) {.isPrintable = false, .data = 0, .arrow = arrow};
 		}
+		// return (KeyStroke) {.isPrintable = false, .data = 0}
 	}
 	return (KeyStroke) {.isPrintable = true, .data = first, .arrow = NO_ARROW};
+
+	#undef getchReturnIfEOF
 }

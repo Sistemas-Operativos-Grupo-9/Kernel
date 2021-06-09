@@ -7,6 +7,7 @@ typedef struct {
 	bool isPrintable;
 	char data;
 	enum Arrow arrow;
+	bool isEOF;
 } KeyStroke;
 
 void putCSI();
@@ -14,5 +15,5 @@ void moveCursorRight();
 void moveCursorLeft();
 void putchar(char ch);
 void puts(char *str);
-char getch();
+int getch();
 KeyStroke readKeyStroke();

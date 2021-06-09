@@ -32,5 +32,14 @@ typedef struct __attribute__((packed)) {
 uint32_t getWidth();
 uint32_t getHeight();
 
+
+static Color colorLerp(Color a, Color b, uint8_t lerp) {
+    return (Color) {
+        .red = a.red + (b.red - a.red) * lerp / 255,
+        .green = a.green + (b.green - a.green) * lerp / 255,
+        .blue = a.blue + (b.blue - a.blue) * lerp / 255
+    };
+}
+
 void initVideo();
 void drawCharAt(char ch, uint8_t x, uint8_t y, Color background, Color foreground);
