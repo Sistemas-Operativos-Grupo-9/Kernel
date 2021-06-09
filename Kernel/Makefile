@@ -1,6 +1,6 @@
 include Makefile.inc
 
-KERNEL=kernel
+KERNEL=kernel.bin
 SOURCES=$(shell find . -name "*.c")
 SOURCES_ASM=$(shell find . -name "*.asm" ! -name "loader.asm")
 BUILDDIR=BUILD
@@ -11,11 +11,11 @@ LOADERSRC=loader.asm
 LOADEROBJECT=$(LOADERSRC:%.asm=$(BUILDDIR)/%.asm.o)
 STATICLIBS=
 
-all: $(KERNEL).bin
+all: $(KERNEL)
 
-$(KERNEL).bin: $(LOADEROBJECT) $(OBJECTS) $(STATICLIBS) $(OBJECTS_ASM)
-	$(LD) $(LDFLAGS) -T kernel.ld -o $(KERNEL).bin $(LOADEROBJECT) $(OBJECTS) $(OBJECTS_ASM) $(STATICLIBS)
-	$(LD) $(LDFLAGS) -T kernel.ld --oformat=elf64-x86-64 -o $(KERNEL).elf $(LOADEROBJECT) $(OBJECTS) $(OBJECTS_ASM) $(STATICLIBS)
+$(KERNEL): $(LOADEROBJECT) $(OBJECTS) $(STATICLIBS) $(OBJECTS_ASM)
+	$(LD) $(LDFLAGS) -T kernel.ld --oformat=elf64-x86-64 -o $@.elf $(LOADEROBJECT) $(OBJECTS) $(OBJECTS_ASM) $(STATICLIBS)
+	objcopy -O binary $@.elf $@
 
 $(BUILDDIR)/%.o: %.c
 	mkdir -p $(dir $@)

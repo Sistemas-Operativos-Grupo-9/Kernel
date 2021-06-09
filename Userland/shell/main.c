@@ -1,6 +1,8 @@
+#include <stdio.h>
 
 
-
-void main() {
-
+int main() {
+    keyStroke key = readKeyStroke();
+    puts("HOLA DESDE SHELL!\n");
+    return 0;
 }

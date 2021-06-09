@@ -1,9 +1,11 @@
 include Makefile.inc
 
 # DATAFILES=0001-sampleDataModule.bin
-PROGRAMS=SampleCodeModule
+PROGRAMS=$(shell find . -maxdepth 1 -mindepth 1 -type d ! -name BUILD ! -name libc)
 OUTDIR  = BUILD
 OUTPUTS = $(PROGRAMS:%=$(OUTDIR)/%.bin)
+
+$(info $(OUTPUTS))
 
 all: libc $(OUTPUTS)
 

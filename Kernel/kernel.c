@@ -1,5 +1,4 @@
 #include <stdint.h>
-#include <string.h>
 #include <lib.h>
 #include <moduleLoader.h>
 #include <video.h>
@@ -20,7 +19,7 @@ extern uint8_t endOfKernel;
 static const uint64_t PageSize = 0x1000;
 
 static void * const sampleCodeModuleAddress = (void*)0x400000;
-// static void * const sampleDataModuleAddress = (void*)0x500000;
+static void * const shell = (void*)0x500000;
 
 typedef int (*EntryPoint)();
 
@@ -57,7 +56,8 @@ void * initializeKernelBinary()
 
 	print("[Loading modules]\n");
 	void * moduleAddresses[] = {
-		sampleCodeModuleAddress
+		sampleCodeModuleAddress,
+		shell
 	};
 
 	loadModules(&endOfKernelBinary, moduleAddresses);
@@ -94,6 +94,13 @@ void * initializeKernelBinary()
 	return getStackBase();
 }
 
+void run(void *address) {
+	uint64_t returnCode = ((EntryPoint)address)();
+	print("\n\nReturn code: ");
+	printUnsigned(returnCode, 16);
+	printChar('\n');
+}
+
 int main()
 {
 	load_idt();
@@ -102,15 +109,15 @@ int main()
 	setCursorAt(0, 0);
 	clear();
 
+	run(sampleCodeModuleAddress);
+	run(shell);
+
 	// print("[Kernel Main]");
 	// printChar('\n');
 	// print("  Sample code module at ");
 	// printHexPointer(sampleCodeModuleAddress);
 	// printChar('\n');
 	// print("  Calling the sample code module returned: ");
-	uint64_t returnCode = ((EntryPoint)sampleCodeModuleAddress)();
-	print("\n\nReturn code: ");
-	printUnsigned(returnCode, 16);
 	// printChar('\n');
 	// printChar('\n');
 
