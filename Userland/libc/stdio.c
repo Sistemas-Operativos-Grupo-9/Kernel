@@ -37,15 +37,15 @@ char getch() {
 	return ch;
 }
 
-keyStroke readKeyStroke() {
+KeyStroke readKeyStroke() {
 	char first = getch();
 	// If byte is scape
 	if (first == ESC) {
 		char second = getch();
 		if (second == BRACKET) {
 			char arrow = getch();
-			return (keyStroke) {.isPrintable = false, .data = 0, .arrow = arrow};
+			return (KeyStroke) {.isPrintable = false, .data = 0, .arrow = arrow};
 		}
 	}
-	return (keyStroke) {.isPrintable = true, .data = first, .arrow = NO_ARROW};
+	return (KeyStroke) {.isPrintable = true, .data = first, .arrow = NO_ARROW};
 }

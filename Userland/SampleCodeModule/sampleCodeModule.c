@@ -9,9 +9,9 @@
 int main() {
 
 	uint32_t x = 0;
-	puts("HOLA DESDE EL PROGRAMA!");
-	while (true) {
-		keyStroke c = readKeyStroke();
+	puts("HOLA DESDE EL PROGRAMA!\n");
+	while (false) {
+		KeyStroke c = readKeyStroke();
 		if (c.isPrintable) {
 			putchar(c.data);
 		} else {

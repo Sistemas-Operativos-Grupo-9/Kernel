@@ -2,7 +2,7 @@
 
 
 int main() {
-    keyStroke key = readKeyStroke();
+    KeyStroke key = readKeyStroke();
     puts("HOLA DESDE SHELL!\n");
     return 0;
 }
