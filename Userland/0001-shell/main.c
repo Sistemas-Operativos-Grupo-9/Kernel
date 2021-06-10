@@ -86,6 +86,14 @@ bool validateCommand(char *command) {
     return false;
 }
 
+// Returns true if exit
+bool execCommand(char *command) {
+    if (strcmp(command, "quit") == 0) {
+        return true;
+    }
+    return false;
+}
+
 int main() {
     while (true) {
         puts("~");
@@ -95,6 +103,9 @@ int main() {
             for (int i = historyLength - 1; i > 0; i--)
                 strcpy(commandHistory[i], commandHistory[i - 1]);
             strcpy(commandHistory[0], command);
+        }
+        if (execCommand(command)) {
+            return 0;
         }
         putchar('\n');
         puts(command);
