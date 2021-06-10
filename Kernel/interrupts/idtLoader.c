@@ -32,6 +32,8 @@ void load_idt() {
   setup_IDT_entry (0x21, (uint64_t)&_irq01Handler);
   setup_IDT_entry (0x80, (uint64_t)&_syscallHandler);
 
+  setup_IDT_entry (0x81, (uint64_t)&_nextProcess);
+
   //Solo interrupcion timer tick y keyboard habilitadas
   picMasterMask(0xFC); 
   picSlaveMask(0xFF);

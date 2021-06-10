@@ -22,6 +22,13 @@ uint32_t getWidth() {
 uint32_t getHeight() {
     return HEIGHT;
 }
+Color colorLerp(Color a, Color b, uint8_t lerp) {
+    return (Color) {
+        .red = a.red + (b.red - a.red) * lerp / 255,
+        .green = a.green + (b.green - a.green) * lerp / 255,
+        .blue = a.blue + (b.blue - a.blue) * lerp / 255
+    };
+}
 
 void setPixel(Color color, int x, int y) {
     ((Color *)(uint64_t)infoBlock->physbase)[x + y * WIDTH] = color;

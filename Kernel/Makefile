@@ -23,11 +23,11 @@ $(BUILDDIR)/%.o: %.c
 
 $(BUILDDIR)/%.asm.o : %.asm
 	mkdir -p $(dir $@)
-	$(ASM) $(ASMFLAGS) $< -o $@
+	$(ASM) $(ASMFLAGS) $< -o $@ -g
 
 $(LOADEROBJECT):
 	mkdir -p $(dir $@)
-	$(ASM) $(ASMFLAGS) $(LOADERSRC) -o $(LOADEROBJECT)
+	$(ASM) $(ASMFLAGS) $(LOADERSRC) -o $(LOADEROBJECT) -g
 
 clean:
 	rm -rf BUILD .bin

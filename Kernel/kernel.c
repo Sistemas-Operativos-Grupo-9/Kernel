@@ -21,6 +21,7 @@ static const uint64_t PageSize = 0x1000;
 
 static void * const sampleCodeModuleAddress = (void*)0x400000;
 static void * const shell = (void*)0x500000;
+static void * const shell2 = (void*)0x600000;
 
 typedef int (*EntryPoint)();
 
@@ -111,13 +112,15 @@ int main()
 	clear(0);
 	clear(1);
 	clear(2);
-	clear(3);
+	// clear();
 
-	createProcess(1, sampleCodeModuleAddress, (uint64_t *)shell - 1);
+	// createProcess(1, "random", sampleCodeModuleAddress, (uint64_t *)shell - 1);
 
-	createProcess(2, shell, (uint64_t *)(0x500000 + 0x100000) - 1);
+	memcpy(shell2, shell, shell2 - shell);
+	createProcess(1, "shell", shell, (uint64_t *)(shell + 0x100000) - 1, true);
+	createProcess(2, "shell2", shell2, (uint64_t *)(shell2 + 0x100000) - 1, false);
 
-	setFocus(1);
+	setFocus(2);
 	
 	_startScheduler();
 

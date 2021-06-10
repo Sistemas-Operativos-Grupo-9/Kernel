@@ -21,7 +21,7 @@ int64_t write(uint64_t fd, char *buf, uint64_t count) {
 }
 
 uint8_t getpid() {
-    return getCurrentProcess()->tty;
+    return getProcessPID(getCurrentProcess());
 }
 
 

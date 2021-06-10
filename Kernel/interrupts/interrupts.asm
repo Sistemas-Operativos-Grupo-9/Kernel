@@ -23,13 +23,14 @@ EXTERN exceptionDispatcher
 EXTERN syscallDispatcher
 
 EXTERN schedulerEnabled
-EXTERN _nextProcess
+EXTERN _switchContext
+GLOBAL _nextProcess
 GLOBAL ret00
 
-; EXTERN printUnsignedN
-; EXTERN printChar
-; EXTERN print
-; GLOBAL _printRegisters
+EXTERN printUnsignedN
+EXTERN printChar
+EXTERN print
+GLOBAL _printRegisters
 
 SECTION .text
 
@@ -70,10 +71,11 @@ SECTION .text
 %endmacro
 
 
-; %macro newLine 0
-; 	mov rdi, 0Ah
-; 	call printChar
-; %endmacro
+%macro newLine 0
+	mov rdi, 00h
+	mov rsi, 0Ah
+	call printChar
+%endmacro
 
 %macro EOI 0 
 	; signal pic EOI (End of Interrupt)
@@ -93,12 +95,13 @@ SECTION .text
 	iretq
 %endmacro
 
-; %macro print64bit 1
-; 	mov rdi, %1
-; 	mov rsi, 16
-; 	mov rdx, 16
-; 	call printUnsignedN
-; %endmacro
+%macro print64bit 1
+	mov rdi, 0
+	mov rsi, %1
+	mov rdx, 16
+	mov rcx, 16
+	call printUnsignedN
+%endmacro
 
 ; %macro printStackValue 1
 ; 	print64bit [esp + %1 * 8]
@@ -160,6 +163,34 @@ picSlaveMask:
     pop     rbp
     retn
 
+; GLOBAL _nextProcess
+; _nextProcess:
+; 	; Create fake iretq stack
+; 	sub rsp, 40
+; 	push rbp
+; 	mov rbp, rsp
+; 	add rbp, 48
+
+; 	mov qword [rbp-8*1], 0
+; 	mov qword [rbp-8*2], rbp
+; 	mov qword [rbp-8*3], 0x202
+; 	mov qword [rbp-8*4], 8
+; 	push rdx
+; 	mov rdx, [rbp]
+; 	mov qword [rbp-8*5], rdx
+; 	pop rdx
+	
+; 	pop rbp
+
+; 	push rax
+; 	mov al, [schedulerEnabled]
+; 	test al, al
+; 	pop rax
+; 	jz ret01
+; 	call _switchContext
+; 	ret01:
+; 	iretq
+
 
 ;8254 Timer (Timer Tick)
 _irq00Handler:
@@ -173,17 +204,49 @@ _irq00Handler:
 	popState
 
 	; if (schedulerEnabled)
-	; 	_nextProcess();
+	; 	_switchContext();
 
 	push rax
 	mov al, [schedulerEnabled]
 	test al, al
 	pop rax
 	jz ret00
-	call _nextProcess
+	call _switchContext
 	ret00:
-
 	EOI
+	iretq
+
+;nextProcess interruption
+_nextProcess:
+	cli
+
+	; trap frame
+
+	; sub rsp, 8*5
+	; push rbp
+	; mov rbp, rsp
+	; add rbp, 8*6
+	; push rdx
+	; mov rdx, [rbp - 8*0]
+	; mov qword [rbp - 8*1], 0
+	; mov qword [rbp - 8*2], rbp
+	; mov qword [rbp - 8*3], 0x202
+	; mov qword [rbp - 8*4], 8
+	; mov qword [rbp - 8*5], rdx
+	; pop rdx
+	; pop rbp
+
+	; if (schedulerEnabled)
+	; 	_switchContext();
+
+	push rax
+	mov al, [schedulerEnabled]
+	test al, al
+	pop rax
+	jz ret01
+	call _switchContext
+	ret01:
+	; sti
 	iretq
 
 ;Keyboard
@@ -257,19 +320,21 @@ _syscallHandler:
 ; exceptionHandlerMaster 19
 ; exceptionHandlerMaster 20
 
-; %macro printRegister 1
-; 	pushState
-; 	push %1
-; 	mov rdi, %1%+String
-; 	call print
-; 	mov rdi, equalString
-; 	call print
+%macro printRegister 1
+	pushState
+	push %1
+	mov rdi, 0
+	mov rsi, %1%+String
+	call print
+	mov rdi, 0
+	mov rsi, equalString
+	call print
 
-; 	pop rdi
-; 	print64bit rdi
-; 	newLine
-; 	popState
-; %endmacro
+	pop rsi
+	print64bit rsi
+	newLine
+	popState
+%endmacro
 
 ;Zero Division Exception
 _exception0Handler:
@@ -279,26 +344,26 @@ _exception6Handler:
 _exception13Handler:
 	exceptionHandler 13
 
-; _printRegisters:
-; 	printRegister rdi
-; 	printRegister rsi
-; 	printRegister rax
-; 	printRegister rbx
-; 	printRegister rcx
-; 	printRegister rdx
-; 	printRegister rsp
-; 	printRegister rbp
-; 	; printRegister rip
-; 	printRegister r8
-; 	printRegister r9
-; 	printRegister r10
-; 	printRegister r11
-; 	printRegister r12
-; 	printRegister r13
-; 	printRegister r14
-; 	printRegister r15
-; 	newLine
-; 	ret
+_printRegisters:
+	printRegister rdi
+	printRegister rsi
+	printRegister rax
+	printRegister rbx
+	printRegister rcx
+	printRegister rdx
+	printRegister rsp
+	printRegister rbp
+	; printRegister rip
+	printRegister r8
+	printRegister r9
+	printRegister r10
+	printRegister r11
+	printRegister r12
+	printRegister r13
+	printRegister r14
+	printRegister r15
+	newLine
+	ret
 
 haltcpu:
 	cli
@@ -306,26 +371,26 @@ haltcpu:
 	ret
 
 
-; SECTION .rodata
-; 	equalString db " = ", 0
+SECTION .rodata
+	equalString db " = ", 0
 
-; 	rdiString db "RDI", 0
-; 	rsiString db "RSI", 0
-; 	raxString db "RAX", 0
-; 	rbxString db "RBX", 0
-; 	rcxString db "RCX", 0
-; 	rdxString db "RDX", 0
-; 	rspString db "RSP", 0
-; 	rbpString db "RBP", 0
-; 	ripString db "RIP", 0
-; 	r8String  db "R8 ", 0
-; 	r9String  db "R9 ", 0
-; 	r10String  db "R10", 0
-; 	r11String  db "R11", 0
-; 	r12String  db "R12", 0
-; 	r13String  db "R13", 0
-; 	r14String  db "R14", 0
-; 	r15String  db "R15", 0
+	rdiString db "RDI", 0
+	rsiString db "RSI", 0
+	raxString db "RAX", 0
+	rbxString db "RBX", 0
+	rcxString db "RCX", 0
+	rdxString db "RDX", 0
+	rspString db "RSP", 0
+	rbpString db "RBP", 0
+	ripString db "RIP", 0
+	r8String  db "R8 ", 0
+	r9String  db "R9 ", 0
+	r10String  db "R10", 0
+	r11String  db "R11", 0
+	r12String  db "R12", 0
+	r13String  db "R13", 0
+	r14String  db "R14", 0
+	r15String  db "R15", 0
 
 SECTION .bss
 	aux resq 1

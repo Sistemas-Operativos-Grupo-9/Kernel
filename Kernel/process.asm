@@ -7,6 +7,7 @@ extern readyQueue
 extern getCurrentProcess
 extern PID
 extern getProcessPID
+extern getLength
 
 %macro pushState 0
 	pushfq
@@ -48,23 +49,15 @@ extern getProcessPID
 
 global _startScheduler
 _startScheduler:
-    mov rdi, readyQueue
-    call dequeueItem
-    mov rsp, [rax + 0]
-	mov rdi, rax
-	call getProcessPID
-	mov [PID], rax
-	mov byte [schedulerEnabled], 1
-	add rsp, 8 ; Remove ret00 address
-	pop rax ; Simulate iretq
-	add rsp, 8 * 5
-    push rax
-	ret
+	call _killAndNextProcess
 
 
-global _nextProcess
-_nextProcess:
+global _switchContext
+global _killAndNextProcess
+_switchContext:
     pushState
+	cli
+	mov r12, [rsp + 8*(16)]
     
     call getCurrentProcess
     mov BYTE [rax + 8], 1 ; set initialized to true
@@ -75,6 +68,19 @@ _nextProcess:
     mov rdi, readyQueue
 	mov rsi, rax
 	call enqueueItem
+	jmp afterKill
+
+_killAndNextProcess:
+	cli
+	mov r12, iretq
+	mov byte [schedulerEnabled], 1
+afterKill:
+	; get process to resume
+    mov rdi, readyQueue
+checkQueueNotEmpty:
+	call getLength
+	test rax, rax
+	jz checkQueueNotEmpty
     call dequeueItem
     mov rsp, [rax + 0]
     mov BYTE bl, [rax + 8]  ; if initialized is true, restore from stack
@@ -84,9 +90,15 @@ _nextProcess:
     test bl, bl
     jz after_restore
 
-
+	mov [rsp + 8*(16)], r12
     popState
-
+	jmp ret
     after_restore:
 
+	mov [rsp], r12
+ret:
+	; sti
     ret
+
+iretq:
+	iretq

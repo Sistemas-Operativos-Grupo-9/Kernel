@@ -4,13 +4,22 @@
 #include <syscall.h>
 
 int main() {
-    puts("> HOLA DESDE SHELL\n");
+    puts(">");
     
-    int i = 0;
+    puts("PID: ");
+    printUnsigned(getpid(), 10);
+    putchar('\n');
+    // for (int i = 0; i < 1; i++) {
+    //     wait();
+    // }
+    // int i = 0;
+    // while (true) {
+        // printUnsigned(i++, 10);
     while (true) {
-        printUnsigned(i++, 10);
-        putchar('\n');
+        putchar(getch());
+        putchar(' ');
     }
+    // }
     
     return 0;
 }

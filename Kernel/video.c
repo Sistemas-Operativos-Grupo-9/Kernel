@@ -37,13 +37,17 @@ static struct View {
     uint32_t positionX, positionY;
     uint32_t width, height;
 } Views[] = {
+    // {.cursorX = 0, .cursorY = 0,
+    // .positionX = 0, .positionY = 0,
+    // .width = TEXT_WIDTH / 2, .height = TEXT_HEIGHT / 2,
+    // .scrollY = 0, .outputLength = 0},
+    // {.cursorX = 0, .cursorY = 0,
+    // .positionX = 0, .positionY = TEXT_HEIGHT / 2 + 1,
+    // .width = TEXT_WIDTH / 2, .height = TEXT_HEIGHT / 2,
+    // .scrollY = 0, .outputLength = 0},
     {.cursorX = 0, .cursorY = 0,
     .positionX = 0, .positionY = 0,
-    .width = TEXT_WIDTH / 2, .height = TEXT_HEIGHT / 2,
-    .scrollY = 0, .outputLength = 0},
-    {.cursorX = 0, .cursorY = 0,
-    .positionX = 0, .positionY = TEXT_HEIGHT / 2 + 1,
-    .width = TEXT_WIDTH / 2, .height = TEXT_HEIGHT / 2,
+    .width = TEXT_WIDTH / 2, .height = TEXT_HEIGHT,
     .scrollY = 0, .outputLength = 0},
     {.cursorX = 0, .cursorY = 0,
     .positionX = TEXT_WIDTH / 2 + 1, .positionY = 0,
@@ -111,7 +115,6 @@ bool isPrintable(unsigned char ch) {
 }
 
 void changeFocusView(uint8_t newFocusViewNumber) {
-    struct View *view = &Views[newFocusViewNumber];
     focusedView = newFocusViewNumber;
     // Redraw cursors
     for (int i = 0; i < sizeof(Views) / sizeof(*Views); i++) {
@@ -129,21 +132,27 @@ void printChar(uint8_t viewNumber, char ch) {
     while (!finish && view->outputLength > 0) {
         finish = true;
         if (view->outputBuffer[0] == ESC) {
-            if (view->outputLength > 1 && view->outputBuffer[1] == BRACKET) {
-                if (view->outputLength > 2) {
-                    enum Arrow arrow = view->outputBuffer[2];
-                    switch (arrow)
-                    {
-                    case ARROW_LEFT:
-                        newCursorX--;
-                        break;
-                    case ARROW_RIGHT:
-                        newCursorX++;
-                        break;
-                    default:
-                        break;
+            if (view->outputLength > 1) {
+                if (view->outputBuffer[1] == BRACKET) {
+                    if (view->outputLength > 2) {
+                        enum Arrow arrow = view->outputBuffer[2];
+                        switch (arrow)
+                        {
+                        case ARROW_LEFT:
+                            newCursorX--;
+                            break;
+                        case ARROW_RIGHT:
+                            newCursorX++;
+                            break;
+                        default:
+                            break;
+                        }
+                        consume(view, 3);
+                        finish = false;
                     }
-                    consume(view, 3);
+                } else {
+
+                    view->outputBuffer[0] = '?';
                     finish = false;
                 }
             }
@@ -168,8 +177,8 @@ void printChar(uint8_t viewNumber, char ch) {
             consume(view, 1);
             finish = false;
         }
+        setCursorAt(viewNumber, newCursorX, newCursorY);
     }
-    setCursorAt(viewNumber, newCursorX, newCursorY);
 }
 
 void reDraw(struct View *view) {
@@ -254,36 +263,36 @@ void clear(uint8_t viewNumber) {
 }
 
 // Helper print functions for Kernel space
-void printIntN(int value, uint8_t digits, uint8_t base) {
+void printIntN(uint8_t viewNumber, int value, uint8_t digits, uint8_t base) {
     char str[digits + 1];
     numToString(value, digits, str, base);
-    print(0, str);
+    print(viewNumber, str);
 }
-void printInt(int value, uint8_t base) {
-    printIntN(value, countDigits(value, base), base);
+void printInt(uint8_t viewNumber, int value, uint8_t base) {
+    printIntN(viewNumber, value, countDigits(value, base), base);
 }
 
-void printUnsignedN(unsigned value, uint8_t digits, uint8_t base) {
+void printUnsignedN(uint8_t viewNumber, unsigned value, uint8_t digits, uint8_t base) {
     char str[digits + 1];
     unsignedToString(value, digits, str, base);
-    print(0, str);
+    print(viewNumber, str);
 }
 
-void printUnsigned(unsigned value, uint8_t base) {
-    printUnsignedN(value, countDigits(value, base), base);
+void printUnsigned(uint8_t viewNumber, unsigned value, uint8_t base) {
+    printUnsignedN(viewNumber, value, countDigits(value, base), base);
 }
 
-void printHexPrefix() {
-    printChar(0, '0');
-    printChar(0, 'x');
+void printHexPrefix(uint8_t viewNumber) {
+    printChar(viewNumber, '0');
+    printChar(viewNumber, 'x');
 }
 
-void printHexByte(uint8_t value) {
-    printHexPrefix();
-    printUnsignedN(value, 2, 16);
+void printHexByte(uint8_t viewNumber, uint8_t value) {
+    printHexPrefix(viewNumber);
+    printUnsignedN(viewNumber, value, 2, 16);
 }
 
-void printHexPointer(void *ptr) {
-    printHexPrefix();
-    printUnsignedN((uint64_t) ptr, 16, 16);
+void printHexPointer(uint8_t viewNumber, void *ptr) {
+    printHexPrefix(viewNumber);
+    printUnsignedN(viewNumber, (uint64_t) ptr, 16, 16);
 }
