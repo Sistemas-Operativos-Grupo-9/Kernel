@@ -22,6 +22,10 @@ EXTERN irqDispatcher
 EXTERN exceptionDispatcher
 EXTERN syscallDispatcher
 
+EXTERN schedulerEnabled
+EXTERN _nextProcess
+GLOBAL ret00
+
 ; EXTERN printUnsignedN
 ; EXTERN printChar
 ; EXTERN print
@@ -159,7 +163,28 @@ picSlaveMask:
 
 ;8254 Timer (Timer Tick)
 _irq00Handler:
-	irqHandlerMaster 0
+	; EOI
+	; iretq
+	pushState
+	mov rdi, 0 ; pasaje de parametro
+	; mov rsi, rsp
+	call irqDispatcher
+
+	popState
+
+	; if (schedulerEnabled)
+	; 	_nextProcess();
+
+	push rax
+	mov al, [schedulerEnabled]
+	test al, al
+	pop rax
+	jz ret00
+	call _nextProcess
+	ret00:
+
+	EOI
+	iretq
 
 ;Keyboard
 _irq01Handler:
@@ -182,9 +207,8 @@ _irq05Handler:
 	irqHandlerMaster 5
 
 _syscallHandler:
-	sub rsp, 8
 	call syscallDispatcher
-	add rsp, 8
+
 	iretq
 
 

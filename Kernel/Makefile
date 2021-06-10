@@ -19,7 +19,7 @@ $(KERNEL): $(LOADEROBJECT) $(OBJECTS) $(STATICLIBS) $(OBJECTS_ASM)
 
 $(BUILDDIR)/%.o: %.c
 	mkdir -p $(dir $@)
-	$(GCC) $(GCCFLAGS) -I./include -I../Constants -c $< -o $@
+	$(GCC) $(GCCFLAGS) -I./include -I../Constants -I../Userland/libc -c $< -o $@
 
 $(BUILDDIR)/%.asm.o : %.asm
 	mkdir -p $(dir $@)

@@ -2,10 +2,10 @@
 #include "process.h"
 
 static unsigned long ticks = 0;
+extern bool schedulerEnabled;
 
 void timer_handler() {
 	ticks++;
-	// nextProcess();
 }
 
 int ticks_elapsed() {
@@ -14,4 +14,9 @@ int ticks_elapsed() {
 
 int seconds_elapsed() {
 	return ticks / 18;
+}
+
+void wait(uint64_t tickDuration) {
+	uint64_t end = ticks + tickDuration;
+	while (ticks < end);
 }

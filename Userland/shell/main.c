@@ -1,21 +1,16 @@
 #include <stdio.h>
-
+#include <time.h>
+#include <print.h>
+#include <syscall.h>
 
 int main() {
-    puts(">");
-    // while ()
+    puts("> HOLA DESDE SHELL\n");
     
-    KeyStroke key;
-    do {
-        key = readKeyStroke();
-        if (key.isPrintable) {
-            putchar(key.data);
-        }
-    } while (false);
-    // } while (!key.isEOF);
-    // while (true) {
-    //     putchar(getch());
-    // }
+    int i = 0;
+    while (true) {
+        printUnsigned(i++, 10);
+        putchar('\n');
+    }
     
     return 0;
 }

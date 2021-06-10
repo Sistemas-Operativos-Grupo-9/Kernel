@@ -97,7 +97,7 @@ void * initializeKernelBinary()
 }
 
 void run(void *address) {
-	uint64_t returnCode = ((EntryPoint)address)();
+	// uint64_t returnCode = ((EntryPoint)address)();
 	// print(0, "\n\nReturn code: ");
 	// printUnsigned(returnCode, 16);
 	// printChar(0, '\n');
@@ -107,41 +107,23 @@ int main()
 {
 	load_idt();
 
-	// while(true);
 	setCursorAt(0, 0, 0);
 	clear(0);
-	// print(0, "Hola");
-
-
-	createProcess(0);
-	run(sampleCodeModuleAddress);
-	// run(shell);
-	createProcess(1);
-	setFocus(1);
-	nextProcess();
 	clear(1);
-	run(shell);
+	clear(2);
+	clear(3);
 
-	// print("[Kernel Main]");
-	// printChar('\n');
-	// print("  Sample code module at ");
-	// printHexPointer(sampleCodeModuleAddress);
-	// printChar('\n');
-	// print("  Calling the sample code module returned: ");
-	// printChar('\n');
-	// printChar('\n');
+	createProcess(1, sampleCodeModuleAddress, (uint64_t *)shell - 1);
 
-	// print("  Sample data module at ");
-	// printHexPointer(sampleDataModuleAddress);
-	// printChar('\n');
-	// print("  Sample data module contents: ");
-	// print((char*)sampleDataModuleAddress);
-	// printChar('\n');
+	createProcess(2, shell, (uint64_t *)(0x500000 + 0x100000) - 1);
+
+	setFocus(1);
+	
+	_startScheduler();
+
 
 	print(0, "\n[Finished]\n");
 	while (1);
-	// setCursorAt(0, 0);
-	// printTestData();
 	
 	return 0;
 }

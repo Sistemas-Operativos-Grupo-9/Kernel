@@ -54,10 +54,10 @@ char translate(char from) {
 }
 
 void sendChar(char c) {
-    writeChar(getFocusedProcess().tty, c);
+    writeChar(getFocusedProcess()->tty, c);
 }
 void sendEOF() {
-    getFocusedProcess().fdTable->eof = true;
+    getFocusedProcess()->fdTable->eof = true;
 }
 
 extern bool eof;
@@ -80,6 +80,10 @@ void handleSingleByteKey(uint8_t key, bool pressed) {
             setFocus(0);
         } else if (key == K_F2) {
             setFocus(1);
+        } else if (key == K_F3) {
+            setFocus(2);
+        } else if (key == K_F4) {
+            setFocus(3);
         }
         // sendChar(ESC);
         // sendChar('O');

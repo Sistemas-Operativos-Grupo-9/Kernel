@@ -9,14 +9,20 @@ struct FileDescriptor {
     int (*write)(uint8_t tty, char *buf, uint64_t count);
 };
 
-struct ProcessDescriptor
+typedef struct __attribute__((packed)) ProcessDescriptor
 {
+    void *stack;
+    bool initialized;
     uint8_t tty;
+    bool active;
     struct FileDescriptor fdTable[3];
-};
+} ProcessDescriptor;
 
-struct ProcessDescriptor getCurrentProcess();
-struct ProcessDescriptor createProcess(uint8_t tty);
+extern void _startScheduler();
+extern void _nextProcess();
+
+struct ProcessDescriptor *getCurrentProcess();
+struct ProcessDescriptor *getFocusedProcess();
+uint64_t createProcess(uint8_t tty, uint64_t *start, uint64_t *stack);
 void nextProcess();
-struct ProcessDescriptor getFocusedProcess();
 void setFocus(uint8_t tty);

@@ -14,11 +14,14 @@ struct TextColors {
 
 #define BLACK (Color) { 0, 0, 0 }
 #define WHITE (Color) { 255, 255, 255 }
+#define BLUE (Color) { 255, 0, 0 }
+#define GREEN (Color) { 0, 255, 0 }
+#define RED (Color) { 0, 0, 255 }
 
 #define NORMAL_COLORS (struct TextColors) { .background = BLACK, .foreground = WHITE }
 
-#define TEXT_WIDTH 80
-#define TEXT_HEIGHT 25
+#define TEXT_WIDTH 83
+#define TEXT_HEIGHT 29
 
 #define TEXT_BUFFER_WIDTH TEXT_WIDTH
 #define TEXT_BUFFER_HEIGHT TEXT_HEIGHT * 5
@@ -33,20 +36,35 @@ static struct View {
     uint32_t outputLength;
     uint32_t positionX, positionY;
     uint32_t width, height;
-} Views[2] = {
+} Views[] = {
     {.cursorX = 0, .cursorY = 0,
     .positionX = 0, .positionY = 0,
-    .width = TEXT_WIDTH, .height = TEXT_HEIGHT / 2,
+    .width = TEXT_WIDTH / 2, .height = TEXT_HEIGHT / 2,
     .scrollY = 0, .outputLength = 0},
     {.cursorX = 0, .cursorY = 0,
-    .positionX = 0, .positionY = TEXT_HEIGHT / 2,
-    .width = TEXT_WIDTH, .height = TEXT_HEIGHT / 2,
+    .positionX = 0, .positionY = TEXT_HEIGHT / 2 + 1,
+    .width = TEXT_WIDTH / 2, .height = TEXT_HEIGHT / 2,
+    .scrollY = 0, .outputLength = 0},
+    {.cursorX = 0, .cursorY = 0,
+    .positionX = TEXT_WIDTH / 2 + 1, .positionY = 0,
+    .width = TEXT_WIDTH / 2, .height = TEXT_HEIGHT / 2,
+    .scrollY = 0, .outputLength = 0},
+    {.cursorX = 0, .cursorY = 0,
+    .positionX = TEXT_WIDTH / 2 + 1, .positionY = TEXT_HEIGHT / 2 + 1,
+    .width = TEXT_WIDTH / 2, .height = TEXT_HEIGHT / 2,
     .scrollY = 0, .outputLength = 0}
 };
 
+uint8_t focusedView = 0;
+
 void initColors() {
-    Views[0].colors = NORMAL_COLORS;
-    Views[1].colors = NORMAL_COLORS;
+    for (int i = 0; i < sizeof(Views) / sizeof(*Views); i++)
+        Views[i].colors = NORMAL_COLORS;
+    for (int y = 0; y < TEXT_HEIGHT; y++) {
+        for (int x = 0; x < TEXT_WIDTH; x++) {
+            drawCharAt('*', x, y, BLACK, BLUE);
+        }
+    }
 }
 
 void setForeground(struct View *view, Color color) {
@@ -64,10 +82,10 @@ Color invertColor(Color color) {
     return (Color) {.red = 255 - color.red, .green = 255 - color.green, .blue = 255 - color.blue};
 }
 void redrawCharInverted(struct View *view, uint32_t x, uint32_t y) {
-    drawCharAtView(view, view->textBuffer[y][x], x, y - view->scrollY, view->colors.foreground, view->colors.background);
-}
-void redrawCharUnfocused(struct View *view, uint32_t x, uint32_t y) {
-    drawCharAtView(view, view->textBuffer[y][x], x, y - view->scrollY, view->colors.foreground, colorLerp(view->colors.foreground, view->colors.background, 128));
+    Color foreground = view->colors.foreground;
+    if (view - Views != focusedView)
+        foreground = colorLerp(view->colors.background, view->colors.foreground, 64);
+    drawCharAtView(view, view->textBuffer[y][x], x, y - view->scrollY, foreground, view->colors.background);
 }
 void redrawChar(struct View *view, uint32_t x, uint32_t y) {
     drawCharAtView(view, view->textBuffer[y][x], x, y - view->scrollY, view->colors.background, view->colors.foreground);
@@ -85,7 +103,7 @@ void consume(struct View *view, int count) {
     }
 }
 
-bool isPrintable(char ch) {
+bool isPrintable(unsigned char ch) {
     return ((ch >= 0x20 && ch <= 0x7E) ||
         (ch >= 0x82 && ch <= 0x8C) ||
         (ch >= 0x91 && ch <= 0x9C) ||
@@ -94,10 +112,11 @@ bool isPrintable(char ch) {
 
 void changeFocusView(uint8_t newFocusViewNumber) {
     struct View *view = &Views[newFocusViewNumber];
+    focusedView = newFocusViewNumber;
+    // Redraw cursors
     for (int i = 0; i < sizeof(Views) / sizeof(*Views); i++) {
-        redrawChar(&Views[i], Views[i].cursorX, Views[i].cursorY);
+        redrawCharInverted(&Views[i], Views[i].cursorX, Views[i].cursorY);
     }
-    redrawCharInverted(view, view->cursorX, view->cursorY);
 }
 
 void printChar(uint8_t viewNumber, char ch) {
@@ -136,7 +155,7 @@ void printChar(uint8_t viewNumber, char ch) {
         } else if (view->outputBuffer[0] == '\b') {
             newCursorX--;
             setCursorAt(viewNumber, newCursorX, newCursorY);
-            setChar(view, ' ');
+            view->textBuffer[newCursorY][newCursorX] = ' ';
             redrawCharInverted(view, view->cursorX, view->cursorY);
             consume(view, 1);
             finish = false;
@@ -157,7 +176,7 @@ void reDraw(struct View *view) {
 
     for (int y = 0; y < view->height; y++) {
         for (int x = 0; x < view->width; x++) {
-            drawCharAtView(view, view->textBuffer[y + view->scrollY][x], x, y, view->colors.background, view->colors.foreground);
+            redrawChar(view, x, y + view->scrollY);
         }
     }
     redrawCharInverted(view, view->cursorX, view->cursorY);
@@ -174,7 +193,26 @@ void setCursorAt(uint8_t viewNumber, int x, int y) {
         x = view->width - 1;
         y--;
     }
+    if (y < 0)
+        y = 0;
     if (y >= view->scrollY + view->height) {
+        if (y >= TEXT_BUFFER_HEIGHT) {
+            int move = 10;
+            int newY = y - move;
+            int l = 0;
+            for (; l < newY; l++) {
+                int from = l + move, to = l;
+                for (int i = 0; i < TEXT_BUFFER_WIDTH; i++) {
+                    view->textBuffer[to][i] = view->textBuffer[from][i];
+                }
+            }
+            for (; l < TEXT_BUFFER_HEIGHT; l++) {
+                for (int i = 0; i < TEXT_BUFFER_WIDTH; i++) {
+                    view->textBuffer[l][i] = ' ';
+                }
+            }
+            y = newY;
+        }
         view->scrollY = y - view->height + 1;
         reDraw(view);
     } else if (y < view->scrollY) {
@@ -183,8 +221,7 @@ void setCursorAt(uint8_t viewNumber, int x, int y) {
     }
     if (view->cursorX != x || view->cursorY != y) {
         redrawChar(view, view->cursorX, view->cursorY);
-        if (getFocusedProcess().tty == viewNumber)
-            redrawCharInverted(view, x, y);
+        redrawCharInverted(view, x, y);
     }
     view->cursorX = x;
     view->cursorY = y;

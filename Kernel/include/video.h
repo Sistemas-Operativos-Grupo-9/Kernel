@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include "color.h"
 
+extern uint8_t focusedView;
 
 // void setForeground(Color color);
 // void setBackground(Color color);

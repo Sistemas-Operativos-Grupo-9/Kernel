@@ -2,6 +2,7 @@
 #include "stdio.h"
 #include "stdbool.h"
 #include "syscalls.h"
+#include "myUtils.h"
 
 void putCSI() {
 	putchar(ESC);
@@ -30,11 +31,8 @@ void puts(char *str) {
 }
 
 int getch() {
-	char ch;
-	int r;
-	do {
-		r = read(0, &ch, 1);
-	} while (r == 0);
+	char ch = 19;
+	read(0, &ch, 1);
 	return ch;
 }
 

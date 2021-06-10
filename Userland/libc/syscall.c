@@ -17,3 +17,7 @@ int read(uint64_t fd, char *buf, uint64_t count) {
 int write(uint64_t fd, char *buf, uint64_t count) {
     return syscall(WRITE, fd, (uint64_t)buf, count, 0, 0);
 }
+
+uint8_t getpid() {
+    return syscall(GETPID, 0, 0, 0, 0, 0);
+}
