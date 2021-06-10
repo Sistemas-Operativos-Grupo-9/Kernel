@@ -13,3 +13,13 @@ void strcpy(char *dst, char *src) {
         *dst++ = *src++;
     } while (*(dst - 1) != '\0');
 }
+
+int strcmp(char *str1, char *str2) {
+    do {
+        if (*str1 > *str2)
+            return 1;
+        else if (*str1 < *str2)
+            return -1;
+    } while (*str1++ != '\0' && *str2++ != '\0');
+    return 0;
+}

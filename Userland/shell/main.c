@@ -91,25 +91,30 @@ bool execCommand(char *command) {
     if (strcmp(command, "quit") == 0) {
         return true;
     }
+    if (strcmp(command, "pid") == 0) {
+        printInt(getpid(), 10);
+    } else if (execve(command) == -1) {
+        putchar('\"');
+        puts(command);
+        puts("\" is not a recognized program or module\n");
+    }
     return false;
 }
 
 int main() {
     while (true) {
-        puts("~");
+        puts("\n~");
         inputCommand(command, sizeof(command));
         if (validateCommand(command)) {
             commandsIssued++;
             for (int i = historyLength - 1; i > 0; i--)
                 strcpy(commandHistory[i], commandHistory[i - 1]);
             strcpy(commandHistory[0], command);
+            putchar('\n');
+            if (execCommand(command)) {
+                return 0;
+            }
         }
-        if (execCommand(command)) {
-            return 0;
-        }
-        putchar('\n');
-        puts(command);
-        putchar('\n');
     }
 
     return 0;

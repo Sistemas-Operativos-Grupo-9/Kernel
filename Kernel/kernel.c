@@ -7,6 +7,7 @@
 #include "interrupts/time.h"
 #include "interrupts/keyboard.h"
 #include "interrupts/idtLoader.h"
+#include <null.h>
 #include "myUtils.h"
 #include "process.h"
 
@@ -18,10 +19,6 @@ extern uint8_t endOfKernelBinary;
 extern uint8_t endOfKernel;
 
 static const uint64_t PageSize = 0x1000;
-
-static void * const sampleCodeModuleAddress = (void*)0x400000;
-static void * const shell = (void*)0x500000;
-static void * const shell2 = (void*)0x600000;
 
 typedef int (*EntryPoint)();
 
@@ -57,16 +54,13 @@ void * initializeKernelBinary()
 	printChar('\n');
 
 	print("[Loading modules]\n");
-	void * moduleAddresses[] = {
-		sampleCodeModuleAddress,
-		shell
-	};
 
-	loadModules(&endOfKernelBinary, moduleAddresses);
+	loadModules(&endOfKernelBinary);
 	print("[Done]\n\n");
 
 	print("[Initializing kernel's binary]\n");
 	clearBSS(&bss, &endOfKernel - &bss);
+	readBackup();
 
 	print("  text: ");
 	printHexPointer(&text);
@@ -96,28 +90,35 @@ void * initializeKernelBinary()
 	return getStackBase();
 }
 
-void run(void *address) {
-	// uint64_t returnCode = ((EntryPoint)address)();
-	// print(0, "\n\nReturn code: ");
-	// printUnsigned(returnCode, 16);
-	// printChar(0, '\n');
-}
-
 int main()
 {
 	load_idt();
 
-	setCursorAt(0, 0, 0);
-	clear(0);
+	// setCursorAt(0, 0, 0);
+	// clear(0);
 	clear(1);
 	clear(2);
-	// clear();
+
+	#define PRINT_MODULE(moduleName) 							\
+		do {													\
+			struct Module *module = getModule(moduleName);  	\
+			if (module == NULL) {print(0, "ERROR!\n"); break;}	\
+			print(0, "Module \"");								\
+			print(0, module->name);								\
+			print(0, "\" loaded in address ");					\
+			printHexPointer(0, module->address);				\
+			printChar(0, '\n');									\
+		} while(0)
+
+	PRINT_MODULE("random");
+	PRINT_MODULE("shell");
+
+	#undef PRINT_MODULE
 
 	// createProcess(1, "random", sampleCodeModuleAddress, (uint64_t *)shell - 1);
 
-	memcpy(shell2, shell, shell2 - shell);
-	createProcess(1, "shell", shell, (uint64_t *)(shell + 0x100000) - 1, true);
-	createProcess(2, "shell2", shell2, (uint64_t *)(shell2 + 0x100000) - 1, false);
+	createProcess(1, "shell", true);
+	createProcess(2, "shell", true);
 
 	setFocus(2);
 	

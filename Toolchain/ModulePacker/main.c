@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <unistd.h>
+#include <string.h>
 #include <stdint.h>
 #include <sys/stat.h>
 #include <stdlib.h>
 #include <argp.h>
+#include <libgen.h>
 
 #include "modulePacker.h"
 
@@ -72,6 +74,9 @@ int buildImage(array_t fileArray, char *output_file) {
 		FILE *source = fopen(fileArray.array[i], "r");
 		
 		//Write the file size;
+		write_name(target, fileArray.array[i]);
+
+		//Write the file size;
 		write_size(target, fileArray.array[i]);
 
 		//Write the binary
@@ -96,6 +101,16 @@ int checkFiles(array_t fileArray) {
 	}
 	return TRUE;
 
+}
+
+void write_name(FILE *target, char *filename) {
+	char *base = malloc(32);
+	strcpy(base, filename);
+	base = basename(base);
+	int len = strlen(base);
+	fwrite(base, len - 4, 1, target);
+	char nullEnd = '\0';
+	fwrite(&nullEnd, 1, 1, target);
 }
 
 int write_size(FILE *target, char *filename) {

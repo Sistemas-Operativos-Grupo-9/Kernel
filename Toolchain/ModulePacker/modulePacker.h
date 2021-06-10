@@ -32,6 +32,8 @@ struct arguments
 
 int buildImage(array_t fileArray, char *output_file);
 
+void write_name(FILE *target, char *filename);
+
 int write_size(FILE *target, char *filename);
 
 int write_file(FILE *target, FILE *source);

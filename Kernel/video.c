@@ -160,6 +160,15 @@ void changeFocusView(uint8_t newFocusViewNumber) {
         redrawCharInverted(&Views[i], Views[i].cursorX, Views[i].cursorY);
     }
 }
+void reDraw(struct View *view) {
+
+    for (int y = 0; y < view->height; y++) {
+        for (int x = 0; x < view->width; x++) {
+            redrawChar(view, x, y + view->scrollY);
+        }
+    }
+    redrawCharInverted(view, view->cursorX, view->cursorY);
+}
 void scrollTo(uint8_t viewNumber, int y) {
     struct View *view = &Views[viewNumber];
 
@@ -330,15 +339,6 @@ void printChar(uint8_t viewNumber, char ch) {
     }
 }
 
-void reDraw(struct View *view) {
-
-    for (int y = 0; y < view->height; y++) {
-        for (int x = 0; x < view->width; x++) {
-            redrawChar(view, x, y + view->scrollY);
-        }
-    }
-    redrawCharInverted(view, view->cursorX, view->cursorY);
-}
 void setCursorAt(uint8_t viewNumber, int x, int y) {
     struct View *view = &Views[viewNumber];
     

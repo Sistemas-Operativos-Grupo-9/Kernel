@@ -21,3 +21,11 @@ int write(uint64_t fd, char *buf, uint64_t count) {
 uint8_t getpid() {
     return syscall(GETPID, 0, 0, 0, 0, 0);
 }
+
+int execve(char *moduleName) {
+    return syscall(EXECVE, (uint64_t)moduleName, 0, 0, 0, 0);
+}
+
+uint64_t proccount() {
+    return syscall(PROCCOUNT, 0, 0, 0, 0, 0);
+}

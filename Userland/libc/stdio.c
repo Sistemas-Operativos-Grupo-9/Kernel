@@ -37,9 +37,9 @@ int getch() {
 }
 
 KeyStroke readKeyStroke() {
-	#define getchReturnIfEOF()  ({																			\
-		int ch = getch(); 																					\
-		if (ch == EOF) return (KeyStroke) {.isEOF = true}; 		\
+	#define getchReturnIfEOF()  ({													\
+		int ch = getch(); 															\
+		if (ch == EOF) return (KeyStroke) {.isEOF = true}; 							\
 		ch;})
 
 	char first = getchReturnIfEOF();

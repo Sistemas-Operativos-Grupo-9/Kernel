@@ -26,10 +26,13 @@ extern void _startScheduler();
 extern void _switchContext();
 extern void _killAndNextProcess();
 
+
 void restartProcess();
 int getProcessPID(ProcessDescriptor *process);
 struct ProcessDescriptor *getCurrentProcess();
 struct ProcessDescriptor *getFocusedProcess();
-uint64_t createProcess(uint8_t tty, char *name, uint64_t *start, uint64_t *stack, bool restartOnFinish);
+int createProcess(uint8_t tty, char *name, bool restartOnFinish);
 void nextProcess();
 void setFocus(uint8_t tty);
+uint64_t countProcesses();
+struct ProcessDescriptor *getProcess(int pid);
