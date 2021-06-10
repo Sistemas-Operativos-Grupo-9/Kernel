@@ -32,6 +32,11 @@ typedef struct __attribute__((packed)) {
 uint32_t getWidth();
 uint32_t getHeight();
 
+uint16_t getOffsetX();
+uint16_t getOffsetY();
+
+uint16_t getFontWidth();
+uint16_t getFontHeight();
 
 Color colorLerp(Color a, Color b, uint8_t lerp);
 
@@ -42,3 +47,5 @@ void setCharOffset(uint16_t widthCount, uint16_t heightCount);
 void drawImage(Color (*getPixelColor)(uint64_t x, uint64_t y));
 void drawCircle(uint64_t centerX, uint64_t centerY, uint64_t radius, Color color);
 void drawRectangle(uint64_t xStart, uint64_t yStart, uint64_t width, uint64_t height, Color color);
+
+void drawRectangleBorders(uint64_t xStart, uint64_t yStart, uint64_t width, uint64_t height, uint16_t borderSize, Color color);

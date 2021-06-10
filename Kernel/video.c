@@ -17,6 +17,10 @@ struct TextColors {
 #define BLUE (Color) { 255, 0, 0 }
 #define GREEN (Color) { 0, 255, 0 }
 #define RED (Color) { 0, 0, 255 }
+#define AQUA (Color) {255, 255, 0}
+#define LIGHT_SALMON (Color) {122, 160, 255}
+#define GREEN_YELLOW (Color) {47, 255, 173}
+#define GREY (Color) {200, 200, 200}
 
 #define NORMAL_COLORS (struct TextColors) { .background = BLACK, .foreground = WHITE }
 
@@ -75,7 +79,8 @@ uint16_t sqrt(uint32_t n) {
 // Generates an image with dots
 Color backgroundImage(uint64_t x, uint64_t y) {
     const uint64_t lightDistances = 64;
-    Color colors[] = {BLUE, RED, GREEN};
+    // Color colors[] = {BLUE, RED, GREEN};
+    Color colors[] = {AQUA, LIGHT_SALMON, GREEN_YELLOW};
     int colorIndex = (x + lightDistances / 2) / lightDistances + (y + lightDistances / 2) / lightDistances;
     int closestX = (x + lightDistances / 2) % lightDistances - lightDistances / 2;
     int closestY = (y + lightDistances / 2) % lightDistances - lightDistances / 2;
@@ -97,6 +102,16 @@ void initScreen() {
     // }
     // drawRectangle(0, 0, getWidth(), getHeight(), (Color) {200, 100, 50});
     drawImage(backgroundImage);
+
+    for (int i = 0; i < sizeof(Views) / sizeof(*Views); i++) {
+        struct View *view = Views + i;
+        drawRectangleBorders(
+            getOffsetX() + (view->positionX * getFontWidth()), 
+            getOffsetY() + (view->positionY * getFontHeight()), 
+            view->width * getFontWidth(), 
+            view->height * getFontHeight(), 
+            3, GREY);
+    }
 }
 
 void setForeground(struct View *view, Color color) {

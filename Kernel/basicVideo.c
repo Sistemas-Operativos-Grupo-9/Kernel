@@ -84,4 +84,29 @@ void drawRectangle(uint64_t xStart, uint64_t yStart, uint64_t width, uint64_t he
     )
 }
 
+uint16_t getOffsetX() {
+    return charOffsetX;
+}
+uint16_t getOffsetY() {
+    return charOffsetY;
+}
+
+uint16_t getFontWidth() {
+    return FONT_WIDTH * FONT_SCALE;
+}
+
+uint16_t getFontHeight() {
+    return FONT_HEIGHT * FONT_SCALE;
+}
+
+void drawRectangleBorders(uint64_t xStart, uint64_t yStart, uint64_t width, uint64_t height, uint16_t borderSize, Color color) {
+    // Top and bottom
+    drawRectangle(xStart - borderSize, yStart - borderSize, width + borderSize * 2, borderSize, color);
+    drawRectangle(xStart - borderSize, yStart + height, width + borderSize * 2, borderSize, color);
+
+    // Left and right
+    drawRectangle(xStart - borderSize, yStart, borderSize, height, color);
+    drawRectangle(xStart + width, yStart, borderSize, height, color);
+}
+
 #undef drawByPixel
