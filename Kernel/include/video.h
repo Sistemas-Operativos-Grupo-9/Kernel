@@ -7,7 +7,7 @@ extern uint8_t focusedView;
 
 // void setForeground(Color color);
 // void setBackground(Color color);
-void initColors();
+void initScreen();
 uint32_t getCursorY();
 uint32_t getCursorX();
 void setCursorAt(uint8_t viewNumber, int x, int y);

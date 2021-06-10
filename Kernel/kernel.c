@@ -89,8 +89,7 @@ void * initializeKernelBinary()
 	#undef print
 	#undef printChar
 	#undef printHexPointer
-	initVideo();
-	initColors();
+	initScreen();
 	clear(0);
 	print(0, infoBuffer);
 

@@ -39,7 +39,7 @@ int getch() {
 KeyStroke readKeyStroke() {
 	#define getchReturnIfEOF()  ({																			\
 		int ch = getch(); 																					\
-		if (ch == EOF) return (KeyStroke) {.isEOF = true, .isPrintable = false, .arrow = NO_ARROW}; 		\
+		if (ch == EOF) return (KeyStroke) {.isEOF = true}; 		\
 		ch;})
 
 	char first = getchReturnIfEOF();
@@ -52,7 +52,10 @@ KeyStroke readKeyStroke() {
 		}
 		// return (KeyStroke) {.isPrintable = false, .data = 0}
 	}
-	return (KeyStroke) {.isPrintable = true, .data = first, .arrow = NO_ARROW};
+	if (first == '\n' || first == '\b' || first == '\t') {
+		return (KeyStroke) {.isPrintable = false, .data = first};
+	}
+	return (KeyStroke) {.isPrintable = true, .data = first};
 
 	#undef getchReturnIfEOF
 }

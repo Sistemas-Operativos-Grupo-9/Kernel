@@ -61,14 +61,42 @@ static struct View {
 
 uint8_t focusedView = 0;
 
-void initColors() {
+uint32_t abs(int32_t n) {
+    if (n < 0)
+        return -n;
+    return n;
+}
+uint16_t sqrt(uint32_t n) {
+    uint16_t s;
+    for (s = 0; s * s < n; s++);
+    return s;
+}
+
+// Generates an image with dots
+Color backgroundImage(uint64_t x, uint64_t y) {
+    const uint64_t lightDistances = 64;
+    Color colors[] = {BLUE, RED, GREEN};
+    int colorIndex = (x + lightDistances / 2) / lightDistances + (y + lightDistances / 2) / lightDistances;
+    int closestX = (x + lightDistances / 2) % lightDistances - lightDistances / 2;
+    int closestY = (y + lightDistances / 2) % lightDistances - lightDistances / 2;
+    uint32_t closestLight = sqrt(abs(closestX) * abs(closestX) + abs(closestY) * abs(closestY)) * 5;
+
+    return colorLerp(colors[colorIndex % (sizeof(colors) / sizeof(*colors))], BLACK, closestLight);
+}
+
+void initScreen() {
+    initVideo();
+    setCharOffset(TEXT_WIDTH, TEXT_HEIGHT);
+
     for (int i = 0; i < sizeof(Views) / sizeof(*Views); i++)
         Views[i].colors = NORMAL_COLORS;
-    for (int y = 0; y < TEXT_HEIGHT; y++) {
-        for (int x = 0; x < TEXT_WIDTH; x++) {
-            drawCharAt('*', x, y, BLACK, BLUE);
-        }
-    }
+    // for (int y = 0; y < TEXT_HEIGHT; y++) {
+    //     for (int x = 0; x < TEXT_WIDTH; x++) {
+    //         drawCharAt('*', x, y, BLACK, BLUE);
+    //     }
+    // }
+    // drawRectangle(0, 0, getWidth(), getHeight(), (Color) {200, 100, 50});
+    drawImage(backgroundImage);
 }
 
 void setForeground(struct View *view, Color color) {
@@ -94,10 +122,6 @@ void redrawCharInverted(struct View *view, uint32_t x, uint32_t y) {
 void redrawChar(struct View *view, uint32_t x, uint32_t y) {
     drawCharAtView(view, view->textBuffer[y][x], x, y - view->scrollY, view->colors.background, view->colors.foreground);
 }
-void setChar(struct View *view, char ch) {
-    view->textBuffer[view->cursorY][view->cursorX] = ch;
-    redrawChar(view, view->cursorX, view->cursorY);
-}
 
 
 void consume(struct View *view, int count) {
@@ -120,6 +144,115 @@ void changeFocusView(uint8_t newFocusViewNumber) {
     for (int i = 0; i < sizeof(Views) / sizeof(*Views); i++) {
         redrawCharInverted(&Views[i], Views[i].cursorX, Views[i].cursorY);
     }
+}
+void scrollTo(uint8_t viewNumber, int y) {
+    struct View *view = &Views[viewNumber];
+
+    if (y < 0)
+        y = 0;
+    if (y >= view->scrollY + view->height) {
+        while (y >= TEXT_BUFFER_HEIGHT) {
+            int move = 10;
+            int newY = y - move;
+            int l = 0;
+            for (; l < newY; l++) {
+                int from = l + move, to = l;
+                for (int i = 0; i < TEXT_BUFFER_WIDTH; i++) {
+                    view->textBuffer[to][i] = view->textBuffer[from][i];
+                }
+            }
+            for (; l < TEXT_BUFFER_HEIGHT; l++) {
+                for (int i = 0; i < TEXT_BUFFER_WIDTH; i++) {
+                    view->textBuffer[l][i] = '\0';
+                }
+            }
+            y = newY;
+        }
+        view->scrollY = y - view->height + 1;
+        reDraw(view);
+    } else if (y < view->scrollY) {
+        view->scrollY = y;
+        reDraw(view);
+    }
+}
+
+uint64_t countCharsAfter(struct View *view, int xFrom, int yFrom) {
+    int length = 0;
+    for (int y = yFrom;; y++) {
+        for (int x = y == yFrom ? xFrom : 0; x < view->width; x++) {
+            if (view->textBuffer[y][x] == '\0')
+                return length;
+            length++;
+        }
+    }
+}
+
+uint64_t umod(int n, uint64_t d) {
+    n %= (int)d;
+    if (n < 0)
+        n += d;
+    return n;
+}
+int idiv(int n, int d) {
+    return (n - (int)umod(n, d)) / d;
+}
+void moveFollowing(uint8_t viewNumber, int xFrom, int yFrom, int count) {
+    if (count == 0)
+        return;
+
+    struct View *view = &Views[viewNumber];
+    #define getXfor(startX, length) umod(startX + length, view->width)
+    #define getYfor(startX, startY, length) (startY + idiv(startX + length, (int) view->width))
+    
+    int xTo = getXfor(xFrom, count);
+    int yTo = getYfor(xFrom, yFrom, count);
+
+    int totalLength = countCharsAfter(view, xFrom, yFrom) + 1;
+    
+    
+    // Move from (from + i) -> (to + i)
+    for (int length = 0; length < totalLength; length++) {
+        int l = count > 0 ? totalLength - length - 1 : length;
+        int yToI = getYfor(xTo, yTo, l), xToI = getXfor(xTo, l);
+        view->textBuffer[yToI][xToI] =
+             view->textBuffer[getYfor(xFrom, yFrom, l)][getXfor(xFrom, l)];
+        redrawChar(view, xToI, yToI);
+    }
+
+    // Clear between "from" and "to"
+    if (count < 0) {
+        int oldXTo = xTo;
+        xTo = getXfor(oldXTo, totalLength);
+        yTo = getYfor(oldXTo, yTo, totalLength);
+        int oldXFrom = xFrom;
+        xFrom = getXfor(oldXFrom, totalLength);
+        yFrom = getYfor(oldXFrom, yFrom, totalLength);
+
+        int tmp;
+        tmp = xTo;
+        xTo = xFrom;
+        xFrom = tmp;
+
+        tmp = yTo;
+        yTo = yFrom;
+        yFrom = tmp;
+    }
+    for (int y = yFrom; y <= yTo; y++) {
+        for (int x = y == yFrom ? xFrom : 0; y == yTo ? x < xTo : x < view->width; x++) {
+            view->textBuffer[y][x] = '\0';
+            redrawChar(view, x, y);
+        }
+    }
+
+    #undef getXfor
+    #undef getYfor
+}
+
+void setChar(uint8_t viewNumber, char ch) {
+    struct View *view = &Views[viewNumber];
+    moveFollowing(viewNumber, view->cursorX, view->cursorY, 1);
+    view->textBuffer[view->cursorY][view->cursorX] = ch;
+    redrawChar(view, view->cursorX, view->cursorY);
 }
 
 void printChar(uint8_t viewNumber, char ch) {
@@ -162,14 +295,15 @@ void printChar(uint8_t viewNumber, char ch) {
             consume(view, 1);
             finish = false;
         } else if (view->outputBuffer[0] == '\b') {
+            moveFollowing(viewNumber, newCursorX, newCursorY, -1);
             newCursorX--;
             setCursorAt(viewNumber, newCursorX, newCursorY);
-            view->textBuffer[newCursorY][newCursorX] = ' ';
+            // view->textBuffer[newCursorY][newCursorX] = '\0';
             redrawCharInverted(view, view->cursorX, view->cursorY);
             consume(view, 1);
             finish = false;
-        } else if (isPrintable(view->outputBuffer[0])) {
-            setChar(view, view->outputBuffer[0]);
+        } else if (isPrintable(view->outputBuffer[0]) || view->outputBuffer[0] == '\0') {
+            setChar(viewNumber, view->outputBuffer[0]);
             consume(view, 1);
             newCursorX++;
             finish = false;
@@ -190,10 +324,13 @@ void reDraw(struct View *view) {
     }
     redrawCharInverted(view, view->cursorX, view->cursorY);
 }
-
 void setCursorAt(uint8_t viewNumber, int x, int y) {
     struct View *view = &Views[viewNumber];
     
+    if (x < 0 && y <= 0) {
+        x = 0;
+        y = 0;
+    }
     while (x >= (int)view->width) {
         x = 0;
         y++;
@@ -202,32 +339,7 @@ void setCursorAt(uint8_t viewNumber, int x, int y) {
         x = view->width - 1;
         y--;
     }
-    if (y < 0)
-        y = 0;
-    if (y >= view->scrollY + view->height) {
-        if (y >= TEXT_BUFFER_HEIGHT) {
-            int move = 10;
-            int newY = y - move;
-            int l = 0;
-            for (; l < newY; l++) {
-                int from = l + move, to = l;
-                for (int i = 0; i < TEXT_BUFFER_WIDTH; i++) {
-                    view->textBuffer[to][i] = view->textBuffer[from][i];
-                }
-            }
-            for (; l < TEXT_BUFFER_HEIGHT; l++) {
-                for (int i = 0; i < TEXT_BUFFER_WIDTH; i++) {
-                    view->textBuffer[l][i] = ' ';
-                }
-            }
-            y = newY;
-        }
-        view->scrollY = y - view->height + 1;
-        reDraw(view);
-    } else if (y < view->scrollY) {
-        view->scrollY = y;
-        reDraw(view);
-    }
+    scrollTo(viewNumber, y);
     if (view->cursorX != x || view->cursorY != y) {
         redrawChar(view, view->cursorX, view->cursorY);
         redrawCharInverted(view, x, y);
@@ -254,7 +366,7 @@ void clear(uint8_t viewNumber) {
     view->scrollY = 0;
     for (int y = 0; y < TEXT_BUFFER_HEIGHT; y++) {
         for (int x = 0; x < TEXT_BUFFER_WIDTH; x++) {
-            view->textBuffer[y][x] = ' ';
+            view->textBuffer[y][x] = '\0';
         }
     }
     view->cursorX = 0;

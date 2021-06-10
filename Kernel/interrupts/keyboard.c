@@ -28,7 +28,8 @@
 uint8_t caps_state = 0;
 bool shift = false;
 bool ctrl = false;
-bool alt = false;
+bool left_alt = false;
+bool right_alt = false;
 
 bool deadActive = false;
 uint8_t lastDeadKey = 0;
@@ -37,7 +38,7 @@ uint8_t keyBuffer[8];
 int keyBufferSize = 0;
 
 uint8_t getShiftState() {
-    return (shift ^ (caps_state == 1 || caps_state == 2)) | ctrl << 1 | alt << 2;
+    return (shift ^ (caps_state == 1 || caps_state == 2)) | ctrl << 1 | (left_alt || right_alt) << 2;
 }
 
 char translate(char from) {
@@ -71,6 +72,8 @@ void handleSingleByteKey(uint8_t key, bool pressed) {
             caps_state = 0;
     } else if (key == K_CONTROL) {
         ctrl = pressed;
+    } else if (key == K_ALT) {
+        left_alt = pressed;
     } else if (key == K_RETURN && pressed) {
         sendChar('\n');
     } else if (key == K_BACKSPACE && pressed) {
@@ -157,7 +160,7 @@ void keyboard_handler() {
             sendChar(arrowChar);
             deadActive = false;
         } else if (code == K_ALT) {
-            alt = pressed;
+            right_alt = pressed;
         } else {
             if (pressed) {
                 if (code == K_RETURN) {

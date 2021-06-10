@@ -33,6 +33,12 @@ Color colorLerp(Color a, Color b, uint8_t lerp) {
 void setPixel(Color color, int x, int y) {
     ((Color *)(uint64_t)infoBlock->physbase)[x + y * WIDTH] = color;
 }
+
+uint16_t charOffsetX, charOffsetY;
+void setCharOffset(uint16_t widthCount, uint16_t heightCount) {
+    charOffsetX = (WIDTH - widthCount * FONT_WIDTH * FONT_SCALE) / 2;
+    charOffsetY = (HEIGHT - heightCount * FONT_HEIGHT * FONT_SCALE) / 2;
+}
 void drawCharAt(char ch, uint8_t x, uint8_t y, Color background, Color foreground) {
     FONT_ROW_TYPE *l = font_letters[font_mapping[(uint8_t)ch]];
     for (int fontY = 0; fontY < FONT_HEIGHT; fontY++) {
@@ -44,9 +50,38 @@ void drawCharAt(char ch, uint8_t x, uint8_t y, Color background, Color foregroun
             
             for (int sy = 0; sy < FONT_SCALE; sy++) {
                 for (int sx = 0; sx < FONT_SCALE; sx++) {
-                    setPixel(color, x * (FONT_WIDTH * FONT_SCALE) + (fontX * FONT_SCALE + sx), y * (FONT_HEIGHT * FONT_SCALE) + (fontY * FONT_SCALE + sy));
+                    setPixel(color, charOffsetX + x * (FONT_WIDTH * FONT_SCALE) + (fontX * FONT_SCALE + sx), charOffsetY + y * (FONT_HEIGHT * FONT_SCALE) + (fontY * FONT_SCALE + sy));
                 }
             }
         }
     }
 }
+
+#define drawByPixel(xStart, yStart, xEnd, yEnd, code)           \
+    for (int y = yStart; y < yEnd; y++) {                       \
+        for (int x = xStart; x < xEnd; x++) {                   \
+            code                                                \
+        }                                                       \
+    }
+
+
+void drawImage(Color (*getPixelColor)(uint64_t x, uint64_t y)) {
+    drawByPixel(0, 0, WIDTH, HEIGHT,
+        setPixel(getPixelColor(x, y), x, y);
+    )
+}
+
+void drawCircle(uint64_t centerX, uint64_t centerY, uint64_t radius, Color color) {
+    drawByPixel(centerX - radius, centerY - radius, centerX + radius, centerY + radius,
+        if ((x * centerX) * (x * centerX) + (y * centerY) * (y * centerY) < radius * radius)
+            setPixel(color, x, y);
+    )
+}
+
+void drawRectangle(uint64_t xStart, uint64_t yStart, uint64_t width, uint64_t height, Color color) {
+    drawByPixel(xStart, yStart, xStart + width, yStart + height,
+        setPixel(color, x, y);
+    )
+}
+
+#undef drawByPixel
