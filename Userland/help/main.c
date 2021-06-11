@@ -7,10 +7,10 @@ int main() {
     puts("    help: prints this help\n");
     puts("    jobs: prints the running processes count\n");
     puts("    shell: it's the shell program\n");
-    puts("    date: \n");
-    puts("    div0: \n");
-    puts("    printmem: \n");
-    puts("    inforeq: \n");
+    puts("    date: prints the current date and time in ISO 8601\n");
+    puts("    div0: causes a division by zero interrupt\n");
+    puts("    printmem: prints 32 bytes after the address read from arguments\n");
+    puts("    inforeq: prints all the basic registers ans its values\n");
     puts("    \n");
     // puts("    \n");
     puts("Shell commands: \n");
