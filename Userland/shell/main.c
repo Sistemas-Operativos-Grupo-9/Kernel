@@ -110,7 +110,7 @@ bool execCommand(char *command) {
     char *argv[10];
     int argc = split(command, argv);
     exec = argv[0];
-    if (strcmp(exec, "quit") == 0) {
+    if (strcmp(exec, "quit") == 0 || strcmp(exec, "exit") == 0) {
         return true;
     }
     if (strcmp(exec, "pid") == 0) {
