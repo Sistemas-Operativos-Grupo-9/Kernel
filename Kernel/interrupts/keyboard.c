@@ -6,6 +6,7 @@
 #include "keys.h"
 #include "process.h"
 #include "views.h"
+#include "video.h"
 
 #define K_RETURN 0x1C
 #define K_LSHIFT 0x2A
@@ -24,6 +25,9 @@
 #define K_F2 0x3C
 #define K_F3 0x3D
 #define K_F4 0x3E
+
+#define K_PGUP 0x49
+#define K_PGDN 0x51
 
 uint8_t caps_state = 0;
 bool shift = false;
@@ -124,8 +128,8 @@ void handleSingleByteKey(uint8_t key, bool pressed) {
 void keyboard_handler() {
     uint8_t key = in(0x60);
     keyBuffer[keyBufferSize++] = key;
-    // printChar(' ');
-    // printHexByte(key);
+    // printChar(0, ' ');
+    // printHexByte(0, key);
     
     // Process buffer
     bool pressed = key >> 7 == 0;
@@ -161,6 +165,10 @@ void keyboard_handler() {
             deadActive = false;
         } else if (code == K_ALT) {
             right_alt = pressed;
+        } else if ((code == K_PGUP || code == K_PGDN) && pressed) {
+            uint8_t tty = getFocusedProcess()->tty;
+            lookAround(tty, code == K_PGDN ? 1 : -1);
+
         } else {
             if (pressed) {
                 if (code == K_RETURN) {

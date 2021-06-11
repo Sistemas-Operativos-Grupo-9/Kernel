@@ -11,13 +11,13 @@ void printInt(int value, uint8_t base) {
     printIntN(value, countDigits(value, base), base);
 }
 
-void printUnsignedN(unsigned value, uint8_t digits, uint8_t base) {
+void printUnsignedN(uint64_t value, uint8_t digits, uint8_t base) {
     char str[digits + 1];
     unsignedToString(value, digits, str, base);
     puts(str);
 }
 
-void printUnsigned(unsigned value, uint8_t base) {
+void printUnsigned(uint64_t value, uint8_t base) {
     printUnsignedN(value, countDigits(value, base), base);
 }
 

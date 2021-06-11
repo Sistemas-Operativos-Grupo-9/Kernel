@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include "process.h"
 #include "interrupts.h"
+#include "../datetime.h"
 
 int64_t read(uint64_t fd, char *buf, uint64_t count) {
     struct ProcessDescriptor process = *getCurrentProcess();
@@ -25,9 +26,9 @@ uint8_t getpid() {
     return getProcessPID(getCurrentProcess());
 }
 
-int execve(char *moduleName) {
+int execve(char *moduleName, char **argv, int argc) {
     struct ProcessDescriptor process = *getCurrentProcess();
-    int pid = createProcess(process.tty, moduleName, false);
+    int pid = createProcess(process.tty, moduleName, argv, argc, false);
     if (pid == -1)
         return -1;
     _sti();
@@ -42,6 +43,15 @@ uint64_t proccount() {
     return countProcesses();
 }
 
+void gettime(Time *time) {
+    *time = getTime();
+}
+
+extern void _printRegisters();
+void printreg() {
+    _printRegisters();
+}
+
 uint64_t syscallDispatcher(uint64_t rdi, uint64_t param1, uint64_t param2, uint64_t param3, uint64_t param4, uint64_t param5) {
     switch (rdi) {
         case READ: // drawChar: char, x, y
@@ -51,9 +61,15 @@ uint64_t syscallDispatcher(uint64_t rdi, uint64_t param1, uint64_t param2, uint6
         case GETPID: // getChar
             return getpid();
         case EXECVE: // getChar
-            return execve((char *)param1);
+            return execve((char *)param1, (char **)param2, (int)param3);
         case PROCCOUNT: // getChar
             return proccount();
+        case GETTIME:
+            gettime((Time *)param1);
+            break;
+        case PRINTREG:
+            printreg();
+            break;
     }
     return 0;
 }

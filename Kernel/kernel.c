@@ -96,8 +96,8 @@ int main()
 
 	// setCursorAt(0, 0, 0);
 	// clear(0);
+	clear(0);
 	clear(1);
-	clear(2);
 
 	#define PRINT_MODULE(moduleName) 							\
 		do {													\
@@ -110,23 +110,20 @@ int main()
 			printChar(0, '\n');									\
 		} while(0)
 
-	PRINT_MODULE("random");
-	PRINT_MODULE("shell");
+	// PRINT_MODULE("random");
+	// PRINT_MODULE("shell");
 
 	#undef PRINT_MODULE
 
 	// createProcess(1, "random", sampleCodeModuleAddress, (uint64_t *)shell - 1);
+	char *helpArgs[] = {"--print-help"};
 
-	createProcess(1, "shell", true);
-	createProcess(2, "shell", true);
+	createProcess(0, "shell", helpArgs, 1, true);
+	createProcess(1, "shell", NULL, 0, true);
 
-	setFocus(2);
+	setFocus(0);
 	
 	_startScheduler();
-
-
-	print(0, "\n[Finished]\n");
-	while (1);
 	
 	return 0;
 }

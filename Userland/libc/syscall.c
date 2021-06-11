@@ -22,10 +22,20 @@ uint8_t getpid() {
     return syscall(GETPID, 0, 0, 0, 0, 0);
 }
 
-int execve(char *moduleName) {
-    return syscall(EXECVE, (uint64_t)moduleName, 0, 0, 0, 0);
+int execve(char *moduleName, char **argv, int argc) {
+    return syscall(EXECVE, (uint64_t)moduleName, (uint64_t)argv, argc, 0, 0);
 }
 
 uint64_t proccount() {
     return syscall(PROCCOUNT, 0, 0, 0, 0, 0);
+}
+
+Time gettime() {
+    Time time;
+    syscall(GETTIME, (uint64_t)&time, 0, 0, 0, 0);
+    return time;
+}
+
+void printreg() {
+    syscall(PRINTREG, 0, 0, 0, 0, 0);
 }

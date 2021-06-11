@@ -74,35 +74,38 @@ uint64_t writeTTY(uint8_t tty, char *buf, uint64_t count) {
     return count;
 }
 
-void restartProcess() {
-    _cli();
+void printClosingProcess(int retCode) {
     ProcessDescriptor *process = getCurrentProcess();
-    register int retCode __asm__("eax");
-    print(process->tty, "Process ");
+    // print(process->tty, "Process ");
     print(process->tty, process->name);
-    print(process->tty, " terminated with code: ");
+    print(process->tty, " -> ");
     printInt(process->tty, retCode, 10);
     printChar(process->tty, '\n');
+}
+
+void restartProcess() {
+    _cli();
+    register int retCode __asm__("eax");
+    printClosingProcess(retCode);
+    ProcessDescriptor *process = getCurrentProcess();
     print(process->tty, "Restarting process...");
-    createProcess(process->tty, process->name, true);
+    createProcess(process->tty, process->name, NULL, 0, true);
+
     process->active = false;
     _killAndNextProcess();
 }
 
 void terminateProcess() {
     _cli();
-    ProcessDescriptor *process = getCurrentProcess();
     register int retCode __asm__("eax");
-    print(0, "Process ");
-    print(0, process->name);
-    print(0, " terminated with code: ");
-    printInt(0, retCode, 16);
-    printChar(0, '\n');
+    printClosingProcess(retCode);
+    
+    ProcessDescriptor *process = getCurrentProcess();
     process->active = false;
     _killAndNextProcess();
 }
 
-int createProcess(uint8_t tty, char *name, bool restartOnFinish) {
+int createProcess(uint8_t tty, char *name, char **argv, int argc, bool restartOnFinish) {
     struct Module *module = getModule(name);
     if (module == NULL)
         return -1;
@@ -124,6 +127,9 @@ int createProcess(uint8_t tty, char *name, bool restartOnFinish) {
     *--stack = 8;
     *--stack = (uint64_t)entryPoint;
     *--stack = 0; // This value is changed in _switchContext
+    *--stack = (uint64_t)argc;
+    *--stack = (uint64_t)argv;
+
     processes[pid] = (struct ProcessDescriptor) {
         .tty = tty,
         .name = name,
@@ -134,7 +140,6 @@ int createProcess(uint8_t tty, char *name, bool restartOnFinish) {
         },
         .active = true,
         .stack = stack,
-        .initialStack = stackInit,
         .entryPoint = entryPoint
     };
     enqueueItem(&readyQueue, &processes[pid]);

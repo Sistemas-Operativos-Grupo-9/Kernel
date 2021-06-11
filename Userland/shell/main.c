@@ -3,6 +3,7 @@
 #include <print.h>
 #include <syscall.h>
 #include <string.h>
+#include <null.h>
 
 char commandHistory[10][256];
 const uint64_t historyLength = sizeof(commandHistory) / sizeof(*commandHistory);
@@ -86,22 +87,48 @@ bool validateCommand(char *command) {
     return false;
 }
 
+// Returns the arg count
+int split(char *command, char **splitted) {
+    int count = 0;
+    char *start = command;
+    bool out = false;
+    do {
+        out = *command == '\0';
+        if (*command == ' ' || out) {
+            *command = '\0';
+            splitted[count] = start;
+            start = command + 1;
+            count++;
+        }
+    } while (command++, !out);
+    return count;
+}
+
 // Returns true if exit
 bool execCommand(char *command) {
-    if (strcmp(command, "quit") == 0) {
+    char *exec;
+    char *argv[10];
+    int argc = split(command, argv);
+    exec = argv[0];
+    if (strcmp(exec, "quit") == 0) {
         return true;
     }
-    if (strcmp(command, "pid") == 0) {
+    if (strcmp(exec, "pid") == 0) {
         printInt(getpid(), 10);
-    } else if (execve(command) == -1) {
+    } else if (execve(exec, argv + 1, argc - 1) == -1) {
         putchar('\"');
-        puts(command);
+        puts(exec);
         puts("\" is not a recognized program or module\n");
     }
     return false;
 }
 
-int main() {
+int main(char **argv, int argc) {
+    if (argc == 1 && strcmp(argv[0], "--print-help") == 0) {
+        puts("Use PgUp and PgDown to scroll.\n");
+        puts("View command history with up and down arrows.\n");
+        puts("Type \"help\" to see all the programs and commands.\n");
+    }
     while (true) {
         puts("\n~");
         inputCommand(command, sizeof(command));

@@ -13,11 +13,9 @@ typedef struct __attribute__((packed)) ProcessDescriptor
 {
     void *stack;
     bool initialized;
-    bool activatedFromIRQ;
-    char *name;
-    void *initialStack;
-    void *entryPoint;
     uint8_t tty;
+    char *name;
+    void *entryPoint;
     bool active;
     struct FileDescriptor fdTable[3];
 } ProcessDescriptor;
@@ -28,10 +26,11 @@ extern void _killAndNextProcess();
 
 
 void restartProcess();
+void terminateProcess();
 int getProcessPID(ProcessDescriptor *process);
 struct ProcessDescriptor *getCurrentProcess();
 struct ProcessDescriptor *getFocusedProcess();
-int createProcess(uint8_t tty, char *name, bool restartOnFinish);
+int createProcess(uint8_t tty, char *name, char **argv, int argc, bool restartOnFinish);
 void nextProcess();
 void setFocus(uint8_t tty);
 uint64_t countProcesses();

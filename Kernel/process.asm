@@ -49,7 +49,9 @@ extern getLength
 
 global _startScheduler
 _startScheduler:
-	call _killAndNextProcess
+	cli
+	mov byte [schedulerEnabled], 1
+	call _killAndNextProcess ; We "kill" this process and start processing the queue
 
 
 global _switchContext
@@ -62,18 +64,14 @@ _switchContext:
     call getCurrentProcess
     mov BYTE [rax + 8], 1 ; set initialized to true
     mov [rax + 0], rsp ; save rsp in process struct
-    ; mov rdi, 1
-    ; mov rsi, 'a'
-    ; call printChar
     mov rdi, readyQueue
 	mov rsi, rax
 	call enqueueItem
 	jmp afterKill
 
-_killAndNextProcess:
+_killAndNextProcess: ; call here for not pushing the process to the queue
 	cli
 	mov r12, iretq
-	mov byte [schedulerEnabled], 1
 afterKill:
 	; get process to resume
     mov rdi, readyQueue
@@ -94,7 +92,9 @@ checkQueueNotEmpty:
     popState
 	jmp ret
     after_restore:
-
+	; Pop argv and argc from stack
+	pop rdi
+	pop rsi
 	mov [rsp], r12
 ret:
 	; sti

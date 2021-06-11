@@ -41,26 +41,18 @@ static struct View {
     uint32_t positionX, positionY;
     uint32_t width, height;
 } Views[] = {
-    // {.cursorX = 0, .cursorY = 0,
-    // .positionX = 0, .positionY = 0,
-    // .width = TEXT_WIDTH / 2, .height = TEXT_HEIGHT / 2,
-    // .scrollY = 0, .outputLength = 0},
-    // {.cursorX = 0, .cursorY = 0,
-    // .positionX = 0, .positionY = TEXT_HEIGHT / 2 + 1,
-    // .width = TEXT_WIDTH / 2, .height = TEXT_HEIGHT / 2,
-    // .scrollY = 0, .outputLength = 0},
-    {.cursorX = 0, .cursorY = 0,
-    .positionX = 0, .positionY = 0,
-    .width = TEXT_WIDTH / 2, .height = TEXT_HEIGHT,
-    .scrollY = 0, .outputLength = 0},
-    {.cursorX = 0, .cursorY = 0,
-    .positionX = TEXT_WIDTH / 2 + 1, .positionY = 0,
-    .width = TEXT_WIDTH / 2, .height = TEXT_HEIGHT / 2,
-    .scrollY = 0, .outputLength = 0},
-    {.cursorX = 0, .cursorY = 0,
-    .positionX = TEXT_WIDTH / 2 + 1, .positionY = TEXT_HEIGHT / 2 + 1,
-    .width = TEXT_WIDTH / 2, .height = TEXT_HEIGHT / 2,
-    .scrollY = 0, .outputLength = 0}
+    { .positionX = 0, .positionY = 0,
+    .width = TEXT_WIDTH, .height = TEXT_HEIGHT / 2},
+    { .positionX = 0, .positionY = TEXT_HEIGHT / 2 + 1,
+    .width = TEXT_WIDTH, .height = TEXT_HEIGHT / 2},
+    // { .positionX = 0, .positionY = TEXT_HEIGHT / 2 + 1,
+    // .width = TEXT_WIDTH / 2, .height = TEXT_HEIGHT / 2},
+    // { .positionX = 0, .positionY = 0,
+    // .width = TEXT_WIDTH / 2, .height = TEXT_HEIGHT},
+    // { .positionX = TEXT_WIDTH / 2 + 1, .positionY = 0,
+    // .width = TEXT_WIDTH / 2, .height = TEXT_HEIGHT / 2},
+    // { .positionX = TEXT_WIDTH / 2 + 1, .positionY = TEXT_HEIGHT / 2 + 1,
+    // .width = TEXT_WIDTH / 2, .height = TEXT_HEIGHT / 2}
 };
 
 uint8_t focusedView = 0;
@@ -93,8 +85,13 @@ void initScreen() {
     initVideo();
     setCharOffset(TEXT_WIDTH, TEXT_HEIGHT);
 
-    for (int i = 0; i < sizeof(Views) / sizeof(*Views); i++)
+    for (int i = 0; i < sizeof(Views) / sizeof(*Views); i++) {
+        Views[i].cursorX = 0;
+        Views[i].cursorY = 0;
+        Views[i].outputLength = 0;
+        Views[i].scrollY = 0;
         Views[i].colors = NORMAL_COLORS;
+    }
     // for (int y = 0; y < TEXT_HEIGHT; y++) {
     //     for (int x = 0; x < TEXT_WIDTH; x++) {
     //         drawCharAt('*', x, y, BLACK, BLUE);
@@ -122,8 +119,8 @@ void setBackground(struct View *view, Color color) {
 }
 
 void drawCharAtView(struct View *view, char ch, uint8_t x, uint8_t y, Color background, Color foreground) {
-    // if (x >= view->width)
-    drawCharAt(ch, x + view->positionX, y + view->positionY, background, foreground);
+    if (x >= 0 && x < view->width && y >= 0 && y < view->height)
+        drawCharAt(ch, x + view->positionX, y + view->positionY, background, foreground);
 }
 Color invertColor(Color color) {
     return (Color) {.red = 255 - color.red, .green = 255 - color.green, .blue = 255 - color.blue};
@@ -167,7 +164,16 @@ void reDraw(struct View *view) {
             redrawChar(view, x, y + view->scrollY);
         }
     }
-    redrawCharInverted(view, view->cursorX, view->cursorY);
+    if (view->cursorY < view->scrollY + view->height && view->cursorY >= view->scrollY)
+        redrawCharInverted(view, view->cursorX, view->cursorY);
+}
+void lookAround(uint8_t viewNumber, int deltaY) {
+    struct View *view = &Views[viewNumber];
+    if (deltaY > 0) {
+        scrollTo(viewNumber, view->scrollY + view->height + deltaY - 1);
+    } else if (deltaY < 0) {
+        scrollTo(viewNumber, view->scrollY + deltaY);
+    }
 }
 void scrollTo(uint8_t viewNumber, int y) {
     struct View *view = &Views[viewNumber];
@@ -399,13 +405,13 @@ void printInt(uint8_t viewNumber, int value, uint8_t base) {
     printIntN(viewNumber, value, countDigits(value, base), base);
 }
 
-void printUnsignedN(uint8_t viewNumber, unsigned value, uint8_t digits, uint8_t base) {
+void printUnsignedN(uint8_t viewNumber, uint64_t value, uint8_t digits, uint8_t base) {
     char str[digits + 1];
     unsignedToString(value, digits, str, base);
     print(viewNumber, str);
 }
 
-void printUnsigned(uint8_t viewNumber, unsigned value, uint8_t base) {
+void printUnsigned(uint8_t viewNumber, uint64_t value, uint8_t base) {
     printUnsignedN(viewNumber, value, countDigits(value, base), base);
 }
 

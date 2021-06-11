@@ -24,7 +24,6 @@ void _syscallHandler(void);
 
 void _exception0Handler(void);
 void _exception6Handler(void);
-void _exception13Handler(void);
 
 bool getIF();
 void _cli(void);

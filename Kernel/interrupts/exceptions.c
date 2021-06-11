@@ -7,13 +7,20 @@
 
 extern void _printRegisters();
 
-void exceptionDispatcher(int exception) {
+void exceptionDispatcher(int exception, uint64_t rip) {
 	struct ProcessDescriptor *process = getCurrentProcess();
 
 	print(process->tty, "Exception: ");
 	printUnsigned(process->tty, exception, 10);
 	printChar(process->tty, '\n');
-
+	if (exception == 0) {
+		print(process->tty, "Division by zero\n");
+	} else if (exception == 6) {
+		print(process->tty, "Invalid opcode\n");
+	}
+	print(process->tty, "Instruction Pointer: ");
+	printHexPointer(process->tty, (void *)rip);
+	printChar(process->tty, '\n');
 	
 	// printHexPointer((void *)returnAddress);
 	// printChar('\n');
@@ -21,5 +28,6 @@ void exceptionDispatcher(int exception) {
 	_printRegisters();
 	// print("Finished\n");
 	// while (1);
-	restartProcess();
+	terminateProcess();
+
 }

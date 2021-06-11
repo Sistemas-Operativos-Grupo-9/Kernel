@@ -15,7 +15,6 @@ GLOBAL _irq05Handler
 
 GLOBAL _exception0Handler
 GLOBAL _exception6Handler
-GLOBAL _exception13Handler
 GLOBAL _syscallHandler
 
 EXTERN irqDispatcher
@@ -30,6 +29,7 @@ GLOBAL ret00
 EXTERN printUnsignedN
 EXTERN printChar
 EXTERN print
+EXTERN getCurrentProcess
 GLOBAL _printRegisters
 
 SECTION .text
@@ -70,13 +70,6 @@ SECTION .text
 	pop rax
 %endmacro
 
-
-%macro newLine 0
-	mov rdi, 00h
-	mov rsi, 0Ah
-	call printChar
-%endmacro
-
 %macro EOI 0 
 	; signal pic EOI (End of Interrupt)
 	mov al, 20h
@@ -95,36 +88,14 @@ SECTION .text
 	iretq
 %endmacro
 
-%macro print64bit 1
-	mov rdi, 0
-	mov rsi, %1
-	mov rdx, 16
-	mov rcx, 16
-	call printUnsignedN
-%endmacro
-
-; %macro printStackValue 1
-; 	print64bit [esp + %1 * 8]
-; 	newLine
-; %endmacro
-
-; %macro printStack 0
-; 	printStackValue 0
-; 	printStackValue 1
-; 	printStackValue 2
-; 	printStackValue 3
-; 	printStackValue 4
-; 	printStackValue 5
-; 	printStackValue 6
-; 	printStackValue 7
-; %endmacro
-
 %macro exceptionHandler 1
 	pushState
+
 
 	; newLine
 	; printStack
 	mov rdi, %1 ; pasaje de parametro
+	mov rsi, [rsp + 8 * 15] ; Instruction pointer
 	; mov rsi, rsp
 	call exceptionDispatcher
 
@@ -275,63 +246,37 @@ _syscallHandler:
 	iretq
 
 
-; GLOBAL _exception0Handler
-; GLOBAL _exception6Handler
-; GLOBAL _exception13Handler
-; ;Zero Division Exception
-; _exception0Handler:
-; 	exceptionHandler 0
-; ;Invalid Opcode
-; _exception6Handler:
-; 	exceptionHandler 6
-; ;General Protection Exception
-; _exception13Handler:
-; 	exceptionHandler 13
 
-; GLOBAL _generalExceptionHandler
-; _generalExceptionHandler:
-; 	exceptionHandler -1
+%macro newLine 0
+	mov rsi, 0Ah
+	call printChar
+%endmacro
 
-; %macro exceptionHandlerMaster 1
-; GLOBAL _exception%+%1%+Handler
-; _exception%+%1%+Handler:
-; 	exceptionHandler %1
-; %endmacro
-
-; exceptionHandlerMaster 0
-; exceptionHandlerMaster 1
-; exceptionHandlerMaster 2
-; exceptionHandlerMaster 3
-; exceptionHandlerMaster 4
-; exceptionHandlerMaster 5
-; exceptionHandlerMaster 6
-; exceptionHandlerMaster 7
-; exceptionHandlerMaster 8
-; exceptionHandlerMaster 9
-; exceptionHandlerMaster 10
-; exceptionHandlerMaster 11
-; exceptionHandlerMaster 12
-; exceptionHandlerMaster 13
-; exceptionHandlerMaster 14
-; exceptionHandlerMaster 15
-; exceptionHandlerMaster 16
-; exceptionHandlerMaster 17
-; exceptionHandlerMaster 18
-; exceptionHandlerMaster 19
-; exceptionHandlerMaster 20
+%macro print64bit 1
+	mov rsi, %1
+	mov rdx, 16
+	mov rcx, 16
+	call printUnsignedN
+%endmacro
 
 %macro printRegister 1
 	pushState
 	push %1
-	mov rdi, 0
+	call getCurrentProcess
+	mov rdi, [rax + 9]
+	push rdi
 	mov rsi, %1%+String
 	call print
-	mov rdi, 0
+	pop rdi
+	push rdi
 	mov rsi, equalString
 	call print
 
+	pop rdi
 	pop rsi
+	push rdi
 	print64bit rsi
+	pop rdi
 	newLine
 	popState
 %endmacro
@@ -339,10 +284,9 @@ _syscallHandler:
 ;Zero Division Exception
 _exception0Handler:
 	exceptionHandler 0
+;Invalid opcode
 _exception6Handler:
 	exceptionHandler 6
-_exception13Handler:
-	exceptionHandler 13
 
 _printRegisters:
 	printRegister rdi
@@ -362,7 +306,6 @@ _printRegisters:
 	printRegister r13
 	printRegister r14
 	printRegister r15
-	newLine
 	ret
 
 haltcpu:
