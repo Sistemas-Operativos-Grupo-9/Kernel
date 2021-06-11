@@ -10,7 +10,8 @@ int main() {
     puts("    date: prints the current date and time in ISO 8601\n");
     puts("    div0: causes a division by zero interrupt\n");
     puts("    printmem: prints 32 bytes after the address read from arguments\n");
-    puts("    inforeq: prints all the basic registers ans its values\n");
+    puts("    inforeg: prints all the basic registers ans its values\n");
+    puts("    loop: prints l o o p slowly multiple times\n");
     puts("    \n");
     // puts("    \n");
     puts("Shell commands: \n");
