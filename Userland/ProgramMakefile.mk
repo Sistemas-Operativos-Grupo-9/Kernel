@@ -5,14 +5,23 @@ OUTPUT = $(BUILDDIR)/$(PROGRAM).bin
 SOURCES = ../_loader.c $(shell find . -name "*.c")
 OBJS = $(SOURCES:%.c=$(BUILDDIR)/$(PROGRAM)/%.o)
 
-CFLAGS = -I../libc -I../../Constants -m64 -fno-exceptions -std=c99 -Wall -ffreestanding -nostdlib -fno-common -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -fno-builtin-malloc -fno-builtin-free -fno-builtin-realloc -g -fpie
-LDFLAGS = -Wl,-pie,--oformat=elf64-x86-64 
+CFLAGS = -I../libc -I../../Constants -m64 -fno-exceptions -std=c99 -Wall -ffreestanding -nostdlib -fno-common -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -fno-builtin-malloc -fno-builtin-free -fno-builtin-realloc -fno-stack-check -fno-stack-protector -g -fpie -fpic
+LDFLAGS = -Wl,--warn-common,--build-id=none,-pie,--oformat=elf64-x86-64 -static
 LDLIBS = -L../libc
+
+LDVER = $(shell ld -v | tr ' ' '\n' | tail -1)
+$(info LD version: $(LDVER))
+
+ifneq "$(LDVER)" "2.25"
+$(info LD version is not docker, adding --no-dynamic-linker flag)
+LDFLAGS += -Wl,--no-dynamic-linker
+endif
+
 
 LD=gcc
 GCC=gcc
 
-$(info $(OBJS))
+# $(info $(OBJS))
 
 $(BUILDDIR)/$(PROGRAM)/%.o: %.c
 	mkdir -p $(BUILDDIR)/$(PROGRAM)

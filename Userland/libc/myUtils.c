@@ -9,7 +9,7 @@ char getDigit(uint8_t num) {
     return num;
 }
 
-void numToString(int num, uint8_t digits, char out[static digits + 1], uint8_t base) {
+void numToString(int num, uint8_t digits, char out[], uint8_t base) {
     int i = 0;
     if (num < 0) {
         out[i++] = '-';
@@ -36,7 +36,7 @@ uint8_t countDigits(unsigned num, uint8_t base) {
     return digits;
 }
 
-void unsignedToString(uint64_t num, uint8_t digits, char out[static digits + 1], uint8_t base) {
+void unsignedToString(uint64_t num, uint8_t digits, char out[], uint8_t base) {
     uint64_t div = pow(base, digits - 1);
 
     for (int i = 0; i < digits; i++) {
