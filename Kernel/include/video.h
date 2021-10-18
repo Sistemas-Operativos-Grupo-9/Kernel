@@ -25,4 +25,4 @@ void printHexPointer(uint8_t viewNumber, void *ptr);
 void clear(uint8_t viewNumber);
 void changeFocusView(uint8_t newFocusViewNumber);
 void lookAround(uint8_t viewNumber, int deltaY);
-void scrollTo(uint8_t viewNumber, int y);
+int scrollTo(uint8_t viewNumber, int y);

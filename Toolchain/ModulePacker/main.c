@@ -79,6 +79,8 @@ int buildImage(array_t fileArray, char *output_file) {
 		//Write the file size;
 		write_size(target, fileArray.array[i]);
 
+		printf("File: %s ", fileArray.array[i]);
+		putchar('\n');
 		//Write the binary
 		write_file(target, source);
 
@@ -108,15 +110,16 @@ void write_name(FILE *target, char *filename) {
 	strcpy(base, filename);
 	base = basename(base);
 	int len = strlen(base);
-	fwrite(base, len - 4, 1, target);
-	char nullEnd = '\0';
-	fwrite(&nullEnd, 1, 1, target);
+	base[len - 4] = '\0';
+	printf("Name: %s ", base);
+	fwrite(base, len - 3, 1, target);
 }
 
 int write_size(FILE *target, char *filename) {
 	struct stat st;
 	stat(filename, &st);
 	uint32_t size = st.st_size;
+	printf("Size: %u ", size);
 	fwrite(&size, sizeof(uint32_t), 1, target);
 }
 

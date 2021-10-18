@@ -170,40 +170,46 @@ void reDraw(struct View *view) {
 void lookAround(uint8_t viewNumber, int deltaY) {
     struct View *view = &Views[viewNumber];
     if (deltaY > 0) {
-        scrollTo(viewNumber, view->scrollY + view->height + deltaY - 1);
+        int objY = view->scrollY + view->height + deltaY - 1;
+        if (objY >= TEXT_BUFFER_HEIGHT) {
+            objY = TEXT_BUFFER_HEIGHT - 1;
+        }
+        scrollTo(viewNumber, objY);
     } else if (deltaY < 0) {
-        scrollTo(viewNumber, view->scrollY + deltaY);
+        int objY = view->scrollY + deltaY;
+        if (objY < 0) {
+            objY = 0;
+        }
+        scrollTo(viewNumber, objY);
     }
 }
-void scrollTo(uint8_t viewNumber, int y) {
+int scrollTo(uint8_t viewNumber, int y) {
     struct View *view = &Views[viewNumber];
 
+    while (y >= TEXT_BUFFER_HEIGHT) {
+        int move = 10;
+        int newY = y - move;
+        int l = 0;
+        for (; l < TEXT_BUFFER_HEIGHT; l++) {
+            int from = l + move, to = l;
+            for (int i = 0; i < TEXT_BUFFER_WIDTH; i++) {
+                view->textBuffer[to][i] = from < TEXT_BUFFER_HEIGHT ? view->textBuffer[from][i] : '\0';
+            }
+        }
+        y = newY;
+        view->scrollY -= move;
+    }
     if (y < 0)
         y = 0;
     if (y >= view->scrollY + view->height) {
-        while (y >= TEXT_BUFFER_HEIGHT) {
-            int move = 10;
-            int newY = y - move;
-            int l = 0;
-            for (; l < newY; l++) {
-                int from = l + move, to = l;
-                for (int i = 0; i < TEXT_BUFFER_WIDTH; i++) {
-                    view->textBuffer[to][i] = view->textBuffer[from][i];
-                }
-            }
-            for (; l < TEXT_BUFFER_HEIGHT; l++) {
-                for (int i = 0; i < TEXT_BUFFER_WIDTH; i++) {
-                    view->textBuffer[l][i] = '\0';
-                }
-            }
-            y = newY;
-        }
         view->scrollY = y - view->height + 1;
         reDraw(view);
     } else if (y < view->scrollY) {
         view->scrollY = y;
         reDraw(view);
     }
+
+    return y;
 }
 
 uint64_t countCharsAfter(struct View *view, int xFrom, int yFrom) {
@@ -342,6 +348,8 @@ void printChar(uint8_t viewNumber, char ch) {
             finish = false;
         }
         setCursorAt(viewNumber, newCursorX, newCursorY);
+        newCursorX = view->cursorX;
+        newCursorY = view->cursorY;
     }
 }
 
@@ -360,7 +368,7 @@ void setCursorAt(uint8_t viewNumber, int x, int y) {
         x = view->width - 1;
         y--;
     }
-    scrollTo(viewNumber, y);
+    y = scrollTo(viewNumber, y);
     if (view->cursorX != x || view->cursorY != y) {
         redrawChar(view, view->cursorX, view->cursorY);
         redrawCharInverted(view, x, y);

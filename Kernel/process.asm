@@ -54,6 +54,7 @@ _startScheduler:
 	call _killAndNextProcess ; We "kill" this process and start processing the queue
 
 
+extern processReturned
 global _switchContext
 global _killAndNextProcess
 _switchContext:
@@ -64,7 +65,12 @@ _switchContext:
     call getCurrentProcess
     mov BYTE [rax + 8], 1 ; set initialized to true
     mov [rax + 0], rsp ; save rsp in process struct
-    mov rdi, readyQueue
+	mov dl, [rax + 9] ; get "toKill" flag
+	test dl, dl
+	jz dontKill
+	call processReturned
+dontKill:
+	mov rdi, readyQueue
 	mov rsi, rax
 	call enqueueItem
 	jmp afterKill

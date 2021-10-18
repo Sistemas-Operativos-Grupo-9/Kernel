@@ -83,10 +83,14 @@ void printClosingProcess(int retCode) {
     printChar(process->tty, '\n');
 }
 
+bool killProcess(int pid) {
+    if (!processes[pid].active)
+        return false;
+    processes[pid].toKill = true;
+    return true;
+}
+
 void restartProcess() {
-    _cli();
-    register int retCode __asm__("eax");
-    printClosingProcess(retCode);
     ProcessDescriptor *process = getCurrentProcess();
     print(process->tty, "Restarting process...");
     createProcess(process->tty, process->name, NULL, 0, true);
@@ -96,19 +100,26 @@ void restartProcess() {
 }
 
 void terminateProcess() {
-    _cli();
-    register int retCode __asm__("eax");
-    printClosingProcess(retCode);
-    
     ProcessDescriptor *process = getCurrentProcess();
     process->active = false;
     _killAndNextProcess();
+}
+
+void processReturned() {
+    _cli();
+    register int retCode __asm__("eax");
+    printClosingProcess(retCode);
+    if (processes[PID].restart)
+        restartProcess();
+    else
+        terminateProcess();
 }
 
 int createProcess(uint8_t tty, char *name, char **argv, int argc, bool restartOnFinish) {
     struct Module *module = getModule(name);
     if (module == NULL)
         return -1;
+    START_LOCK;
     uint64_t pid = getFreePID();
     void *entryPoint = (void *)(pid * 0x100000 + 0x500000);
     uint64_t *stack = (uint64_t *)(entryPoint + 0x100000 - 8); // Position process stack at the end of it's memory region
@@ -116,10 +127,7 @@ int createProcess(uint8_t tty, char *name, char **argv, int argc, bool restartOn
     memcpy((void *)entryPoint, (void *)module->address, module->size);
 
     uint64_t *stackInit = stack;
-    if (restartOnFinish)
-        *stack = (uint64_t)restartProcess;
-    else
-        *stack = (uint64_t)terminateProcess;
+    *stack = (uint64_t)processReturned;
     *--stack = (uint64_t)entryPoint;
     *--stack = 0;
     *--stack = (uint64_t)stackInit;
@@ -139,10 +147,12 @@ int createProcess(uint8_t tty, char *name, char **argv, int argc, bool restartOn
             (struct FileDescriptor) {.write = (int (*)(uint8_t, char *, uint64_t))writeTTY},
         },
         .active = true,
+        .restart = restartOnFinish,
         .stack = stack,
         .entryPoint = entryPoint
     };
     enqueueItem(&readyQueue, &processes[pid]);
+    END_LOCK;
     return pid;
 }
 

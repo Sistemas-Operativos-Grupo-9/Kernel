@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <datetime.h>
 
@@ -10,3 +11,4 @@ int execve(char *moduleName, char **argv, int argc);
 uint64_t proccount();
 Time gettime();
 void printreg();
+bool kill(int pid);

@@ -15,10 +15,10 @@ void readBackup() {
 	moduleCount = *(uint32_t *)(0x400000 + sizeof(modules));
 }
 
-void addModule(char *name, void *address, uint64_t size) {
-	modules[moduleCount] = (struct Module) {.address = address, .size = size};
-	strcpy(modules[moduleCount].name, name);
-	moduleCount++;
+void addModule(struct Module *modules, uint32_t *moduleCount, char *name, void *address, uint64_t size) {
+	modules[*moduleCount] = (struct Module) {.address = address, .size = size};
+	strcpy(modules[*moduleCount].name, name);
+	(*moduleCount)++;
 }
 struct Module *getModule(char *name) {
 	for (int i = 0; i < moduleCount; i++) {
@@ -29,33 +29,34 @@ struct Module *getModule(char *name) {
 	return NULL;
 }
 
-static void loadModule(uint8_t ** module, uint8_t ** targetModuleAddress);
+static void loadModule(struct Module *modules, uint32_t *moduleCount, uint8_t ** module, uint8_t ** targetModuleAddress);
 static uint32_t readUint32(uint8_t ** address);
 static void readName(uint8_t ** address, char *buf);
 
 void loadModules(void * payloadStart)
 {
-	memset(modules, 0, sizeof(modules));
-	moduleCount = 0;
 	int i;
 	uint8_t * currentModule = (uint8_t*)payloadStart;
 	uint32_t totalModuleCount = readUint32(&currentModule);
 	uint8_t *targetModuleAddress = (uint8_t*)0x400000;
-	targetModuleAddress += sizeof(modules);
+	struct Module *modulesBackup = targetModuleAddress;
+	uint16_t *moduleCountBackup = targetModuleAddress += sizeof(modules);
 	targetModuleAddress += sizeof(totalModuleCount);
 
+
+
 	for (i = 0; i < totalModuleCount; i++)
-		loadModule(&currentModule, &targetModuleAddress);
+		loadModule(modulesBackup, moduleCountBackup, &currentModule, &targetModuleAddress);
 
 
 	// Backup data before losing it when cleaning bss
-	for (i = 0; i < sizeof(modules) / sizeof(*modules); i++) {
-		((struct Module *)(0x400000))[i] = modules[i];
-	}
-	*(uint32_t *)(0x400000 + sizeof(modules)) = totalModuleCount;
+	// for (i = 0; i < sizeof(modules) / sizeof(*modules); i++) {
+	// 	((struct Module *)(0x400000))[i] = modules[i];
+	// }
+	// *(uint32_t *)(0x400000 + sizeof(modules)) = totalModuleCount;
 }
 
-static void loadModule(uint8_t ** module, uint8_t ** targetModuleAddress)
+static void loadModule(struct Module *modules, uint32_t *moduleCount, uint8_t ** module, uint8_t ** targetModuleAddress)
 {
 	char name[32];
 	readName(module, name);
@@ -70,7 +71,7 @@ static void loadModule(uint8_t ** module, uint8_t ** targetModuleAddress)
 	// print(" bytes)");
 
 	memcpy(*targetModuleAddress, *module, moduleSize);
-	addModule(name, *targetModuleAddress, moduleSize);
+	addModule(modules, moduleCount, name, *targetModuleAddress, moduleSize);
 	*module += moduleSize;
 	*targetModuleAddress += moduleSize;
 

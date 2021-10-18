@@ -13,10 +13,12 @@ typedef struct __attribute__((packed)) ProcessDescriptor
 {
     void *stack;
     bool initialized;
+    bool toKill;
     uint8_t tty;
     char *name;
     void *entryPoint;
     bool active;
+    bool restart;
     struct FileDescriptor fdTable[3];
 } ProcessDescriptor;
 
@@ -24,7 +26,7 @@ extern void _startScheduler();
 extern void _switchContext();
 extern void _killAndNextProcess();
 
-
+bool killProcess(int pid);
 void restartProcess();
 void terminateProcess();
 int getProcessPID(ProcessDescriptor *process);

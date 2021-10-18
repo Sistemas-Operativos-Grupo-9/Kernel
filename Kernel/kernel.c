@@ -85,7 +85,7 @@ void * initializeKernelBinary()
 	#undef printHexPointer
 	initScreen();
 	clear(0);
-	print(0, infoBuffer);
+	// print(0, infoBuffer);
 
 	return getStackBase();
 }

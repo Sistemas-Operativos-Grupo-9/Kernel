@@ -52,6 +52,10 @@ void printreg() {
     _printRegisters();
 }
 
+bool kill(int pid) {
+    return killProcess(pid);
+}
+
 uint64_t syscallDispatcher(uint64_t rdi, uint64_t param1, uint64_t param2, uint64_t param3, uint64_t param4, uint64_t param5) {
     switch (rdi) {
         case READ: // drawChar: char, x, y
@@ -70,6 +74,8 @@ uint64_t syscallDispatcher(uint64_t rdi, uint64_t param1, uint64_t param2, uint6
         case PRINTREG:
             printreg();
             break;
+        case KILL:
+            return kill(param1);
     }
     return 0;
 }

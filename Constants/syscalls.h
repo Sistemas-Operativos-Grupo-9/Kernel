@@ -6,6 +6,7 @@ enum Syscalls {
     WRITE = 1,
     GETPID = 39,
     EXECVE = 59,
+    KILL = 62,
     PROCCOUNT = 102,
     GETTIME = 103,
     PRINTREG = 104,
