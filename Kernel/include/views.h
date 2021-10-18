@@ -1,7 +1,7 @@
 #pragma once
 
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 uint64_t inputAvailable(uint8_t tty);
 void writeChar(uint8_t tty, char ch);

@@ -8,7 +8,7 @@ struct Module {
 };
 
 struct Module *getModule(char *name);
-void loadModules(void * payloadStart);
+void loadModules(void *payloadStart);
 void readBackup();
 
 #endif

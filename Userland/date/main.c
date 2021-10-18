@@ -3,12 +3,12 @@
 #include <time.h>
 
 int main() {
-    char out[21];
+	char out[21];
 
-    toISO8601(gettime(), out);
-    puts("Current time: ");
-    puts(out);
-    putchar('\n');
-    
-    return 0;
+	toISO8601(gettime(), out);
+	puts("Current time: ");
+	puts(out);
+	putchar('\n');
+
+	return 0;
 }

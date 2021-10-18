@@ -1,7 +1,7 @@
 #pragma once
 
-#include <stdint.h>
 #include "color.h"
+#include <stdint.h>
 
 extern uint8_t focusedView;
 
@@ -16,7 +16,8 @@ void printChar(uint8_t viewNumber, char ch);
 
 void printIntN(uint8_t viewNumber, int value, uint8_t digits, uint8_t base);
 void printInt(uint8_t viewNumber, int value, uint8_t base);
-void printUnsignedN(uint8_t viewNumber, uint64_t value, uint8_t digits, uint8_t base);
+void printUnsignedN(uint8_t viewNumber, uint64_t value, uint8_t digits,
+                    uint8_t base);
 void printUnsigned(uint8_t viewNumber, uint64_t value, uint8_t base);
 void printHexPrefix(uint8_t viewNumber);
 void printHexByte(uint8_t viewNumber, uint8_t value);

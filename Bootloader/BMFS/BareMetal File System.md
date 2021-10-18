@@ -23,19 +23,19 @@ The location of free blocks can be calculated from the directory. As all files a
 
 The first and last disk blocks are reserved for file system usage. All other disk blocks can be used for data.
 
-	Block 0:
-	4KiB - Legacy MBR (Master Boot Sector) sector (512B)
-		 - Free space (512B)
-		 - BMFS marker (512B)
-		 - Free space (2560B)
-	4KiB - Directory (Max 64 files, 64-bytes for each record)
-	The remaining space in Block 0 is free to use.
+    Block 0:
+    4KiB - Legacy MBR (Master Boot Sector) sector (512B)
+    	 - Free space (512B)
+    	 - BMFS marker (512B)
+    	 - Free space (2560B)
+    4KiB - Directory (Max 64 files, 64-bytes for each record)
+    The remaining space in Block 0 is free to use.
 
-	Block 1 .. n-1:
-	Data
+    Block 1 .. n-1:
+    Data
 
-	Block n (last block on disk):
-	Copy of Block 0
+    Block n (last block on disk):
+    Copy of Block 0
 
 **Directory**
 
@@ -43,11 +43,11 @@ BMFS supports a single directory with a maximum of 64 individual files. Each fil
 
 **Directory Record structure**:
 
-	Filename (32 bytes) - Null-terminated ASCII string
-	Starting Block number (64-bit unsigned int)
-	Blocks reserved (64-bit unsigned int)
-	File size (64-bit unsigned int)
-	Unused (8 bytes)
+    Filename (32 bytes) - Null-terminated ASCII string
+    Starting Block number (64-bit unsigned int)
+    Blocks reserved (64-bit unsigned int)
+    File size (64-bit unsigned int)
+    Unused (8 bytes)
 
 A file name that starts with 0x00 marks the end of the directory. A file name that starts with 0x01 marks an unused record that should be ignored.
 
@@ -64,51 +64,45 @@ The following system calls should be available:
 - Directory/List (Prepare and display a list of file)
 - Query (Query the existence/details of a file)
 
-
 **Create**
 
 The create function accepts two parameters:
 
-	Name = A null-terminated string no more that 31 characters
-	Reserved = The number of blocks to reserve for the file
-
+    Name = A null-terminated string no more that 31 characters
+    Reserved = The number of blocks to reserve for the file
 
 **Delete**
 
 The delete function accepts one parameter:
 
-	Name = The name of the file to delete
-
+    Name = The name of the file to delete
 
 **Read**
 
 The read function accepts two parameters:
 
-	Name = The name of the file to read
-	Destination = The memory address to store the file
-
+    Name = The name of the file to read
+    Destination = The memory address to store the file
 
 **Write**
 
 The write function accepts three parameters:
 
-	Name = The name of the file to write
-	Source = The memory address of the data
-	Size = The amount of bytes to write
-
+    Name = The name of the file to write
+    Source = The memory address of the data
+    Size = The amount of bytes to write
 
 **Directory/List**
 
 The dir/ls function accepts no parameters
 
-
 **Query**
 
 The query function accepts one parameter:
 
-	Name = The name of the file to query
+    Name = The name of the file to query
 
 The query function will return the following:
 
-	Size = The current size of the file in bytes
-	Reserved = The amount of blocks reserved for the file (0 if it doesn't exist)
+    Size = The current size of the file in bytes
+    Reserved = The amount of blocks reserved for the file (0 if it doesn't exist)

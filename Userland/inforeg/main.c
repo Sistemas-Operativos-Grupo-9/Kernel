@@ -1,7 +1,7 @@
 #include <syscall.h>
 
 int main() {
-    printreg();
-    
-    return 0;
+	printreg();
+
+	return 0;
 }

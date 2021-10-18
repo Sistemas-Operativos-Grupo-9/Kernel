@@ -1,5 +1,5 @@
-#include "video.h"
 #include "process.h"
+#include "video.h"
 
 #define ZERO_EXCEPTION_ID 0
 #define INVALID_OPCODE_ID 6
@@ -21,7 +21,7 @@ void exceptionDispatcher(int exception, uint64_t rip) {
 	print(process->tty, "Instruction Pointer: ");
 	printHexPointer(process->tty, (void *)rip);
 	printChar(process->tty, '\n');
-	
+
 	// printHexPointer((void *)returnAddress);
 	// printChar('\n');
 
@@ -29,5 +29,4 @@ void exceptionDispatcher(int exception, uint64_t rip) {
 	// print("Finished\n");
 	// while (1);
 	terminateProcess();
-
 }

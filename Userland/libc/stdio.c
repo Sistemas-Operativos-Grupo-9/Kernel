@@ -1,8 +1,8 @@
-#include "syscall.h"
 #include "stdio.h"
-#include "stdbool.h"
-#include "syscalls.h"
 #include "myUtils.h"
+#include "stdbool.h"
+#include "syscall.h"
+#include "syscalls.h"
 
 void putCSI() {
 	putchar(ESC);
@@ -19,9 +19,7 @@ void moveCursorLeft() {
 	putchar(ARROW_LEFT);
 }
 
-void putchar(char ch) {
-	write(1, &ch, 1);
-}
+void putchar(char ch) { write(1, &ch, 1); }
 
 void puts(char *str) {
 	while (*str != '\0') {
@@ -37,10 +35,13 @@ int getch() {
 }
 
 KeyStroke readKeyStroke() {
-	#define getchReturnIfEOF()  ({													\
-		int ch = getch(); 															\
-		if (ch == EOF) return (KeyStroke) {.isEOF = true}; 							\
-		ch;})
+#define getchReturnIfEOF()                                                     \
+	({                                                                         \
+		int ch = getch();                                                      \
+		if (ch == EOF)                                                         \
+			return (KeyStroke){.isEOF = true};                                 \
+		ch;                                                                    \
+	})
 
 	char first = getchReturnIfEOF();
 	// If byte is scape
@@ -48,14 +49,14 @@ KeyStroke readKeyStroke() {
 		char second = getchReturnIfEOF();
 		if (second == BRACKET) {
 			char arrow = getchReturnIfEOF();
-			return (KeyStroke) {.isPrintable = false, .data = 0, .arrow = arrow};
+			return (KeyStroke){.isPrintable = false, .data = 0, .arrow = arrow};
 		}
 		// return (KeyStroke) {.isPrintable = false, .data = 0}
 	}
 	if (first == '\n' || first == '\b' || first == '\t') {
-		return (KeyStroke) {.isPrintable = false, .data = first};
+		return (KeyStroke){.isPrintable = false, .data = first};
 	}
-	return (KeyStroke) {.isPrintable = true, .data = first};
+	return (KeyStroke){.isPrintable = true, .data = first};
 
-	#undef getchReturnIfEOF
+#undef getchReturnIfEOF
 }

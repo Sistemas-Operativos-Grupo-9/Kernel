@@ -4,6 +4,4 @@
 
 void wait();
 
-
-
 void toISO8601(Time time, char out[21]);

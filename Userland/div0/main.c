@@ -1,5 +1,3 @@
 
 
-void main() {
-    int a = 1 / 0;
-}
+void main() { int a = 1 / 0; }
