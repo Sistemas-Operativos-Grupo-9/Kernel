@@ -34,3 +34,5 @@ Time gettime() {
 void printreg() { syscall(PRINTREG, 0, 0, 0, 0, 0); }
 
 bool kill(int pid) { return syscall(KILL, pid, 0, 0, 0, 0); }
+
+void nanosleep(uint64_t nanos) { syscall(NANOSLEEP, nanos, 0, 0, 0, 0); }

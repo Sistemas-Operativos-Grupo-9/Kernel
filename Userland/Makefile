@@ -10,8 +10,10 @@ all: libc $(OUTPUTS)
 
 # sampleDataModule:
 # 	printf "This is sample data." > $(SAMPLE_DATA) && dd if=/dev/zero bs=1 count=1 >> $(SAMPLE_DATA)
-$(OUTDIR)/%.bin:
+$(OUTDIR)/%.bin: FORCE
 	$(MAKE) -C $* -f ../ProgramMakefile.mk all
+
+FORCE:
 
 clean:
 	rm -rf $(OUTDIR)

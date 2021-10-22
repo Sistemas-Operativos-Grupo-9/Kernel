@@ -45,6 +45,13 @@ void printreg() { _printRegisters(); }
 
 bool kill(int pid) { return killProcess(pid); }
 
+void nanosleep(uint64_t nanos) {
+	uint64_t start = nanoseconds_elapsed();
+	while (nanoseconds_elapsed() - start < nanos) {
+		__asm__("int $0x81");
+	}
+}
+
 uint64_t syscallDispatcher(uint64_t rdi, uint64_t param1, uint64_t param2,
                            uint64_t param3, uint64_t param4, uint64_t param5) {
 	switch (rdi) {
@@ -66,6 +73,9 @@ uint64_t syscallDispatcher(uint64_t rdi, uint64_t param1, uint64_t param2,
 		break;
 	case KILL:
 		return kill(param1);
+	case NANOSLEEP:
+		nanosleep(param1);
+		return 0;
 	}
 	return 0;
 }

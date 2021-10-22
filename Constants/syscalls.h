@@ -10,6 +10,7 @@ enum Syscalls {
 	PROCCOUNT = 102,
 	GETTIME = 103,
 	PRINTREG = 104,
+	NANOSLEEP = 105,
 };
 
 #define EOF -1
