@@ -263,7 +263,7 @@ _syscallHandler:
 	pushState
 	push %1
 	call getCurrentProcess
-	mov rdi, [rax + 9]
+	mov rdi, [rax + 11]
 	push rdi
 	mov rsi, %1%+String
 	call print

@@ -4,10 +4,12 @@ extern dequeueItem
 extern printChar
 extern schedulerEnabled
 extern readyQueue
+extern waitingQueue
 extern getCurrentProcess
 extern PID
 extern getProcessPID
 extern getLength
+extern haltProcess
 
 %macro pushState 0
 	pushfq
@@ -55,6 +57,8 @@ _startScheduler:
 
 
 extern processReturned
+extern enqueueHalt
+extern processes
 global _switchContext
 global _killAndNextProcess
 _switchContext:
@@ -70,7 +74,25 @@ _switchContext:
 	jz dontKill
 	call processReturned
 dontKill:
+
+	mov rdi, rax
+	call getProcessPID
+	cmp rax, 0 ; Check if process is 0 (halt process)
+	mov rax, rdi
+	je afterKill
+
+	mov dl, [rax + 10] ; get "waiting" flag
+	test dl, dl
+	jz toNext
+	
+toWaiting:
+	mov rdi, waitingQueue
+	jmp enqueue
+toNext:
 	mov rdi, readyQueue
+	jmp enqueue
+
+enqueue:
 	mov rsi, rax
 	call enqueueItem
 	jmp afterKill
@@ -81,10 +103,13 @@ _killAndNextProcess: ; call here for not pushing the process to the queue
 afterKill:
 	; get process to resume
     mov rdi, readyQueue
+	jmp checkQueueNotEmpty
 checkQueueNotEmpty:
 	call getLength
 	test rax, rax
-	jz checkQueueNotEmpty
+	jnz queueNotEmpty
+	call enqueueHalt ; if ready queue is empty, push halt process
+queueNotEmpty:
     call dequeueItem
     mov rsp, [rax + 0]
     mov BYTE bl, [rax + 8]  ; if initialized is true, restore from stack

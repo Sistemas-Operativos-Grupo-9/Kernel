@@ -9,6 +9,7 @@
 #include "video.h"
 #include <views.h>
 #define NO_PID -1
+#define HALT_PID 0
 
 static struct ProcessDescriptor processes[256];
 static uint64_t maxProcessCount = sizeof(processes) / sizeof(*processes);
@@ -17,6 +18,7 @@ bool schedulerEnabled = false;
 extern void *ret00;
 
 Queue readyQueue;
+Queue waitingQueue;
 
 extern int PID;
 int PID = NO_PID;
@@ -48,6 +50,16 @@ struct ProcessDescriptor *getFocusedProcess() {
 	return &processes[focusPID];
 }
 
+void unpauseProcesses() {
+	while (getLength(&waitingQueue)) {
+		ProcessDescriptor *process = dequeueItem(&waitingQueue);
+		process->waiting = false;
+		enqueueItem(&readyQueue, process);
+	}
+}
+
+void enqueueHalt() { enqueueItem(&readyQueue, &processes[HALT_PID]); }
+
 extern void _nextProcess();
 uint64_t readTTY(uint8_t tty, char *buf, uint64_t count) {
 	uint64_t read;
@@ -55,6 +67,7 @@ uint64_t readTTY(uint8_t tty, char *buf, uint64_t count) {
 	for (read = 0; read < count && buf[read] != '\n'; read++) {
 		while (inputAvailable(tty) == 0) {
 			// _nextProcess();
+			getCurrentProcess()->waiting = true;
 			__asm__("int $0x81");
 
 			// _nextProcess();
@@ -113,6 +126,49 @@ void processReturned() {
 		restartProcess();
 	else
 		terminateProcess();
+}
+
+void haltMain() {
+	while (true) {
+		__asm__("hlt");
+		// __asm__("nop");
+	}
+}
+
+static uint64_t haltStack[512] = {0};
+
+void initializeHaltProcess() {
+
+	uint64_t *stack = (uint64_t *)(&haltStack[512 - 1]);
+	uint64_t *stackInit = stack;
+	*stack = (uint64_t)processReturned;
+	*--stack = (uint64_t)haltMain;
+	*--stack = 0;
+	*--stack = (uint64_t)stackInit;
+	*--stack = 0x202;
+	*--stack = 8;
+	*--stack = (uint64_t)haltMain;
+	*--stack = 0; // This value is changed in _switchContext
+	*--stack = (uint64_t)0;
+	*--stack = (uint64_t)0;
+
+	struct ProcessDescriptor haltProcess = {
+	    .tty = 0,
+	    .name = "halt",
+	    .fdTable =
+	        {
+	            (struct FileDescriptor){
+	                .read = (int (*)(uint8_t, char *, uint64_t))readTTY},
+	            (struct FileDescriptor){
+	                .write = (int (*)(uint8_t, char *, uint64_t))writeTTY},
+	            (struct FileDescriptor){
+	                .write = (int (*)(uint8_t, char *, uint64_t))writeTTY},
+	        },
+	    .active = true,
+	    .restart = false,
+	    .stack = stack,
+	    .entryPoint = haltMain};
+	processes[HALT_PID] = haltProcess;
 }
 
 int createProcess(uint8_t tty, char *name, char **argv, int argc,

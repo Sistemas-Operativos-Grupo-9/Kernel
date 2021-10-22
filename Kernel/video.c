@@ -1,10 +1,11 @@
-#include "basicVideo.h"
-#include "keys.h"
-#include "process.h"
 #include <lib.h>
 #include <myUtils.h>
 #include <stdbool.h>
 #include <video.h>
+
+#include "basicVideo.h"
+#include "keys.h"
+#include "process.h"
 
 struct TextColors {
 	Color foreground;
@@ -83,6 +84,15 @@ uint16_t sqrt(uint32_t n) {
 	return s;
 }
 
+// Color circle(uint64_t x, uint64_t y) {
+// 	x -= getWidth() / 2;
+// 	y -= getHeight() / 2;
+// 	if (x * x + y * y < 150000) {
+// 		return (Color) { x, y, 100 };
+// 	}
+// 	return GREY;
+// }
+
 // Generates an image with dots
 Color backgroundImage(uint64_t x, uint64_t y) {
 	const uint64_t lightDistances = 64;
@@ -99,6 +109,29 @@ Color backgroundImage(uint64_t x, uint64_t y) {
 
 	return colorLerp(colors[colorIndex % (sizeof(colors) / sizeof(*colors))],
 	                 BLACK, closestLight);
+	// uint64_t kernel[5][5] = {
+	// 	{ 1, 1, 1, 1, 1 },
+	// 	{ 1, 1, 1, 1, 1 },
+	// 	{ 1, 1, 1, 1, 1 },
+	// 	{ 1, 1, 1, 1, 1 },
+	// 	{ 1, 1, 1, 1, 1 },
+	// };
+	// uint64_t kernelSum = 1*5*5;
+	// uint64_t acum_red = 0;
+	// uint64_t acum_green = 0;
+	// uint64_t acum_blue = 0;
+	// for (int iy = 0; iy < 5; iy++) {
+	// 	for (int ix = 0; ix < 5; ix++) {
+	// 		Color a = circle(x + ix - 2, y + iy - 2);
+	// 		acum_red += kernel[iy][ix] * a.red;
+	// 		acum_green += kernel[iy][ix] * a.green;
+	// 		acum_blue += kernel[iy][ix] * a.blue;
+	// 	}
+	// }
+	// acum_red /= kernelSum;
+	// acum_green /= kernelSum;
+	// acum_blue /= kernelSum;
+	// return (Color) { acum_red, acum_green, acum_blue };
 }
 
 void initScreen() {
@@ -180,7 +213,6 @@ void changeFocusView(uint8_t newFocusViewNumber) {
 	}
 }
 void reDraw(struct View *view) {
-
 	for (int y = 0; y < view->height; y++) {
 		for (int x = 0; x < view->width; x++) {
 			redrawChar(view, x, y + view->scrollY);
@@ -343,7 +375,6 @@ void printChar(uint8_t viewNumber, char ch) {
 						finish = false;
 					}
 				} else {
-
 					view->outputBuffer[0] = '?';
 					finish = false;
 				}

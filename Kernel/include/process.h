@@ -13,6 +13,7 @@ typedef struct __attribute__((packed)) ProcessDescriptor {
 	void *stack;
 	bool initialized;
 	bool toKill;
+	bool waiting;
 	uint8_t tty;
 	char *name;
 	void *entryPoint;
@@ -37,3 +38,6 @@ void nextProcess();
 void setFocus(uint8_t tty);
 uint64_t countProcesses();
 struct ProcessDescriptor *getProcess(int pid);
+
+void unpauseProcesses();
+void initializeHaltProcess();

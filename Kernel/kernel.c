@@ -122,6 +122,7 @@ int main() {
 
 	// createProcess(1, "random", sampleCodeModuleAddress, (uint64_t *)shell -
 	// 1);
+	initializeHaltProcess();
 	char *helpArgs[] = {"--print-help"};
 
 	createProcess(0, "shell", helpArgs, 1, true);
