@@ -1,0 +1,67 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build",
+            "type": "shell",
+            "command": "colormake all",
+            "problemMatcher": {
+                "base": "$gcc",
+                "fileLocation": [
+                    "relative",
+                    "${cwd}/Kernel"
+                ]
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Clean",
+            "type": "shell",
+            "command": "colormake clean",
+            "problemMatcher": []
+        },
+        {
+            "label": "Open QEMU",
+            "type": "process",
+            "command": "qemu-system-x86_64",
+            "args": [
+                "-s",
+                "-S",
+                "-hda",
+                "Image/x64BareBonesImage.qcow2",
+                "-m",
+                "4096M",
+                "-daemonize",
+                "-display",
+                "gtk,zoom-to-fit=on"
+            ],
+            "dependsOn": [
+                "Build"
+            ]
+        },
+        {
+            "label": "Close QEMU",
+            "type": "process",
+            "command": "killall",
+            "args": [
+                "qemu-system-x86_64"
+            ]
+        },
+        {
+            "label": "Run & Open GDB",
+            "type": "process",
+            "dependsOn": "Open QEMU",
+            "command": "alacritty",
+            "args": [
+                "-e",
+                "./debug.sh"
+            ],
+            "problemMatcher": []
+        }
+    ],
+}

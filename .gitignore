@@ -11,7 +11,7 @@
 *.o
 *.a
 
-/.vscode
+# /.vscode
 
 *.elf
 /.gdb_history
