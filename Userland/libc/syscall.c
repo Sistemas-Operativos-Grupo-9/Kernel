@@ -9,8 +9,8 @@ uint64_t syscall(uint64_t code, uint64_t param1, uint64_t param2,
 	return ret;
 }
 
-int read(uint64_t fd, char *buf, uint64_t count) {
-	return syscall(READ, fd, (uint64_t)buf, count, 0, 0);
+int read(uint64_t fd, char *buf, uint64_t count, uint64_t timeout) {
+	return syscall(READ, fd, (uint64_t)buf, count, timeout, 0);
 }
 
 int write(uint64_t fd, char *buf, uint64_t count) {
@@ -37,3 +37,5 @@ bool kill(int pid) { return syscall(KILL, pid, 0, 0, 0, 0); }
 
 void microsleep(uint64_t micros) { syscall(MICROSLEEP, micros, 0, 0, 0, 0); }
 void millisleep(uint64_t millis) { microsleep(millis * 1000); }
+
+uint64_t millis() { return syscall(MILLIS, 0, 0, 0, 0, 0); }

@@ -31,7 +31,7 @@ void inputCommand(char *buffer, int maxLength) {
 	int position = 0;
 	int historyIndex = -1;
 	while (true) {
-		KeyStroke key = readKeyStroke();
+		KeyStroke key = readKeyStroke(0);
 		if (!key.isPrintable && key.data == '\n') {
 			break;
 		}

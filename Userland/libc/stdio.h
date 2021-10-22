@@ -8,6 +8,7 @@ typedef struct {
 	char data;
 	enum Arrow arrow;
 	bool isEOF;
+	bool isTimeout;
 } KeyStroke;
 
 void putCSI();
@@ -16,4 +17,4 @@ void moveCursorLeft();
 void putchar(char ch);
 void puts(char *str);
 int getch();
-KeyStroke readKeyStroke();
+KeyStroke readKeyStroke(uint64_t timeout);

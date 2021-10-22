@@ -1,6 +1,7 @@
 
 #include "process.h"
 #include "interrupts/interrupts.h"
+#include "interrupts/time.h"
 #include "lib.h"
 #include "lock.h"
 #include "moduleLoader.h"
@@ -50,6 +51,9 @@ struct ProcessDescriptor *getFocusedProcess() {
 	return &processes[focusPID];
 }
 
+// Wakes up every process in the waiting list.
+// The ones that did not expect to get woken up by this event will go back to
+// the waiting queue by their own
 void unpauseProcesses() {
 	while (getLength(&waitingQueue)) {
 		ProcessDescriptor *process = dequeueItem(&waitingQueue);
@@ -58,19 +62,30 @@ void unpauseProcesses() {
 	}
 }
 
+void timerUpdate() { unpauseProcesses(); }
+
+void keypressUpdate() { unpauseProcesses(); }
+
+void childDeadUpdate() { unpauseProcesses(); }
+
 void enqueueHalt() { enqueueItem(&readyQueue, &processes[HALT_PID]); }
 
 extern void _nextProcess();
-uint64_t readTTY(uint8_t tty, char *buf, uint64_t count) {
+uint64_t readTTY(uint8_t tty, char *buf, uint64_t count, uint64_t timeout) {
+	uint64_t start = microseconds_elapsed() / 1000;
 	uint64_t read;
 	_sti();
 	for (read = 0; read < count && buf[read] != '\n'; read++) {
-		while (inputAvailable(tty) == 0) {
+		while (
+		    inputAvailable(tty) == 0 &&
+		    (timeout == 0 || microseconds_elapsed() / 1000 < start + timeout)) {
 			// _nextProcess();
-			getCurrentProcess()->waiting = true;
-			__asm__("int $0x81");
+			waitForIO();
 
 			// _nextProcess();
+		}
+		if (timeout > 0 && microseconds_elapsed() / 1000 >= start + timeout) {
+			return read;
 		}
 		// ;
 		// __asm__ ("int $0x20");// && !isEOF(tty));
@@ -85,6 +100,11 @@ uint64_t writeTTY(uint8_t tty, char *buf, uint64_t count) {
 	for (int i = 0; i < count; i++)
 		writeOutput(tty, buf[i]);
 	return count;
+}
+
+void waitForIO() {
+	getCurrentProcess()->waiting = true;
+	__asm__("int $0x81");
 }
 
 void printClosingProcess(int retCode) {
@@ -122,6 +142,7 @@ void processReturned() {
 	_cli();
 	register int retCode __asm__("eax");
 	printClosingProcess(retCode);
+	childDeadUpdate();
 	if (processes[PID].restart)
 		restartProcess();
 	else
@@ -158,7 +179,8 @@ void initializeHaltProcess() {
 	    .fdTable =
 	        {
 	            (struct FileDescriptor){
-	                .read = (int (*)(uint8_t, char *, uint64_t))readTTY},
+	                .read =
+	                    (int (*)(uint8_t, char *, uint64_t, uint64_t))readTTY},
 	            (struct FileDescriptor){
 	                .write = (int (*)(uint8_t, char *, uint64_t))writeTTY},
 	            (struct FileDescriptor){
@@ -204,7 +226,8 @@ int createProcess(uint8_t tty, char *name, char **argv, int argc,
 	    .fdTable =
 	        {
 	            (struct FileDescriptor){
-	                .read = (int (*)(uint8_t, char *, uint64_t))readTTY},
+	                .read =
+	                    (int (*)(uint8_t, char *, uint64_t, uint64_t))readTTY},
 	            (struct FileDescriptor){
 	                .write = (int (*)(uint8_t, char *, uint64_t))writeTTY},
 	            (struct FileDescriptor){

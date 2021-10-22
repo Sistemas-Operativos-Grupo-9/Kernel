@@ -6,7 +6,10 @@
 static unsigned long ticks = 0;
 extern bool schedulerEnabled;
 
-void timer_handler() { ticks++; }
+void timer_handler() {
+	ticks++;
+	timerUpdate();
+}
 
 int ticks_elapsed() { return ticks; }
 

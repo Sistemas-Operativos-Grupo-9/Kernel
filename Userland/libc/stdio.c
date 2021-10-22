@@ -28,27 +28,30 @@ void puts(char *str) {
 	}
 }
 
-int getch() {
-	char ch = 19;
-	read(0, &ch, 1);
-	return ch;
+int getch(uint64_t timeout) {
+	char ch = 0;
+	if (read(0, &ch, 1, timeout) == 1)
+		return ch;
+	return TIMEOUT;
 }
 
-KeyStroke readKeyStroke() {
-#define getchReturnIfEOF()                                                     \
+KeyStroke readKeyStroke(uint64_t timeout) {
+#define getchReturnIfEOF(timeout)                                              \
 	({                                                                         \
-		int ch = getch();                                                      \
+		int ch = getch(timeout);                                               \
 		if (ch == EOF)                                                         \
 			return (KeyStroke){.isEOF = true};                                 \
+		if (ch == TIMEOUT)                                                     \
+			return (KeyStroke){.isTimeout = true};                             \
 		ch;                                                                    \
 	})
 
-	char first = getchReturnIfEOF();
+	char first = getchReturnIfEOF(timeout);
 	// If byte is scape
 	if (first == ESC) {
-		char second = getchReturnIfEOF();
+		char second = getchReturnIfEOF(0);
 		if (second == BRACKET) {
-			char arrow = getchReturnIfEOF();
+			char arrow = getchReturnIfEOF(0);
 			return (KeyStroke){.isPrintable = false, .data = 0, .arrow = arrow};
 		}
 		// return (KeyStroke) {.isPrintable = false, .data = 0}

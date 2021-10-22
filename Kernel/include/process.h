@@ -5,7 +5,7 @@
 
 struct FileDescriptor {
 	bool eof;
-	int (*read)(uint8_t tty, char *buf, uint64_t count);
+	int (*read)(uint8_t tty, char *buf, uint64_t count, uint64_t timeout);
 	int (*write)(uint8_t tty, char *buf, uint64_t count);
 };
 
@@ -39,5 +39,10 @@ void setFocus(uint8_t tty);
 uint64_t countProcesses();
 struct ProcessDescriptor *getProcess(int pid);
 
-void unpauseProcesses();
 void initializeHaltProcess();
+
+void timerUpdate();
+void keypressUpdate();
+void childDeadUpdate();
+
+void waitForIO();

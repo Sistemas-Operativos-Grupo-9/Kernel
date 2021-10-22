@@ -13,7 +13,7 @@ uint64_t inputAvailable(uint8_t tty) { return Views[tty].bufferCount; }
 
 void writeChar(uint8_t tty, char ch) {
 	Views[tty].inputBuffer[Views[tty].bufferCount++] = ch;
-	unpauseProcesses();
+	keypressUpdate();
 }
 
 char readInput(uint8_t tty) {

@@ -11,6 +11,8 @@ enum Syscalls {
 	GETTIME = 103,
 	PRINTREG = 104,
 	MICROSLEEP = 105,
+	MILLIS = 106,
 };
 
 #define EOF -1
+#define TIMEOUT -2

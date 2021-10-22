@@ -5,5 +5,6 @@
 void timer_handler();
 int ticks_elapsed();
 int seconds_elapsed();
+uint64_t microseconds_elapsed();
 
 #endif
