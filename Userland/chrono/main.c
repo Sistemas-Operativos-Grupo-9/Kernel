@@ -1,6 +1,7 @@
 #include <print.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <syscall.h>
 
 enum Commands { RESUME_PAUSE, STOP, QUIT, NOTHING };
 

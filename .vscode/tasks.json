@@ -26,6 +26,14 @@
             "problemMatcher": []
         },
         {
+            "label": "Rebuild",
+            "dependsOn": [
+                "Clean",
+                "Build",
+            ],
+            "problemMatcher": []
+        },
+        {
             "label": "Open QEMU",
             "type": "process",
             "command": "qemu-system-x86_64",

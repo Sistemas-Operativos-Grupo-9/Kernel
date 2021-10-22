@@ -4,15 +4,16 @@
 #include <stdint.h>
 #include <string.h>
 #include <video.h>
+#define BACKUP_LOCATION 0x400000
 
 static struct Module modules[32] = {};
 static uint32_t moduleCount = 0;
 
 void readBackup() {
 	for (int i = 0; i < sizeof(modules) / sizeof(*modules); i++) {
-		modules[i] = ((struct Module *)(0x400000))[i];
+		modules[i] = ((struct Module *)(BACKUP_LOCATION))[i];
 	}
-	moduleCount = *(uint32_t *)(0x400000 + sizeof(modules));
+	moduleCount = *(uint32_t *)(BACKUP_LOCATION + sizeof(modules));
 }
 
 void addModule(struct Module *modules, uint32_t *moduleCount, char *name,
@@ -39,9 +40,10 @@ void loadModules(void *payloadStart) {
 	int i;
 	uint8_t *currentModule = (uint8_t *)payloadStart;
 	uint32_t totalModuleCount = readUint32(&currentModule);
-	uint8_t *targetModuleAddress = (uint8_t *)0x400000;
-	struct Module *modulesBackup = targetModuleAddress;
-	uint16_t *moduleCountBackup = targetModuleAddress += sizeof(modules);
+	uint8_t *targetModuleAddress = (uint8_t *)BACKUP_LOCATION;
+	struct Module *modulesBackup = (struct Module *)targetModuleAddress;
+	uint32_t *moduleCountBackup =
+	    (uint32_t *)(targetModuleAddress += sizeof(modules));
 	targetModuleAddress += sizeof(totalModuleCount);
 
 	for (i = 0; i < totalModuleCount; i++)
