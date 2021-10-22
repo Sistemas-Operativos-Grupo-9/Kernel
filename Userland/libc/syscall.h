@@ -12,4 +12,5 @@ uint64_t proccount();
 Time gettime();
 void printreg();
 bool kill(int pid);
-void nanosleep(uint64_t nanos);
+void microsleep(uint64_t micros);
+void millisleep(uint64_t millis);

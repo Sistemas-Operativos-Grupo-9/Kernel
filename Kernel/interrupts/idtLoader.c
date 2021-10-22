@@ -1,6 +1,7 @@
 #include "idtLoader.h"
 #include "defs.h"
 #include "interrupts.h"
+#include "port.h"
 #include <stdint.h>
 
 #pragma pack(push) /* Push de la alineación actual */
@@ -30,6 +31,11 @@ void load_idt() {
 	setup_IDT_entry(0x80, (uint64_t)&_syscallHandler);
 
 	setup_IDT_entry(0x81, (uint64_t)&_nextProcess);
+
+	// Set timer frequency
+	uint16_t count = 11932; // 1.193182 MHz / 100Hz
+	out(0x40, count & 0xff);
+	out(0x40, (count & 0xff00) >> 8);
 
 	// Solo interrupcion timer tick y keyboard habilitadas
 	picMasterMask(0xFC);

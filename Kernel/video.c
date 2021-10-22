@@ -392,6 +392,17 @@ void printChar(uint8_t viewNumber, char ch) {
 			redrawCharInverted(view, view->cursorX, view->cursorY);
 			consume(view, 1);
 			finish = false;
+		} else if (view->outputBuffer[0] == '\r') {
+			for (int x = 0; x < newCursorX; x++) {
+				view->textBuffer[newCursorY][x] = '\0';
+				redrawChar(view, x, newCursorY);
+			}
+			newCursorX = 0;
+			setCursorAt(viewNumber, newCursorX, newCursorY);
+			// view->textBuffer[newCursorY][newCursorX] = '\0';
+			redrawCharInverted(view, view->cursorX, view->cursorY);
+			consume(view, 1);
+			finish = false;
 		} else if (isPrintable(view->outputBuffer[0]) ||
 		           view->outputBuffer[0] == '\0') {
 			setChar(viewNumber, view->outputBuffer[0]);

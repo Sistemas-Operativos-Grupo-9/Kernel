@@ -35,4 +35,5 @@ void printreg() { syscall(PRINTREG, 0, 0, 0, 0, 0); }
 
 bool kill(int pid) { return syscall(KILL, pid, 0, 0, 0, 0); }
 
-void nanosleep(uint64_t nanos) { syscall(NANOSLEEP, nanos, 0, 0, 0, 0); }
+void microsleep(uint64_t micros) { syscall(MICROSLEEP, micros, 0, 0, 0, 0); }
+void millisleep(uint64_t millis) { microsleep(millis * 1000); }
