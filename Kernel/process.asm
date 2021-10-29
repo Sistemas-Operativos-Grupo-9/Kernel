@@ -12,14 +12,14 @@ extern getLength
 extern haltProcess
 
 %macro pushState 0
+	push rdi
+	push rsi
 	pushfq
 	push rax
 	push rbx
 	push rcx
 	push rdx
 	push rbp
-	push rdi
-	push rsi
 	push r8
 	push r9
 	push r10
@@ -39,14 +39,14 @@ extern haltProcess
 	pop r10
 	pop r9
 	pop r8
-	pop rsi
-	pop rdi
 	pop rbp
 	pop rdx
 	pop rcx
 	pop rbx
 	pop rax
 	popfq
+	pop rsi
+	pop rdi
 %endmacro
 
 global _startScheduler
@@ -64,10 +64,9 @@ global _killAndNextProcess
 _switchContext:
     pushState
 	cli
-	mov r12, [rsp + 8*(16)]
+	mov r12, [rsp + 8*(16)] ; Get return pointer from call
     
     call getCurrentProcess
-    mov BYTE [rax + 8], 1 ; set initialized to true
     mov [rax + 0], rsp ; save rsp in process struct
 	mov dl, [rax + 9] ; get "toKill" flag
 	test dl, dl
@@ -103,8 +102,6 @@ _killAndNextProcess: ; call here for not pushing the process to the queue
 afterKill:
 	; get process to resume
     mov rdi, readyQueue
-	jmp checkQueueNotEmpty
-checkQueueNotEmpty:
 	call getLength
 	test rax, rax
 	jnz queueNotEmpty
@@ -112,24 +109,15 @@ checkQueueNotEmpty:
 queueNotEmpty:
     call dequeueItem
     mov rsp, [rax + 0]
-    mov BYTE bl, [rax + 8]  ; if initialized is true, restore from stack
 	mov rdi, rax
 	call getProcessPID
 	mov [PID], rax
-    test bl, bl
-    jz after_restore
 
-	mov [rsp + 8*(16)], r12
+	mov [rsp + 8*(16)], r12 ; set return pointer
     popState
-	jmp ret
-    after_restore:
-	; Pop argv and argc from stack
-	pop rdi
-	pop rsi
-	mov [rsp], r12
-ret:
 	; sti
     ret
 
+GLOBAL iretq
 iretq:
 	iretq

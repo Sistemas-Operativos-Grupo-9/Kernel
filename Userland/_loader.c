@@ -15,12 +15,12 @@ int _start(char **argv, int argc) {
 	return main(argv, argc);
 }
 
-void *memset(void *destiation, int32_t c, uint64_t length) {
+void *memset(void *destination, int32_t c, uint64_t length) {
 	uint8_t chr = (uint8_t)c;
-	char *dst = (char *)destiation;
+	char *dst = (char *)destination;
 
 	while (length--)
 		dst[length] = chr;
 
-	return destiation;
+	return destination;
 }
