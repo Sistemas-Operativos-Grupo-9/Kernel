@@ -162,7 +162,7 @@ picSlaveMask:
 ; 	ret01:
 ; 	iretq
 
-
+EXTERN switchContext
 ;8254 Timer (Timer Tick)
 _irq00Handler:
 	; EOI

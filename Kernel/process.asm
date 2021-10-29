@@ -54,70 +54,34 @@ _startScheduler:
 	cli
 	mov byte [schedulerEnabled], 1
 	call _killAndNextProcess ; We "kill" this process and start processing the queue
-
-
-extern processReturned
-extern enqueueHalt
-extern processes
-global _switchContext
-global _killAndNextProcess
-_switchContext:
-    pushState
-	cli
-	mov r12, [rsp + 8*(16)] ; Get return pointer from call
-    
-    call getCurrentProcess
-    mov [rax + 0], rsp ; save rsp in process struct
-	mov dl, [rax + 9] ; get "toKill" flag
-	test dl, dl
-	jz dontKill
-	call processReturned
-dontKill:
-
-	mov rdi, rax
-	call getProcessPID
-	cmp rax, 0 ; Check if process is 0 (halt process)
-	mov rax, rdi
-	je afterKill
-
-	mov dl, [rax + 10] ; get "waiting" flag
-	test dl, dl
-	jz toNext
-	
-toWaiting:
-	mov rdi, waitingQueue
-	jmp enqueue
-toNext:
-	mov rdi, readyQueue
-	jmp enqueue
-
-enqueue:
-	mov rsi, rax
-	call enqueueItem
-	jmp afterKill
-
-_killAndNextProcess: ; call here for not pushing the process to the queue
-	cli
-	mov r12, iretq
-afterKill:
-	; get process to resume
-    mov rdi, readyQueue
-	call getLength
-	test rax, rax
-	jnz queueNotEmpty
-	call enqueueHalt ; if ready queue is empty, push halt process
-queueNotEmpty:
-    call dequeueItem
-    mov rsp, [rax + 0]
-	mov rdi, rax
-	call getProcessPID
-	mov [PID], rax
-
-	mov [rsp + 8*(16)], r12 ; set return pointer
-    popState
-	; sti
-    ret
-
-GLOBAL iretq
-iretq:
 	iretq
+
+
+; extern processReturned
+extern doSwitch
+; extern enqueueHalt
+; extern processes
+global _switchContext
+_switchContext:
+	pushState
+	mov r12, [rsp + (8 * 16)] ; get return pointer
+	mov rdi, 1
+	mov rsi, rsp
+	call doSwitch
+	mov rsp, rax
+	mov [rsp + (8 * 16)], r12
+	popState
+	ret
+
+
+global _killAndNextProcess
+_killAndNextProcess:
+	pushState
+	mov r12, [rsp + (8 * 16)]
+	mov rdi, 0
+	mov rsi, rsp
+	call doSwitch
+	mov rsp, rax
+	mov [rsp + (8 * 16)], r12
+	popState
+	ret

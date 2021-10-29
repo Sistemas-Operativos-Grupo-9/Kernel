@@ -130,12 +130,14 @@ void restartProcess() {
 
 	process->active = false;
 	_killAndNextProcess();
+	__asm__("iretq");
 }
 
 void terminateProcess() {
 	ProcessDescriptor *process = getCurrentProcess();
 	process->active = false;
 	_killAndNextProcess();
+	__asm__("iretq");
 }
 
 void processReturned() {
@@ -170,7 +172,9 @@ void initializeHaltProcess() {
 	*--stack = 0x202;
 	*--stack = 8;
 	*--stack = (uint64_t)haltMain;
-	*--stack = 0; // This value is changed in _switchContext
+	// *--stack = 0; // This value is changed in _switchContext
+	uint64_t *leaveStack = stack;
+	*--stack = (uint64_t)leaveStack;
 	*--stack = (uint64_t)0;
 	*--stack = (uint64_t)0;
 	stack -= 14; // 16 - 2
@@ -218,7 +222,9 @@ int createProcess(uint8_t tty, char *name, char **argv, int argc,
 	*--stack = 0x202;
 	*--stack = 8;
 	*--stack = (uint64_t)entryPoint;
-	*--stack = 0; // This value is changed in _switchContext
+	// *--stack = 0; // This value is changed in _switchContext
+	uint64_t *leaveStack = stack;
+	*--stack = (uint64_t)leaveStack;
 	*--stack = (uint64_t)argv;
 	*--stack = (uint64_t)argc;
 	stack -= 14; // 16 - 2
@@ -247,84 +253,35 @@ int createProcess(uint8_t tty, char *name, char **argv, int argc,
 
 int getProcessPID(ProcessDescriptor *process) { return process - processes; }
 
-#define pushState()                                                            \
-	__asm__(".intel_syntax;"                                                   \
-	        "push rdi;"                                                        \
-	        "push rsi;"                                                        \
-	        "pushfq;"                                                          \
-	        "push rax;"                                                        \
-	        "push rbx;"                                                        \
-	        "push rcx;"                                                        \
-	        "push rdx;"                                                        \
-	        "push rbp;"                                                        \
-	        "push r8;"                                                         \
-	        "push r9;"                                                         \
-	        "push r10;"                                                        \
-	        "push r11;"                                                        \
-	        "push r12;"                                                        \
-	        "push r13;"                                                        \
-	        "push r14;"                                                        \
-	        "push r15;"                                                        \
-	        ".att_syntax;")
+void *doSwitch(bool pushCurrent, uint64_t *stackPointer) {
+	if (pushCurrent) {
+		ProcessDescriptor *process = getCurrentProcess();
+		process->initialized = true;
+		process->stack = stackPointer;
+		if (process->toKill) {
+			processReturned();
+		}
+		int pid = getProcessPID(process);
+		if (pid != HALT_PID) {
+			Queue *queue;
+			if (process->waiting) {
+				queue = &waitingQueue;
+			} else {
+				queue = &readyQueue;
+			}
+			enqueueItem(queue, process);
+		}
+	}
+	if (getLength(&readyQueue) == 0) {
+		enqueueHalt();
+	}
+	ProcessDescriptor *newProcess = dequeueItem(&readyQueue);
 
-#define popState()                                                             \
-	__asm__(".intel_syntax;"                                                   \
-	        "pop r15;"                                                         \
-	        "pop r14;"                                                         \
-	        "pop r13;"                                                         \
-	        "pop r12;"                                                         \
-	        "pop r11;"                                                         \
-	        "pop r10;"                                                         \
-	        "pop r9;"                                                          \
-	        "pop r8;"                                                          \
-	        "pop rbp;"                                                         \
-	        "pop rdx;"                                                         \
-	        "pop rcx;"                                                         \
-	        "pop rbx;"                                                         \
-	        "pop rax;"                                                         \
-	        "popfq;"                                                           \
-	        "pop rsi;"                                                         \
-	        "pop rdi;"                                                         \
-	        ".att_syntax;")
+	int newPid = getProcessPID(newProcess);
+	PID = newPid;
 
-// void switchContext(bool pushCurrent) {
-// 	register uint8_t *rsp __asm__("rsp");
-// 	pushState();
-// 	uint64_t *returnAddress = iretq;
-
-// 	if (pushCurrent) {
-// 		returnAddress = *((uint64_t **)rsp + 16 + 1);
-// 		ProcessDescriptor *process = getCurrentProcess();
-// 		process->initialized = true;
-// 		process->stack = rsp;
-// 		if (process->toKill) {
-// 			processReturned();
-// 		}
-// 		int pid = getProcessPID(process);
-// 		if (pid != HALT_PID) {
-// 			Queue *queue;
-// 			if (process->waiting) {
-// 				queue = &waitingQueue;
-// 			} else {
-// 				queue = &readyQueue;
-// 			}
-// 			enqueueItem(queue, process);
-// 		}
-// 	}
-// 	if (getLength(&readyQueue) == 0) {
-// 		enqueueHalt();
-// 	}
-// 	ProcessDescriptor *newProcess = dequeueItem(&readyQueue);
-
-// 	rsp = newProcess->stack;
-// 	int newPid = getProcessPID(newProcess);
-// 	PID = newPid;
-// 	if (newProcess->initialized) {
-// 		*((uint64_t *)rsp + 16 + 1) = (uint64_t)returnAddress;
-// 	}
-// 	*((uint64_t *)rsp + 1) = returnAddress;
-// 	popState();
-// }
+	return newProcess->stack;
+}
 
 uint64_t countProcesses() {
 	int count = 0;
