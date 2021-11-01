@@ -93,6 +93,9 @@ void handleSingleByteKey(uint8_t key, bool pressed) {
 		// sendChar('O');
 		// sendChar(code);
 		deadActive = false;
+	} else if ((key == K_TAB) && pressed) {
+		setFocus((getFocusedProcess()->tty + 1) % 2);
+		deadActive = false;
 	} else {
 		if (pressed) {
 			uint8_t shiftState = getShiftState();
