@@ -38,3 +38,6 @@ void drawCircle(uint8_t viewNumber, uint16_t x, uint16_t y, uint16_t radius);
 void drawRectangle(uint8_t viewNumber, uint16_t x, uint16_t y, uint16_t width,
                    uint16_t height);
 void getViewInfo(uint8_t viewNumber, WindowInfo *windowInfo);
+
+void drawBitmap(uint8_t viewNumber, uint16_t x, uint16_t y, uint16_t width,
+                uint16_t height, Color bitmap[][width]);

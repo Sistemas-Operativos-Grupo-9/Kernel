@@ -79,6 +79,11 @@ void drawFigure(enum Figures figure, uint64_t param2, uint64_t param3,
 	}
 }
 
+void drawBitmapCall(uint16_t x, uint16_t y, const uint16_t width,
+                    const uint16_t height, Color bitmap[][width]) {
+	drawBitmap(getCurrentProcess()->tty, x, y, width, height, bitmap);
+}
+
 void setForegroundCall(uint8_t red, uint8_t green, uint8_t blue) {
 	setForeground(getCurrentProcess()->tty,
 	              (Color){.red = red, .green = green, .blue = blue});
@@ -125,6 +130,9 @@ uint64_t syscallDispatcher(uint64_t rdi, uint64_t param1, uint64_t param2,
 		break;
 	case GETWINDOWINFO:
 		getWindowInfo((WindowInfo *)param1);
+		break;
+	case DRAWBITMAP:
+		drawBitmapCall(param1, param2, param3, param4, param5);
 		break;
 	}
 	return 0;

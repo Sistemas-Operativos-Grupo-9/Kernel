@@ -199,6 +199,8 @@ void initializeHaltProcess() {
 	processes[HALT_PID] = haltProcess;
 }
 
+#define PROCESS_MEMORY 0x200000
+
 int createProcess(uint8_t tty, char *name, char **argv, int argc,
                   bool restartOnFinish) {
 	struct Module *module = getModule(name);
@@ -206,10 +208,10 @@ int createProcess(uint8_t tty, char *name, char **argv, int argc,
 		return -1;
 	START_LOCK;
 	uint64_t pid = getFreePID();
-	void *entryPoint = (void *)(pid * 0x100000 + 0x500000);
+	void *entryPoint = (void *)(pid * PROCESS_MEMORY + 0x500000);
 	uint64_t *stack =
 	    (uint64_t
-	         *)(entryPoint + 0x100000 -
+	         *)(entryPoint + PROCESS_MEMORY -
 	            8); // Position process stack at the end of it's memory region
 
 	memcpy((void *)entryPoint, (void *)module->address, module->size);

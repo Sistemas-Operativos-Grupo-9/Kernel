@@ -16,6 +16,7 @@ enum Syscalls {
 	DRAWFIGURE = 108,
 	SETFOREGROUND = 109,
 	GETWINDOWINFO = 110,
+	DRAWBITMAP,
 };
 
 enum Figures {

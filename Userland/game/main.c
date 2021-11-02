@@ -5,7 +5,7 @@
 #include <syscall.h>
 
 typedef struct {
-	int x, y;
+	float x, y;
 } Vector;
 
 typedef struct {
@@ -54,15 +54,42 @@ State loop(State state, uint16_t dt) {
 	return newState;
 }
 
+#define min(a, b) (a < b ? a : b)
+#define max(a, b) (a > b ? a : b)
+
+#define drawByPixel(xStart, yStart, xEnd, yEnd, code)                          \
+	for (int y = yStart; y < yEnd; y++) {                                      \
+		for (int x = xStart; x < xEnd; x++) {                                  \
+			code                                                               \
+		}                                                                      \
+	}
+
+void drawCircleLocal(Color buffer[][windowInfo.pixelWidth], uint64_t centerX,
+                     uint64_t centerY, uint64_t radius, Color color) {
+	drawByPixel(
+	    max(0, centerX - radius), max(0, centerY - radius),
+	    min(windowInfo.pixelWidth, centerX + radius),
+	    min(windowInfo.pixelHeight, centerY + radius),
+	    if ((x - centerX) * (x - centerX) + (y - centerY) * (y - centerY) <
+	        radius * radius) buffer[y][x] = color;)
+}
+
 void render(State state) {
-	setForeground(0, 0, 0);
-	drawRectangle(0, 0, windowInfo.pixelWidth, windowInfo.pixelHeight);
+	Color buffer[windowInfo.pixelHeight][windowInfo.pixelWidth];
+	// for (int y = 0; y < 100; y++) {
+	// 	for (int x = 0; x < 100; x++) {
+	// 		buffer[y][x] = (Color){255, 255, 255};
+	// 	}
+	// }
+	// setForeground(0, 0, 0);
+	// drawRectangle(0, 0, windowInfo.pixelWidth, windowInfo.pixelHeight);
 	for (int i = 0; i < state.count; i++) {
 		Color color = state.marbles[i].color;
-		setForeground(color.red, color.green, color.blue);
 		Vector pos = state.marbles[i].pos;
-		drawCircle(pos.x, pos.y, RADIUS);
+		drawCircleLocal(buffer, pos.x, pos.y, RADIUS, color);
 	}
+
+	drawBitmap(0, 0, windowInfo.pixelWidth, windowInfo.pixelHeight, buffer);
 }
 
 Vector randomVector() {
@@ -100,7 +127,7 @@ int main() {
 		state = loop(state, current - last);
 		render(state);
 		last = current;
-		millisleep(13);
+		// millisleep(0);
 	}
 
 	setForeground(255, 255, 255);

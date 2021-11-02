@@ -54,3 +54,7 @@ void drawRectangleRaw(uint64_t xStart, uint64_t yStart, uint64_t width,
 
 void drawRectangleBorders(uint64_t xStart, uint64_t yStart, uint64_t width,
                           uint64_t height, uint16_t borderSize, Color color);
+
+void drawBitmapRaw(uint64_t xStart, uint64_t yStart, uint64_t width,
+                   uint64_t height, Color bitmap[][width], uint64_t clipX,
+                   uint64_t clipY, uint64_t clipW, uint64_t clipH);

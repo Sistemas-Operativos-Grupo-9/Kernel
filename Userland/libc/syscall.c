@@ -57,6 +57,11 @@ void setForeground(uint8_t red, uint8_t green, uint8_t blue) {
 	syscall(SETFOREGROUND, red, green, blue, 0, 0);
 }
 
+void drawBitmap(uint16_t x, uint16_t y, uint16_t width, uint16_t height,
+                Color bitmap[][width]) {
+	syscall(DRAWBITMAP, x, y, width, height, bitmap);
+}
+
 WindowInfo getWindowInfo() {
 	WindowInfo windowInfo;
 	syscall(GETWINDOWINFO, (uint64_t)&windowInfo, 0, 0, 0, 0);

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "color.h"
 #include <datetime.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -21,3 +22,5 @@ void drawCircle(uint16_t x, uint16_t y, uint16_t radius);
 void drawRectangle(uint16_t x, uint16_t y, uint16_t width, uint16_t height);
 void setForeground(uint8_t red, uint8_t green, uint8_t blue);
 WindowInfo getWindowInfo();
+void drawBitmap(uint16_t x, uint16_t y, uint16_t width, uint16_t height,
+                Color bitmap[][width]);

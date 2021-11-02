@@ -90,6 +90,14 @@ void drawRectangleRaw(uint64_t xStart, uint64_t yStart, uint64_t width,
 	            min(clipX + clipW, xStart + width),
 	            min(clipY + clipH, yStart + height), setPixel(color, x, y);)
 }
+void drawBitmapRaw(uint64_t xStart, uint64_t yStart, uint64_t width,
+                   uint64_t height, Color bitmap[][width], uint64_t clipX,
+                   uint64_t clipY, uint64_t clipW, uint64_t clipH) {
+	drawByPixel(max(clipX, xStart), max(clipY, yStart),
+	            min(clipX + clipW, xStart + width),
+	            min(clipY + clipH, yStart + height),
+	            setPixel(bitmap[y - yStart][x - xStart], x, y);)
+}
 
 uint16_t getOffsetX() { return charOffsetX; }
 uint16_t getOffsetY() { return charOffsetY; }
