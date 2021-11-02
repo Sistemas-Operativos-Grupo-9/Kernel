@@ -12,6 +12,15 @@ enum Syscalls {
 	PRINTREG = 104,
 	MICROSLEEP = 105,
 	MILLIS = 106,
+	SETGRAPHIC = 107,
+	DRAWFIGURE = 108,
+	SETFOREGROUND = 109,
+	GETWINDOWINFO = 110,
+};
+
+enum Figures {
+	CIRCLE = 0,
+	RECTANGLE = 1,
 };
 
 #define EOF -1

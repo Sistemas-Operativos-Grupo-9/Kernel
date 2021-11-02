@@ -45,10 +45,12 @@ void drawCharAt(char ch, uint8_t x, uint8_t y, Color background,
 void setCharOffset(uint16_t widthCount, uint16_t heightCount);
 
 void drawImage(Color (*getPixelColor)(uint64_t x, uint64_t y));
-void drawCircle(uint64_t centerX, uint64_t centerY, uint64_t radius,
-                Color color);
-void drawRectangle(uint64_t xStart, uint64_t yStart, uint64_t width,
-                   uint64_t height, Color color);
+void drawCircleRaw(uint64_t centerX, uint64_t centerY, uint64_t radius,
+                   Color color, uint64_t clipX, uint64_t clipY, uint64_t clipW,
+                   uint64_t clipH);
+void drawRectangleRaw(uint64_t xStart, uint64_t yStart, uint64_t width,
+                      uint64_t height, Color color, uint64_t clipX,
+                      uint64_t clipY, uint64_t clipW, uint64_t clipH);
 
 void drawRectangleBorders(uint64_t xStart, uint64_t yStart, uint64_t width,
                           uint64_t height, uint16_t borderSize, Color color);

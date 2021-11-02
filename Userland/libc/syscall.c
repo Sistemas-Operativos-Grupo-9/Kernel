@@ -39,3 +39,26 @@ void microsleep(uint64_t micros) { syscall(MICROSLEEP, micros, 0, 0, 0, 0); }
 void millisleep(uint64_t millis) { microsleep(millis * 1000); }
 
 uint64_t millis() { return syscall(MILLIS, 0, 0, 0, 0, 0); }
+
+void setGraphic(bool value) { syscall(SETGRAPHIC, value, 0, 0, 0, 0); }
+
+void drawFigure(enum Figures figure, uint16_t param1, uint16_t param2,
+                uint16_t param3, uint16_t param4) {
+	syscall(DRAWFIGURE, figure, param1, param2, param3, param4);
+}
+
+void drawCircle(uint16_t x, uint16_t y, uint16_t radius) {
+	drawFigure(CIRCLE, x, y, radius, 0);
+}
+void drawRectangle(uint16_t x, uint16_t y, uint16_t width, uint16_t height) {
+	drawFigure(RECTANGLE, x, y, width, height);
+}
+void setForeground(uint8_t red, uint8_t green, uint8_t blue) {
+	syscall(SETFOREGROUND, red, green, blue, 0, 0);
+}
+
+WindowInfo getWindowInfo() {
+	WindowInfo windowInfo;
+	syscall(GETWINDOWINFO, (uint64_t)&windowInfo, 0, 0, 0, 0);
+	return windowInfo;
+}

@@ -58,14 +58,16 @@
         "lock.h": "c",
         "*.asm": "asm-intel-x86-generic",
         "datetime.h": "c",
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "color.h": "c",
+        "window.h": "c"
     },
     "C_Cpp.default.systemIncludePath": [
         "Userland/libc",
-        "Constants",
     ],
     "C_Cpp.default.includePath": [
-        "Kernel/include"
+        "Kernel/include",
+        "Constants",
     ],
     // "editor.formatOnSave": false
 }

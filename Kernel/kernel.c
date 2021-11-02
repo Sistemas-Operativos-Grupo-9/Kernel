@@ -126,6 +126,7 @@ int main() {
 	char *helpArgs[] = {"--print-help"};
 
 	createProcess(0, "shell", helpArgs, 1, true);
+	// createProcess(0, "game", NULL, 0, true);
 	createProcess(1, "shell", NULL, 0, true);
 
 	setFocus(0);

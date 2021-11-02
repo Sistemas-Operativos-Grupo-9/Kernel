@@ -1,6 +1,8 @@
 #pragma once
 
 #include "color.h"
+#include "window.h"
+#include <stdbool.h>
 #include <stdint.h>
 
 extern uint8_t focusedView;
@@ -14,6 +16,9 @@ void setCursorAt(uint8_t viewNumber, int x, int y);
 void print(uint8_t viewNumber, char *str);
 void printChar(uint8_t viewNumber, char ch);
 
+void setForeground(uint8_t viewNumber, Color color);
+void setBackground(uint8_t viewNumber, Color color);
+
 void printIntN(uint8_t viewNumber, int value, uint8_t digits, uint8_t base);
 void printInt(uint8_t viewNumber, int value, uint8_t base);
 void printUnsignedN(uint8_t viewNumber, uint64_t value, uint8_t digits,
@@ -23,7 +28,13 @@ void printHexPrefix(uint8_t viewNumber);
 void printHexByte(uint8_t viewNumber, uint8_t value);
 void printHexPointer(uint8_t viewNumber, void *ptr);
 
+void setViewGraphic(uint8_t viewNumber, bool value);
 void clear(uint8_t viewNumber);
 void changeFocusView(uint8_t newFocusViewNumber);
 void lookAround(uint8_t viewNumber, int deltaY);
 int scrollTo(uint8_t viewNumber, int y);
+
+void drawCircle(uint8_t viewNumber, uint16_t x, uint16_t y, uint16_t radius);
+void drawRectangle(uint8_t viewNumber, uint16_t x, uint16_t y, uint16_t width,
+                   uint16_t height);
+void getViewInfo(uint8_t viewNumber, WindowInfo *windowInfo);

@@ -58,6 +58,9 @@ void drawCharAt(char ch, uint8_t x, uint8_t y, Color background,
 	}
 }
 
+#define min(a, b) (a < b ? a : b)
+#define max(a, b) (a > b ? a : b)
+
 #define drawByPixel(xStart, yStart, xEnd, yEnd, code)                          \
 	for (int y = yStart; y < yEnd; y++) {                                      \
 		for (int x = xStart; x < xEnd; x++) {                                  \
@@ -69,18 +72,23 @@ void drawImage(Color (*getPixelColor)(uint64_t x, uint64_t y)) {
 	drawByPixel(0, 0, WIDTH, HEIGHT, setPixel(getPixelColor(x, y), x, y);)
 }
 
-void drawCircle(uint64_t centerX, uint64_t centerY, uint64_t radius,
-                Color color) {
+void drawCircleRaw(uint64_t centerX, uint64_t centerY, uint64_t radius,
+                   Color color, uint64_t clipX, uint64_t clipY, uint64_t clipW,
+                   uint64_t clipH) {
 	drawByPixel(
-	    centerX - radius, centerY - radius, centerX + radius, centerY + radius,
-	    if ((x * centerX) * (x * centerX) + (y * centerY) * (y * centerY) <
+	    max(clipX, centerX - radius), max(clipY, centerY - radius),
+	    min(clipX + clipW, centerX + radius),
+	    min(clipY + clipH, centerY + radius),
+	    if ((x - centerX) * (x - centerX) + (y - centerY) * (y - centerY) <
 	        radius * radius) setPixel(color, x, y);)
 }
 
-void drawRectangle(uint64_t xStart, uint64_t yStart, uint64_t width,
-                   uint64_t height, Color color) {
-	drawByPixel(xStart, yStart, xStart + width, yStart + height,
-	            setPixel(color, x, y);)
+void drawRectangleRaw(uint64_t xStart, uint64_t yStart, uint64_t width,
+                      uint64_t height, Color color, uint64_t clipX,
+                      uint64_t clipY, uint64_t clipW, uint64_t clipH) {
+	drawByPixel(max(clipX, xStart), max(clipY, yStart),
+	            min(clipX + clipW, xStart + width),
+	            min(clipY + clipH, yStart + height), setPixel(color, x, y);)
 }
 
 uint16_t getOffsetX() { return charOffsetX; }
@@ -93,14 +101,18 @@ uint16_t getFontHeight() { return FONT_HEIGHT * FONT_SCALE; }
 void drawRectangleBorders(uint64_t xStart, uint64_t yStart, uint64_t width,
                           uint64_t height, uint16_t borderSize, Color color) {
 	// Top and bottom
-	drawRectangle(xStart - borderSize, yStart - borderSize,
-	              width + borderSize * 2, borderSize, color);
-	drawRectangle(xStart - borderSize, yStart + height, width + borderSize * 2,
-	              borderSize, color);
+	drawRectangleRaw(xStart - borderSize, yStart - borderSize,
+	                 width + borderSize * 2, borderSize, color, 0, 0, WIDTH,
+	                 HEIGHT);
+	drawRectangleRaw(xStart - borderSize, yStart + height,
+	                 width + borderSize * 2, borderSize, color, 0, 0, WIDTH,
+	                 HEIGHT);
 
 	// Left and right
-	drawRectangle(xStart - borderSize, yStart, borderSize, height, color);
-	drawRectangle(xStart + width, yStart, borderSize, height, color);
+	drawRectangleRaw(xStart - borderSize, yStart, borderSize, height, color, 0,
+	                 0, WIDTH, HEIGHT);
+	drawRectangleRaw(xStart + width, yStart, borderSize, height, color, 0, 0,
+	                 WIDTH, HEIGHT);
 }
 
 #undef drawByPixel

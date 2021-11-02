@@ -41,6 +41,11 @@ struct TextColors {
 #define TEXT_BUFFER_WIDTH TEXT_WIDTH
 #define TEXT_BUFFER_HEIGHT TEXT_HEIGHT * 5
 
+#define VIEWCLIP                                                               \
+	getOffsetX() + (view->positionX * getFontWidth()),                         \
+	    getOffsetY() + (view->positionY * getFontHeight()),                    \
+	    view->width *getFontWidth(), view->height *getFontHeight()
+
 static struct View {
 	int cursorX;
 	int cursorY;
@@ -51,6 +56,7 @@ static struct View {
 	uint32_t outputLength;
 	uint32_t positionX, positionY;
 	uint32_t width, height;
+	bool graphic;
 } Views[] = {
     {.positionX = 0,
      .positionY = 0,
@@ -150,7 +156,7 @@ void initScreen() {
 	//         drawCharAt('*', x, y, BLACK, BLUE);
 	//     }
 	// }
-	// drawRectangle(0, 0, getWidth(), getHeight(), (Color) {200, 100, 50});
+	// drawRectangleRaw(0, 0, getWidth(), getHeight(), (Color) {200, 100, 50});
 	drawImage(backgroundImage);
 
 	for (int i = 0; i < sizeof(Views) / sizeof(*Views); i++) {
@@ -162,18 +168,19 @@ void initScreen() {
 	}
 }
 
-void setForeground(struct View *view, Color color) {
-	view->colors.foreground = color;
+void setForeground(uint8_t viewNumber, Color color) {
+	(&Views[viewNumber])->colors.foreground = color;
 }
-void setBackground(struct View *view, Color color) {
-	view->colors.background = color;
+void setBackground(uint8_t viewNumber, Color color) {
+	(&Views[viewNumber])->colors.background = color;
 }
 
 void drawCharAtView(struct View *view, char ch, uint8_t x, uint8_t y,
                     Color background, Color foreground) {
-	if (x >= 0 && x < view->width && y >= 0 && y < view->height)
-		drawCharAt(ch, x + view->positionX, y + view->positionY, background,
-		           foreground);
+	if (!view->graphic)
+		if (x >= 0 && x < view->width && y >= 0 && y < view->height)
+			drawCharAt(ch, x + view->positionX, y + view->positionY, background,
+			           foreground);
 }
 Color invertColor(Color color) {
 	return (Color){.red = 255 - color.red,
@@ -212,15 +219,25 @@ void changeFocusView(uint8_t newFocusViewNumber) {
 		redrawCharInverted(&Views[i], Views[i].cursorX, Views[i].cursorY);
 	}
 }
+void clearGraphic(struct View *view) {
+	drawRectangleRaw(getOffsetX() + (view->positionX * getFontWidth()),
+	                 getOffsetY() + (view->positionY * getFontHeight()),
+	                 view->width * getFontWidth(),
+	                 view->height * getFontHeight(), BLACK, VIEWCLIP);
+}
 void reDraw(struct View *view) {
-	for (int y = 0; y < view->height; y++) {
-		for (int x = 0; x < view->width; x++) {
-			redrawChar(view, x, y + view->scrollY);
+	if (view->graphic) {
+		clearGraphic(view);
+	} else {
+		for (int y = 0; y < view->height; y++) {
+			for (int x = 0; x < view->width; x++) {
+				redrawChar(view, x, y + view->scrollY);
+			}
 		}
+		if (view->cursorY < view->scrollY + view->height &&
+		    view->cursorY >= view->scrollY)
+			redrawCharInverted(view, view->cursorX, view->cursorY);
 	}
-	if (view->cursorY < view->scrollY + view->height &&
-	    view->cursorY >= view->scrollY)
-		redrawCharInverted(view, view->cursorX, view->cursorY);
 }
 void lookAround(uint8_t viewNumber, int deltaY) {
 	struct View *view = &Views[viewNumber];
@@ -419,6 +436,12 @@ void printChar(uint8_t viewNumber, char ch) {
 	}
 }
 
+void setViewGraphic(uint8_t viewNumber, bool value) {
+	struct View *view = &Views[viewNumber];
+	view->graphic = value;
+	reDraw(view);
+}
+
 void setCursorAt(uint8_t viewNumber, int x, int y) {
 	struct View *view = &Views[viewNumber];
 
@@ -503,4 +526,30 @@ void printHexByte(uint8_t viewNumber, uint8_t value) {
 void printHexPointer(uint8_t viewNumber, void *ptr) {
 	printHexPrefix(viewNumber);
 	printUnsignedN(viewNumber, (uint64_t)ptr, 16, 16);
+}
+
+void drawCircle(uint8_t viewNumber, uint16_t x, uint16_t y, uint16_t radius) {
+	struct View *view = &Views[viewNumber];
+
+	drawCircleRaw(getOffsetX() + (view->positionX * getFontWidth()) + x,
+	              getOffsetY() + (view->positionY * getFontHeight()) + y,
+	              radius, view->colors.foreground, VIEWCLIP);
+}
+
+void drawRectangle(uint8_t viewNumber, uint16_t x, uint16_t y, uint16_t width,
+                   uint16_t height) {
+	struct View *view = &Views[viewNumber];
+
+	drawRectangleRaw(getOffsetX() + (view->positionX * getFontWidth()) + x,
+	                 getOffsetY() + (view->positionY * getFontHeight()) + y,
+	                 width, height, view->colors.foreground, VIEWCLIP);
+}
+
+void getViewInfo(uint8_t viewNumber, WindowInfo *windowInfo) {
+	struct View *view = &Views[viewNumber];
+
+	windowInfo->pixelWidth = view->width * getFontWidth();
+	windowInfo->pixelHeight = view->height * getFontHeight();
+	windowInfo->textWidth = view->width;
+	windowInfo->textHeight = view->height;
 }

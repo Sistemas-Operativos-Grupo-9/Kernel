@@ -5,6 +5,7 @@
 #include "process.h"
 #include "time.h"
 #include "video.h"
+#include "window.h"
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -55,6 +56,38 @@ void microsleep(uint64_t micros) {
 
 uint64_t millis() { return microseconds_elapsed() / 1000; }
 
+void setGraphic(bool value) { setViewGraphic(getCurrentProcess()->tty, value); }
+
+void drawCircleCall(uint16_t x, uint16_t y, uint16_t radius) {
+	drawCircle(getCurrentProcess()->tty, x, y, radius);
+}
+
+void drawRectangleCall(uint16_t x, uint16_t y, uint16_t width,
+                       uint16_t height) {
+	drawRectangle(getCurrentProcess()->tty, x, y, width, height);
+}
+
+void drawFigure(enum Figures figure, uint64_t param2, uint64_t param3,
+                uint64_t param4, uint64_t param5) {
+	switch (figure) {
+	case CIRCLE:
+		drawCircleCall(param2, param3, param4);
+		break;
+	case RECTANGLE:
+		drawRectangleCall(param2, param3, param4, param5);
+		break;
+	}
+}
+
+void setForegroundCall(uint8_t red, uint8_t green, uint8_t blue) {
+	setForeground(getCurrentProcess()->tty,
+	              (Color){.red = red, .green = green, .blue = blue});
+}
+
+void getWindowInfo(WindowInfo *windowInfo) {
+	getViewInfo(getCurrentProcess()->tty, windowInfo);
+}
+
 uint64_t syscallDispatcher(uint64_t rdi, uint64_t param1, uint64_t param2,
                            uint64_t param3, uint64_t param4, uint64_t param5) {
 	switch (rdi) {
@@ -78,9 +111,21 @@ uint64_t syscallDispatcher(uint64_t rdi, uint64_t param1, uint64_t param2,
 		return kill(param1);
 	case MICROSLEEP:
 		microsleep(param1);
-		return 0;
+		break;
 	case MILLIS:
 		return millis();
+	case SETGRAPHIC:
+		setGraphic(param1);
+		break;
+	case DRAWFIGURE:
+		drawFigure(param1, param2, param3, param4, param5);
+		break;
+	case SETFOREGROUND:
+		setForegroundCall(param1, param2, param3);
+		break;
+	case GETWINDOWINFO:
+		getWindowInfo((WindowInfo *)param1);
+		break;
 	}
 	return 0;
 }
