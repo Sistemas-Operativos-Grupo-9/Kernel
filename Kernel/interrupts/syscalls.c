@@ -132,7 +132,7 @@ uint64_t syscallDispatcher(uint64_t rdi, uint64_t param1, uint64_t param2,
 		getWindowInfo((WindowInfo *)param1);
 		break;
 	case DRAWBITMAP:
-		drawBitmapCall(param1, param2, param3, param4, param5);
+		drawBitmapCall(param1, param2, param3, param4, (Color(*)[])param5);
 		break;
 	}
 	return 0;

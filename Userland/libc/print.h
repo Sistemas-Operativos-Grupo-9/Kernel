@@ -9,3 +9,4 @@ void printUnsigned(uint64_t value, uint8_t base);
 void printHexPrefix();
 void printHexByte(uint8_t value);
 void printHexPointer(void *ptr);
+void printPercentage(float value);

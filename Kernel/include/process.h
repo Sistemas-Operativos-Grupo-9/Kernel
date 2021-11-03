@@ -24,6 +24,7 @@ typedef struct __attribute__((packed)) ProcessDescriptor {
 
 extern void _startScheduler();
 extern void _switchContext();
+extern void _yield();
 extern void _killAndNextProcess();
 
 bool killProcess(int pid);

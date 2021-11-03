@@ -1,5 +1,5 @@
 
-CFLAGS = -m64 -fno-exceptions -std=c99 -Wall -ffreestanding -nostdlib -fno-common -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -fno-builtin-malloc -fno-builtin-free -fno-builtin-realloc -fno-stack-check -fno-stack-protector -fPIC -g
+CFLAGS = -m64 -fno-exceptions -std=c99 -Wall -ffreestanding -nostdlib -fno-common -mno-red-zone -mno-mmx -fno-builtin-malloc -fno-builtin-free -fno-builtin-realloc -fno-stack-check -fno-stack-protector -fPIC -g
 AR = ar
 GCC = gcc
 

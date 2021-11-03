@@ -21,7 +21,7 @@ enum Syscalls {
 
 enum Figures {
 	CIRCLE = 0,
-	RECTANGLE = 1,
+	RECTANGLE,
 };
 
 #define EOF -1

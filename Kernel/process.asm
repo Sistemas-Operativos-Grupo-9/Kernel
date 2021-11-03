@@ -56,6 +56,11 @@ _startScheduler:
 	call _killAndNextProcess ; We "kill" this process and start processing the queue
 	iretq
 
+global _yield
+_yield:
+	int 0x81
+	ret
+
 
 ; extern processReturned
 extern doSwitch

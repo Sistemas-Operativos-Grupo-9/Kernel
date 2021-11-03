@@ -24,17 +24,17 @@ typedef struct {
 
 WindowInfo windowInfo;
 
-State loop(State state, uint16_t dt) {
+State loop(State state, float dt) {
 	State newState = {.count = state.count, .gravity = state.gravity};
 	Vector gravity = state.gravity;
 	for (int i = 0; i < state.count; i++) {
 		Vector pos = state.marbles[i].pos;
 		Vector speed = state.marbles[i].speed;
 
-		speed.x += gravity.x * dt / 1000;
-		speed.y += gravity.y * dt / 1000;
-		pos.x += speed.x * dt / 1000;
-		pos.y += speed.y * dt / 1000;
+		speed.x += gravity.x * dt;
+		speed.y += gravity.y * dt;
+		pos.x += speed.x * dt;
+		pos.y += speed.y * dt;
 		if ((pos.x < RADIUS && speed.x < 0) ||
 		    (pos.x > windowInfo.pixelWidth - RADIUS && speed.x > 0)) {
 			speed.x = -speed.x;
@@ -74,8 +74,8 @@ void drawCircleLocal(Color buffer[][windowInfo.pixelWidth], uint64_t centerX,
 	        radius * radius) buffer[y][x] = color;)
 }
 
-void render(State state) {
-	Color buffer[windowInfo.pixelHeight][windowInfo.pixelWidth];
+void render(State state,
+            Color buffer[windowInfo.pixelHeight][windowInfo.pixelWidth]) {
 	// for (int y = 0; y < 100; y++) {
 	// 	for (int x = 0; x < 100; x++) {
 	// 		buffer[y][x] = (Color){255, 255, 255};
@@ -91,7 +91,6 @@ void render(State state) {
 
 	drawBitmap(0, 0, windowInfo.pixelWidth, windowInfo.pixelHeight, buffer);
 }
-
 Vector randomVector() {
 	Vector vec;
 	vec.x = rand() % windowInfo.pixelWidth;
@@ -119,15 +118,15 @@ int main() {
 		state.marbles[i].color = randomColor();
 	}
 
+	Color buffer[windowInfo.pixelHeight][windowInfo.pixelWidth];
 	int start = millis();
 	int last = start;
 	int current;
 	while (((current = millis()) - start) / 2000 < 2) {
-		// printUnsigned(state.count, 10);
-		state = loop(state, current - last);
-		render(state);
+		state = loop(state, (float)(current - last) / 1000);
+		render(state, buffer);
 		last = current;
-		// millisleep(0);
+		// millisleep(10);
 	}
 
 	setForeground(255, 255, 255);

@@ -104,7 +104,7 @@ uint64_t writeTTY(uint8_t tty, char *buf, uint64_t count) {
 
 void waitForIO() {
 	getCurrentProcess()->waiting = true;
-	__asm__("int $0x81");
+	_yield();
 }
 
 void printClosingProcess(int retCode) {

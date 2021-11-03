@@ -35,3 +35,15 @@ void printHexPointer(void *ptr) {
 	printHexPrefix();
 	printUnsignedN((uint64_t)ptr, 16, 16);
 }
+
+void printPercentage(float value) {
+	putchar('\r');
+	if (value >= 1) {
+		puts("100");
+	} else if (value < 0) {
+		puts("0");
+	} else {
+		printUnsigned((uint8_t)(value * 100), 10);
+	}
+	putchar('%');
+}

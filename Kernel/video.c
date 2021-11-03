@@ -13,25 +13,6 @@ struct TextColors {
 } __attribute__((packed)); // currentColor = {.background = {0, 0, 0},
                            // .foreground = {255, 255, 255}};
 
-#define BLACK                                                                  \
-	(Color) { 0, 0, 0 }
-#define WHITE                                                                  \
-	(Color) { 255, 255, 255 }
-#define BLUE                                                                   \
-	(Color) { 255, 0, 0 }
-#define GREEN                                                                  \
-	(Color) { 0, 255, 0 }
-#define RED                                                                    \
-	(Color) { 0, 0, 255 }
-#define AQUA                                                                   \
-	(Color) { 255, 255, 0 }
-#define LIGHT_SALMON                                                           \
-	(Color) { 122, 160, 255 }
-#define GREEN_YELLOW                                                           \
-	(Color) { 47, 255, 173 }
-#define GREY                                                                   \
-	(Color) { 200, 200, 200 }
-
 #define NORMAL_COLORS                                                          \
 	(struct TextColors) { .background = BLACK, .foreground = WHITE }
 
