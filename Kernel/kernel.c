@@ -35,7 +35,7 @@ void *getStackBase() {
 void *initializeKernelBinary() {
 
 	char buffer[10];
-	char infoBuffer[256];
+	char infoBuffer[1024];
 	int infoIndex = 0;
 #define printChar(ch) infoBuffer[infoIndex++] = ch
 #define print(str)                                                             \
@@ -57,7 +57,21 @@ void *initializeKernelBinary() {
 
 	print("[Loading modules]\n");
 
-	loadModules(&endOfKernelBinary);
+	if (loadModules(&endOfKernelBinary)) {
+		print("FAILED TO LOAD MODULES!");
+	} else {
+		// struct Module *modules = (struct Module *)&endOfKernelStack;
+		// uint32_t moduleCount =
+		//     *(uint32_t *)((uint8_t *)modules + sizeof(struct Module) * 32);
+		// for (int i = 0; i < moduleCount; i++) {
+		// 	struct Module *module = &((struct Module *)(modules))[i];
+		// 	print("Module: ");
+		// 	print(module->name);
+		// 	print(" loaded at address ");
+		// 	printHexPointer(module->address);
+		// 	printChar('\n');
+		// }
+	}
 	print("[Done]\n\n");
 
 	print("[Initializing kernel's binary]\n");
@@ -115,6 +129,7 @@ int main() {
 
 	// PRINT_MODULE("random");
 	// PRINT_MODULE("shell");
+	// PRINT_MODULE("mandelbrot");
 
 #undef PRINT_MODULE
 

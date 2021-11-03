@@ -7,6 +7,8 @@
 
 extern uint8_t endOfKernelStack;
 #define BACKUP_LOCATION &endOfKernelStack
+extern uint8_t endOfModules;
+#define BACKUP_END &endOfModules
 
 static struct Module modules[32] = {};
 static uint32_t moduleCount = 0;
@@ -38,7 +40,7 @@ static void loadModule(struct Module *modules, uint32_t *moduleCount,
 static uint32_t readUint32(uint8_t **address);
 static void readName(uint8_t **address, char *buf);
 
-void loadModules(void *payloadStart) {
+int loadModules(void *payloadStart) {
 	int i;
 	uint8_t *currentModule = (uint8_t *)payloadStart;
 	uint32_t totalModuleCount = readUint32(&currentModule);
@@ -51,7 +53,10 @@ void loadModules(void *payloadStart) {
 	for (i = 0; i < totalModuleCount; i++)
 		loadModule(modulesBackup, moduleCountBackup, &currentModule,
 		           &targetModuleAddress);
-
+	if (targetModuleAddress >= BACKUP_END) {
+		return -1;
+	}
+	return 0;
 	// Backup data before losing it when cleaning bss
 	// for (i = 0; i < sizeof(modules) / sizeof(*modules); i++) {
 	// 	((struct Module *)(0x400000))[i] = modules[i];
