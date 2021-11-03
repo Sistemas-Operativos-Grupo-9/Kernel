@@ -20,8 +20,9 @@ uint64_t millis();
 void setGraphic(bool value);
 void drawCircle(uint16_t x, uint16_t y, uint16_t radius);
 void drawRectangle(uint16_t x, uint16_t y, uint16_t width, uint16_t height);
-void setForeground(uint8_t red, uint8_t green, uint8_t blue);
+void setForeground(Color color);
 WindowInfo getWindowInfo();
 void drawBitmap(uint16_t x, uint16_t y, uint16_t width, uint16_t height,
                 Color bitmap[][width]);
+void drawText(char *text, uint16_t x, uint16_t y, bool center);
 void flip();

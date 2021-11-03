@@ -43,14 +43,19 @@ Color frameBuffer4[HALF_PIXEL_HEIGHT][HALF_PIXEL_WIDTH];
 Color frameBuffer5[HALF_PIXEL_HEIGHT][HALF_PIXEL_WIDTH];
 Color frameBuffer6[HALF_PIXEL_HEIGHT][HALF_PIXEL_WIDTH];
 
-char textBuffer1[TEXT_BUFFER_HEIGHT][TEXT_BUFFER_WIDTH];
-char textBuffer2[TEXT_BUFFER_HEIGHT][TEXT_BUFFER_WIDTH];
-char textBuffer3[TEXT_BUFFER_HEIGHT][TEXT_BUFFER_WIDTH];
-char textBuffer4[TEXT_BUFFER_HEIGHT][TEXT_BUFFER_WIDTH];
-char textBuffer5[TEXT_BUFFER_HEIGHT][TEXT_BUFFER_WIDTH];
-char textBuffer6[TEXT_BUFFER_HEIGHT][TEXT_BUFFER_WIDTH];
+typedef struct {
+	char letter;
+	Color color;
+} ColoredChar;
+
+ColoredChar textBuffer1[TEXT_BUFFER_HEIGHT][TEXT_BUFFER_WIDTH];
+ColoredChar textBuffer2[TEXT_BUFFER_HEIGHT][TEXT_BUFFER_WIDTH];
+ColoredChar textBuffer3[TEXT_BUFFER_HEIGHT][TEXT_BUFFER_WIDTH];
+ColoredChar textBuffer4[TEXT_BUFFER_HEIGHT][TEXT_BUFFER_WIDTH];
+ColoredChar textBuffer5[TEXT_BUFFER_HEIGHT][TEXT_BUFFER_WIDTH];
+ColoredChar textBuffer6[TEXT_BUFFER_HEIGHT][TEXT_BUFFER_WIDTH];
 #define INDEX_TEXT_BUFFER(buffer, y, x)                                        \
-	((char(*)[TEXT_BUFFER_WIDTH])buffer)[y][x]
+	((ColoredChar(*)[TEXT_BUFFER_WIDTH])buffer)[y][x]
 
 static struct Desktop {
 	const int views;
@@ -175,21 +180,26 @@ uint16_t sqrt(uint32_t n) {
 // }
 
 // Generates an image with dots
-Color backgroundImage(uint64_t x, uint64_t y) {
-	const uint64_t lightDistances = 64;
-	// Color colors[] = {BLUE, RED, GREEN};
-	Color colors[] = {AQUA, LIGHT_SALMON, GREEN_YELLOW};
-	int colorIndex = (x + lightDistances / 2) / lightDistances +
-	                 (y + lightDistances / 2) / lightDistances;
-	int closestX =
-	    (x + lightDistances / 2) % lightDistances - lightDistances / 2;
-	int closestY =
-	    (y + lightDistances / 2) % lightDistances - lightDistances / 2;
-	uint32_t closestLight =
-	    sqrt(abs(closestX) * abs(closestX) + abs(closestY) * abs(closestY)) * 5;
+Color backgroundImage(uint16_t x, uint16_t y) {
 
-	return colorLerp(colors[colorIndex % (sizeof(colors) / sizeof(*colors))],
-	                 BLACK, closestLight);
+	// const uint64_t lightDistances = 64;
+	// // Color colors[] = {BLUE, RED, GREEN};
+	// Color colors[] = {AQUA, LIGHT_SALMON, GREEN_YELLOW};
+	// int colorIndex = (x + lightDistances / 2) / lightDistances +
+	//                  (y + lightDistances / 2) / lightDistances;
+	// int closestX =
+	//     (x + lightDistances / 2) % lightDistances - lightDistances / 2;
+	// int closestY =
+	//     (y + lightDistances / 2) % lightDistances - lightDistances / 2;
+	// uint32_t closestLight =
+	//     sqrt(abs(closestX) * abs(closestX) + abs(closestY) * abs(closestY)) *
+	//     5;
+
+	// return colorLerp(colors[colorIndex % (sizeof(colors) / sizeof(*colors))],
+	//                  BLACK, closestLight);
+
+	return GREY_N3;
+
 	// uint64_t kernel[5][5] = {
 	// 	{ 1, 1, 1, 1, 1 },
 	// 	{ 1, 1, 1, 1, 1 },
@@ -281,14 +291,15 @@ void redrawCharInverted(struct View *view, uint32_t x, uint32_t y) {
 	Color foreground = view->colors.foreground;
 	if (getViewNumber(view) != focusedView)
 		foreground =
-		    colorLerp(view->colors.background, view->colors.foreground, 64);
-	drawCharAtView(view, INDEX_TEXT_BUFFER(view->textBuffer, y, x), x,
+		    colorLerp(view->colors.background,
+		              INDEX_TEXT_BUFFER(view->textBuffer, y, x).color, 64);
+	drawCharAtView(view, INDEX_TEXT_BUFFER(view->textBuffer, y, x).letter, x,
 	               y - view->scrollY, foreground, view->colors.background);
 }
 void redrawChar(struct View *view, uint32_t x, uint32_t y) {
-	drawCharAtView(view, INDEX_TEXT_BUFFER(view->textBuffer, y, x), x,
+	drawCharAtView(view, INDEX_TEXT_BUFFER(view->textBuffer, y, x).letter, x,
 	               y - view->scrollY, view->colors.background,
-	               view->colors.foreground);
+	               INDEX_TEXT_BUFFER(view->textBuffer, y, x).color);
 }
 
 void consume(struct View *view, int count) {
@@ -385,7 +396,7 @@ int scrollTo(uint8_t viewNumber, int y) {
 				INDEX_TEXT_BUFFER(view->textBuffer, to, i) =
 				    from < TEXT_BUFFER_HEIGHT
 				        ? INDEX_TEXT_BUFFER(view->textBuffer, from, i)
-				        : '\0';
+				        : (ColoredChar){.letter = '\0', .color = WHITE};
 			}
 		}
 		y = newY;
@@ -408,7 +419,7 @@ uint64_t countCharsAfter(struct View *view, int xFrom, int yFrom) {
 	int length = 0;
 	for (int y = yFrom;; y++) {
 		for (int x = y == yFrom ? xFrom : 0; x < view->width; x++) {
-			if (INDEX_TEXT_BUFFER(view->textBuffer, y, x) == '\0')
+			if (INDEX_TEXT_BUFFER(view->textBuffer, y, x).letter == '\0')
 				return length;
 			length++;
 		}
@@ -466,7 +477,7 @@ void moveFollowing(uint8_t viewNumber, int xFrom, int yFrom, int count) {
 	for (int y = yFrom; y <= yTo; y++) {
 		for (int x = y == yFrom ? xFrom : 0;
 		     y == yTo ? x < xTo : x < view->width; x++) {
-			INDEX_TEXT_BUFFER(view->textBuffer, y, x) = '\0';
+			INDEX_TEXT_BUFFER(view->textBuffer, y, x).letter = '\0';
 			redrawChar(view, x, y);
 		}
 	}
@@ -478,7 +489,8 @@ void moveFollowing(uint8_t viewNumber, int xFrom, int yFrom, int count) {
 void setChar(uint8_t viewNumber, char ch) {
 	struct View *view = Views[viewNumber];
 	moveFollowing(viewNumber, view->cursorX, view->cursorY, 1);
-	INDEX_TEXT_BUFFER(view->textBuffer, view->cursorY, view->cursorX) = ch;
+	INDEX_TEXT_BUFFER(view->textBuffer, view->cursorY, view->cursorX) =
+	    (ColoredChar){.letter = ch, .color = view->colors.foreground};
 	redrawChar(view, view->cursorX, view->cursorY);
 }
 
@@ -529,7 +541,8 @@ void printChar(uint8_t viewNumber, char ch) {
 			finish = false;
 		} else if (view->outputBuffer[0] == '\r') {
 			for (int x = 0; x < newCursorX; x++) {
-				INDEX_TEXT_BUFFER(view->textBuffer, newCursorY, x) = '\0';
+				INDEX_TEXT_BUFFER(view->textBuffer, newCursorY, x).letter =
+				    '\0';
 				redrawChar(view, x, newCursorY);
 			}
 			newCursorX = 0;
@@ -602,7 +615,7 @@ void clear(uint8_t viewNumber) {
 	view->scrollY = 0;
 	for (int y = 0; y < TEXT_BUFFER_HEIGHT; y++) {
 		for (int x = 0; x < TEXT_BUFFER_WIDTH; x++) {
-			INDEX_TEXT_BUFFER(view->textBuffer, y, x) = '\0';
+			INDEX_TEXT_BUFFER(view->textBuffer, y, x).letter = '\0';
 		}
 	}
 	view->cursorX = 0;
@@ -689,6 +702,26 @@ void drawBitmap(uint8_t viewNumber, uint16_t xStart, uint16_t yStart,
 	drawByPixel(max(0, xStart), max(0, yStart), min(VIEW_WIDTH, xStart + width),
 	            min(VIEW_HEIGHT, yStart + height),
 	            setBufferPixel(view, x, y, bitmap[y - yStart][x - xStart]);)
+}
+
+struct View *bindedView;
+void setBufferPixelBinded(Color color, uint16_t x, uint16_t y) {
+	bindedView->frameBuffer[y * bindedView->width * FINAL_FONT_WIDTH + x] =
+	    color;
+}
+void drawText(uint8_t viewNumber, char *text, uint16_t x, uint16_t y,
+              bool center) {
+	struct View *view = Views[viewNumber];
+	uint8_t len = strlen(text);
+	if (center) {
+		x -= (FINAL_FONT_WIDTH * len) / 2;
+		y -= FINAL_FONT_HEIGHT / 2;
+	}
+	for (int i = 0; *text; i++, text++) {
+		bindedView = view;
+		drawCharAtFree(setBufferPixelBinded, *text, x + FINAL_FONT_WIDTH * i, y,
+		               view->colors.background, view->colors.foreground);
+	}
 }
 
 void flip(uint8_t viewNumber) {

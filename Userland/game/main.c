@@ -78,7 +78,7 @@ void render(State state) {
 	for (int i = 0; i < state.count; i++) {
 		Color color = state.marbles[i].color;
 		Vector pos = state.marbles[i].pos;
-		setForeground(color.red, color.green, color.blue);
+		setForeground(color);
 		drawCircle((int)pos.x, (int)pos.y, RADIUS);
 	}
 	flip();
@@ -97,7 +97,7 @@ Color randomColor() {
 int main() {
 	windowInfo = getWindowInfo();
 
-	setForeground(0, 0, 0);
+	setForeground(BLACK);
 	drawRectangle(0, 0, windowInfo.pixelWidth, windowInfo.pixelHeight);
 	setGraphic(true);
 
@@ -124,7 +124,7 @@ int main() {
 		millisleep(10);
 	}
 
-	setForeground(255, 255, 255);
+	setForeground(WHITE);
 	setGraphic(false);
 	return 0;
 }

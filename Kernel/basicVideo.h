@@ -43,11 +43,14 @@ uint16_t getOffsetY();
 Color colorLerp(Color a, Color b, uint8_t lerp);
 
 void initVideo();
+
+void drawCharAtFree(void(setPixel)(Color, uint16_t, uint16_t), char ch,
+                    uint16_t x, uint16_t y, Color background, Color foreground);
 void drawCharAt(char ch, uint8_t x, uint8_t y, Color background,
                 Color foreground);
 void setCharOffset(uint16_t widthCount, uint16_t heightCount);
 
-void drawImage(Color (*getPixelColor)(uint64_t x, uint64_t y));
+void drawImage(Color (*getPixelColor)(uint16_t x, uint16_t y));
 void drawCircleRaw(uint64_t centerX, uint64_t centerY, uint64_t radius,
                    Color color, uint64_t clipX, uint64_t clipY, uint64_t clipW,
                    uint64_t clipH);

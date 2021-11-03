@@ -42,8 +42,8 @@ uint64_t millis() { return syscall(MILLIS, 0, 0, 0, 0, 0); }
 
 void setGraphic(bool value) { syscall(SETGRAPHIC, value, 0, 0, 0, 0); }
 
-void drawFigure(enum Figures figure, uint16_t param1, uint16_t param2,
-                uint16_t param3, uint16_t param4) {
+void drawFigure(enum Figures figure, uint64_t param1, uint64_t param2,
+                uint64_t param3, uint64_t param4) {
 	syscall(DRAWFIGURE, figure, param1, param2, param3, param4);
 }
 
@@ -53,13 +53,17 @@ void drawCircle(uint16_t x, uint16_t y, uint16_t radius) {
 void drawRectangle(uint16_t x, uint16_t y, uint16_t width, uint16_t height) {
 	drawFigure(RECTANGLE, x, y, width, height);
 }
-void setForeground(uint8_t red, uint8_t green, uint8_t blue) {
-	syscall(SETFOREGROUND, red, green, blue, 0, 0);
+void setForeground(Color color) {
+	syscall(SETFOREGROUND, color.red, color.green, color.blue, 0, 0);
 }
 
 void drawBitmap(uint16_t x, uint16_t y, uint16_t width, uint16_t height,
                 Color bitmap[][width]) {
 	syscall(DRAWBITMAP, x, y, width, height, (uint64_t)bitmap);
+}
+
+void drawText(char *text, uint16_t x, uint16_t y, bool center) {
+	drawFigure(TEXT, (uint64_t)text, x, y, center);
 }
 
 WindowInfo getWindowInfo() {

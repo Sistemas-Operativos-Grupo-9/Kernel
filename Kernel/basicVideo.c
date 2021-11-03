@@ -21,7 +21,7 @@ Color colorLerp(Color a, Color b, uint8_t lerp) {
 	               .blue = a.blue + (b.blue - a.blue) * lerp / 255};
 }
 
-void setPixel(Color color, int x, int y) {
+void setPixel(Color color, uint16_t x, uint16_t y) {
 	((Color *)(uint64_t)infoBlock->physbase)[x + y * WIDTH] = color;
 }
 
@@ -30,8 +30,10 @@ void setCharOffset(uint16_t widthCount, uint16_t heightCount) {
 	charOffsetX = (WIDTH - widthCount * FONT_WIDTH * FONT_SCALE) / 2;
 	charOffsetY = (HEIGHT - heightCount * FONT_HEIGHT * FONT_SCALE) / 2;
 }
-void drawCharAt(char ch, uint8_t x, uint8_t y, Color background,
-                Color foreground) {
+
+void drawCharAtFree(void(setPixel)(Color, uint16_t, uint16_t), char ch,
+                    uint16_t x, uint16_t y, Color background,
+                    Color foreground) {
 	FONT_ROW_TYPE *l = font_letters[font_mapping[(uint8_t)ch]];
 	for (int fontY = 0; fontY < FONT_HEIGHT; fontY++) {
 		for (int fontX = 0; fontX < FONT_WIDTH; fontX++) {
@@ -44,15 +46,19 @@ void drawCharAt(char ch, uint8_t x, uint8_t y, Color background,
 
 			for (int sy = 0; sy < FONT_SCALE; sy++) {
 				for (int sx = 0; sx < FONT_SCALE; sx++) {
-					setPixel(color,
-					         charOffsetX + x * (FONT_WIDTH * FONT_SCALE) +
-					             (fontX * FONT_SCALE + sx),
-					         charOffsetY + y * (FONT_HEIGHT * FONT_SCALE) +
-					             (fontY * FONT_SCALE + sy));
+					setPixel(color, x + (fontX * FONT_SCALE + sx),
+					         y + (fontY * FONT_SCALE + sy));
 				}
 			}
 		}
 	}
+}
+
+void drawCharAt(char ch, uint8_t x, uint8_t y, Color background,
+                Color foreground) {
+	drawCharAtFree(setPixel, ch, charOffsetX + x * (FONT_WIDTH * FONT_SCALE),
+	               charOffsetY + y * (FONT_HEIGHT * FONT_SCALE), background,
+	               foreground);
 }
 
 #define min(a, b) (a < b ? a : b)
@@ -65,7 +71,7 @@ void drawCharAt(char ch, uint8_t x, uint8_t y, Color background,
 		}                                                                      \
 	}
 
-void drawImage(Color (*getPixelColor)(uint64_t x, uint64_t y)) {
+void drawImage(Color (*getPixelColor)(uint16_t x, uint16_t y)) {
 	drawByPixel(0, 0, WIDTH, HEIGHT, setPixel(getPixelColor(x, y), x, y);)
 }
 

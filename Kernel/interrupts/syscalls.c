@@ -67,6 +67,10 @@ void drawRectangleCall(uint16_t x, uint16_t y, uint16_t width,
 	drawRectangle(getCurrentProcess()->tty, x, y, width, height);
 }
 
+void drawTextCall(char *text, uint16_t x, uint16_t y, bool center) {
+	drawText(getCurrentProcess()->tty, text, x, y, center);
+}
+
 void drawFigure(enum Figures figure, uint64_t param2, uint64_t param3,
                 uint64_t param4, uint64_t param5) {
 	switch (figure) {
@@ -75,6 +79,9 @@ void drawFigure(enum Figures figure, uint64_t param2, uint64_t param3,
 		break;
 	case RECTANGLE:
 		drawRectangleCall(param2, param3, param4, param5);
+		break;
+	case TEXT:
+		drawTextCall((char *)param2, param3, param4, param5);
 		break;
 	}
 }

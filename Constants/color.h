@@ -2,7 +2,9 @@
 #include <stdint.h>
 
 typedef struct {
-	uint8_t red, green, blue;
+	uint8_t blue;
+	uint8_t green;
+	uint8_t red;
 } __attribute__((packed)) Color;
 
 #define BLACK                                                                  \
@@ -15,6 +17,8 @@ typedef struct {
 	(Color) { 0, 255, 0 }
 #define RED                                                                    \
 	(Color) { 0, 0, 255 }
+#define ORANGE                                                                 \
+	(Color) { 0, 150, 255 }
 #define AQUA                                                                   \
 	(Color) { 255, 255, 0 }
 #define LIGHT_SALMON                                                           \
