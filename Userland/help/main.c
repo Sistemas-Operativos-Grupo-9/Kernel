@@ -14,12 +14,8 @@ int main() {
 	puts("    inforeg: prints all the basic registers ans its values\n");
 	puts("    loop: prints l o o p slowly multiple times\n");
 	puts("    \n");
-	// puts("    \n");
 	puts("Shell commands: \n");
 	puts("    pid: prints the pid of the current shell\n");
 	puts("    exit/quit: exits the shell\n");
-	// puts("    \n");
-	// puts("    \n");
-	// puts("    \n");
 	return 0;
 }

@@ -44,6 +44,7 @@ SECTION .text
 	push rsi
 	push r8
 	push r9
+	pushfq
 	push r10
 	push r11
 	push r12
@@ -59,6 +60,7 @@ SECTION .text
 	pop r12
 	pop r11
 	pop r10
+	popfq
 	pop r9
 	pop r8
 	pop rsi
@@ -95,7 +97,7 @@ SECTION .text
 	; newLine
 	; printStack
 	mov rdi, %1 ; pasaje de parametro
-	mov rsi, [rsp + 8 * 15] ; Instruction pointer
+	mov rsi, [rsp + 8 * 16] ; Instruction pointer
 	; mov rsi, rsp
 	call exceptionDispatcher
 

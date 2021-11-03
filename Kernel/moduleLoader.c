@@ -5,8 +5,8 @@
 #include <string.h>
 #include <video.h>
 
-extern uint8_t endOfKernel;
-#define BACKUP_LOCATION &endOfKernel
+extern uint8_t endOfKernelStack;
+#define BACKUP_LOCATION &endOfKernelStack
 
 static struct Module modules[32] = {};
 static uint32_t moduleCount = 0;

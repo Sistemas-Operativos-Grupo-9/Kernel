@@ -24,4 +24,9 @@ SECTIONS
 	}
 	. = ALIGN(0x1000);
 	endOfKernel = .;
+	. += 0x8000;
+	endOfKernelStack = .;
+	. += 0x100000;
+	. = ALIGN(0x100000);
+	endOfModules = .;
 }

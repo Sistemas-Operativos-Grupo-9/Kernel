@@ -198,10 +198,10 @@ void initializeHaltProcess() {
 	    .entryPoint = haltMain};
 	processes[HALT_PID] = haltProcess;
 }
-extern uint8_t endOfKernel;
+extern uint8_t endOfModules;
 
-#define PROCESSES_START &endOfKernel
-#define PROCESS_MEMORY 0x200000
+#define PROCESSES_START &endOfModules
+#define PROCESS_MEMORY 0x100000
 
 int createProcess(uint8_t tty, char *name, char **argv, int argc,
                   bool restartOnFinish) {
