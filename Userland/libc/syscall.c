@@ -67,3 +67,5 @@ WindowInfo getWindowInfo() {
 	syscall(GETWINDOWINFO, (uint64_t)&windowInfo, 0, 0, 0, 0);
 	return windowInfo;
 }
+
+void flip() { syscall(FLIP, 0, 0, 0, 0, 0); }

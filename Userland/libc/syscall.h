@@ -24,3 +24,4 @@ void setForeground(uint8_t red, uint8_t green, uint8_t blue);
 WindowInfo getWindowInfo();
 void drawBitmap(uint16_t x, uint16_t y, uint16_t width, uint16_t height,
                 Color bitmap[][width]);
+void flip();

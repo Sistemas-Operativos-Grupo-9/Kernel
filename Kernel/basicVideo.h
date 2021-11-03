@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Fonts/SourceCodePro-Regular.h"
 #include "color.h"
 #include <stdint.h>
 
@@ -28,14 +29,16 @@ typedef struct __attribute__((packed)) {
 	uint16_t reserved2;
 } mode_info_block;
 
+#define FONT_SCALE 1
+
+#define FINAL_FONT_WIDTH (FONT_WIDTH * FONT_SCALE)
+#define FINAL_FONT_HEIGHT (FONT_HEIGHT * FONT_SCALE)
+
 uint32_t getWidth();
 uint32_t getHeight();
 
 uint16_t getOffsetX();
 uint16_t getOffsetY();
-
-uint16_t getFontWidth();
-uint16_t getFontHeight();
 
 Color colorLerp(Color a, Color b, uint8_t lerp);
 

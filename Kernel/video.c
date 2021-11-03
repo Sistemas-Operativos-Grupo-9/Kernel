@@ -18,45 +18,139 @@ struct TextColors {
 
 #define TEXT_WIDTH 83
 #define TEXT_HEIGHT 29
+#define PIXEL_HEIGHT (TEXT_HEIGHT * FINAL_FONT_HEIGHT)
+#define PIXEL_WIDTH (TEXT_WIDTH * FINAL_FONT_WIDTH)
 
 #define TEXT_BUFFER_WIDTH TEXT_WIDTH
-#define TEXT_BUFFER_HEIGHT TEXT_HEIGHT * 5
+#define TEXT_BUFFER_HEIGHT (TEXT_HEIGHT * 5)
 
+#define VIEW_WIDTH view->width *FINAL_FONT_WIDTH
+#define VIEW_HEIGHT view->height *FINAL_FONT_HEIGHT
 #define VIEWCLIP                                                               \
-	getOffsetX() + (view->positionX * getFontWidth()),                         \
-	    getOffsetY() + (view->positionY * getFontHeight()),                    \
-	    view->width *getFontWidth(), view->height *getFontHeight()
+	getOffsetX() + (view->positionX * FINAL_FONT_WIDTH),                       \
+	    getOffsetY() + (view->positionY * FINAL_FONT_HEIGHT), VIEW_WIDTH,      \
+	    VIEW_HEIGHT
 
-static struct View {
-	int cursorX;
-	int cursorY;
-	int scrollY; // First line being shown from textBuffer
-	struct TextColors colors;
-	char textBuffer[TEXT_BUFFER_HEIGHT][TEXT_BUFFER_WIDTH];
-	char outputBuffer[256];
-	uint32_t outputLength;
-	uint32_t positionX, positionY;
-	uint32_t width, height;
-	bool graphic;
-} Views[] = {
-    {.positionX = 0,
-     .positionY = 0,
-     .width = TEXT_WIDTH,
-     .height = TEXT_HEIGHT / 2},
-    {.positionX = 0,
-     .positionY = TEXT_HEIGHT / 2 + 1,
-     .width = TEXT_WIDTH,
-     .height = TEXT_HEIGHT / 2},
-    // { .positionX = 0, .positionY = TEXT_HEIGHT / 2 + 1,
-    // .width = TEXT_WIDTH / 2, .height = TEXT_HEIGHT / 2},
-    // { .positionX = 0, .positionY = 0,
-    // .width = TEXT_WIDTH / 2, .height = TEXT_HEIGHT},
-    // { .positionX = TEXT_WIDTH / 2 + 1, .positionY = 0,
-    // .width = TEXT_WIDTH / 2, .height = TEXT_HEIGHT / 2},
-    // { .positionX = TEXT_WIDTH / 2 + 1, .positionY = TEXT_HEIGHT / 2 + 1,
-    // .width = TEXT_WIDTH / 2, .height = TEXT_HEIGHT / 2}
+#define HALF_HEIGHT (TEXT_HEIGHT / 2)
+#define HALF_WIDTH (TEXT_WIDTH / 2)
+#define HALF_PIXEL_HEIGHT (HALF_HEIGHT * FINAL_FONT_HEIGHT)
+#define HALF_PIXEL_WIDTH (HALF_WIDTH * FINAL_FONT_WIDTH)
+
+Color frameBuffer1[HALF_PIXEL_HEIGHT][PIXEL_WIDTH];
+Color frameBuffer2[HALF_PIXEL_HEIGHT][PIXEL_WIDTH];
+Color frameBuffer3[HALF_PIXEL_HEIGHT][HALF_PIXEL_WIDTH];
+Color frameBuffer4[HALF_PIXEL_HEIGHT][HALF_PIXEL_WIDTH];
+Color frameBuffer5[HALF_PIXEL_HEIGHT][HALF_PIXEL_WIDTH];
+Color frameBuffer6[HALF_PIXEL_HEIGHT][HALF_PIXEL_WIDTH];
+
+char textBuffer1[TEXT_BUFFER_HEIGHT][TEXT_BUFFER_WIDTH];
+char textBuffer2[TEXT_BUFFER_HEIGHT][TEXT_BUFFER_WIDTH];
+char textBuffer3[TEXT_BUFFER_HEIGHT][TEXT_BUFFER_WIDTH];
+char textBuffer4[TEXT_BUFFER_HEIGHT][TEXT_BUFFER_WIDTH];
+char textBuffer5[TEXT_BUFFER_HEIGHT][TEXT_BUFFER_WIDTH];
+char textBuffer6[TEXT_BUFFER_HEIGHT][TEXT_BUFFER_WIDTH];
+#define INDEX_TEXT_BUFFER(buffer, y, x)                                        \
+	((char(*)[TEXT_BUFFER_WIDTH])buffer)[y][x]
+
+static struct Desktop {
+	const int views;
+	struct View {
+		int cursorX;
+		int cursorY;
+		int scrollY; // First line being shown from textBuffer
+		struct TextColors colors;
+		char *textBuffer;
+		char outputBuffer[256];
+		Color *frameBuffer;
+		uint32_t outputLength;
+		uint32_t positionX, positionY;
+		uint32_t width, height;
+		bool graphic;
+		int desktop;
+		int subIndex;
+	} Views[4];
+} Desktops[] = {
+    {
+        .views = 2,
+        .Views =
+            {
+                {
+                    .positionX = 0,
+                    .positionY = 0,
+                    .width = TEXT_WIDTH,
+                    .height = HALF_HEIGHT,
+                    .desktop = 0,
+                    .subIndex = 0,
+                    .frameBuffer = (Color *)frameBuffer1,
+                    .textBuffer = (char *)textBuffer1,
+                },
+                {
+                    .positionX = 0,
+                    .positionY = HALF_HEIGHT + 1,
+                    .width = TEXT_WIDTH,
+                    .height = HALF_HEIGHT,
+                    .desktop = 0,
+                    .subIndex = 1,
+                    .frameBuffer = (Color *)frameBuffer2,
+                    .textBuffer = (char *)textBuffer2,
+                },
+            },
+    },
+    {
+        .views = 4,
+        .Views =
+            {
+                {
+                    .positionX = 0,
+                    .positionY = 0,
+                    .width = HALF_WIDTH,
+                    .height = HALF_HEIGHT,
+                    .desktop = 1,
+                    .subIndex = 0,
+                    .frameBuffer = (Color *)frameBuffer3,
+                    .textBuffer = (char *)textBuffer3,
+                },
+                {
+                    .positionX = HALF_WIDTH + 1,
+                    .positionY = 0,
+                    .width = HALF_WIDTH,
+                    .height = HALF_HEIGHT,
+                    .desktop = 1,
+                    .subIndex = 1,
+                    .frameBuffer = (Color *)frameBuffer4,
+                    .textBuffer = (char *)textBuffer4,
+                },
+                {
+                    .positionX = 0,
+                    .positionY = HALF_HEIGHT + 1,
+                    .width = HALF_WIDTH,
+                    .height = HALF_HEIGHT,
+                    .desktop = 1,
+                    .subIndex = 2,
+                    .frameBuffer = (Color *)frameBuffer5,
+                    .textBuffer = (char *)textBuffer5,
+                },
+                {
+                    .positionX = HALF_WIDTH + 1,
+                    .positionY = HALF_HEIGHT + 1,
+                    .width = HALF_WIDTH,
+                    .height = HALF_HEIGHT,
+                    .desktop = 1,
+                    .subIndex = 3,
+                    .frameBuffer = (Color *)frameBuffer6,
+                    .textBuffer = (char *)textBuffer6,
+                },
+            },
+    },
+};
+const int s = sizeof(Desktops);
+
+struct View *Views[] = {
+    &Desktops[0].Views[0], &Desktops[0].Views[1], &Desktops[1].Views[0],
+    &Desktops[1].Views[1], &Desktops[1].Views[2], &Desktops[1].Views[3],
 };
 
+static int currentDesktop = 0;
 uint8_t focusedView = 0;
 
 uint32_t abs(int32_t n) {
@@ -121,16 +215,22 @@ Color backgroundImage(uint64_t x, uint64_t y) {
 	// return (Color) { acum_red, acum_green, acum_blue };
 }
 
+void reDrawDesktop();
+
 void initScreen() {
 	initVideo();
 	setCharOffset(TEXT_WIDTH, TEXT_HEIGHT);
 
-	for (int i = 0; i < sizeof(Views) / sizeof(*Views); i++) {
-		Views[i].cursorX = 0;
-		Views[i].cursorY = 0;
-		Views[i].outputLength = 0;
-		Views[i].scrollY = 0;
-		Views[i].colors = NORMAL_COLORS;
+	for (int d = 0; d < sizeof(Desktops) / sizeof(struct Desktop); d++) {
+		struct Desktop *desktop = &Desktops[d];
+		for (int i = 0; i < desktop->views; i++) {
+			struct View *view = &desktop->Views[i];
+			view->cursorX = 0;
+			view->cursorY = 0;
+			view->outputLength = 0;
+			view->scrollY = 0;
+			view->colors = NORMAL_COLORS;
+		}
 	}
 	// for (int y = 0; y < TEXT_HEIGHT; y++) {
 	//     for (int x = 0; x < TEXT_WIDTH; x++) {
@@ -138,27 +238,29 @@ void initScreen() {
 	//     }
 	// }
 	// drawRectangleRaw(0, 0, getWidth(), getHeight(), (Color) {200, 100, 50});
-	drawImage(backgroundImage);
+	// drawImage(backgroundImage);
 
-	for (int i = 0; i < sizeof(Views) / sizeof(*Views); i++) {
-		struct View *view = Views + i;
-		drawRectangleBorders(getOffsetX() + (view->positionX * getFontWidth()),
-		                     getOffsetY() + (view->positionY * getFontHeight()),
-		                     view->width * getFontWidth(),
-		                     view->height * getFontHeight(), 3, GREY);
-	}
+	// for (int i = 0; i < sizeof(Views) / sizeof(*Views); i++) {
+	// 	struct View *view = Views + i;
+	// 	drawRectangleBorders(getOffsetX() + (view->positionX *
+	// FINAL_FONT_WIDTH), 	                     getOffsetY() + (view->positionY
+	// * FINAL_FONT_HEIGHT), 	                     view->width *
+	// FINAL_FONT_WIDTH, 	                     view->height *
+	// FINAL_FONT_HEIGHT, 3, GREY);
+	// }
+	reDrawDesktop();
 }
 
 void setForeground(uint8_t viewNumber, Color color) {
-	(&Views[viewNumber])->colors.foreground = color;
+	Views[viewNumber]->colors.foreground = color;
 }
 void setBackground(uint8_t viewNumber, Color color) {
-	(&Views[viewNumber])->colors.background = color;
+	Views[viewNumber]->colors.background = color;
 }
 
 void drawCharAtView(struct View *view, char ch, uint8_t x, uint8_t y,
                     Color background, Color foreground) {
-	if (!view->graphic)
+	if (!view->graphic && view->desktop == currentDesktop)
 		if (x >= 0 && x < view->width && y >= 0 && y < view->height)
 			drawCharAt(ch, x + view->positionX, y + view->positionY, background,
 			           foreground);
@@ -168,17 +270,25 @@ Color invertColor(Color color) {
 	               .green = 255 - color.green,
 	               .blue = 255 - color.blue};
 }
+int getViewNumber(struct View *view) {
+	for (int v = 0; v < sizeof(Views) / sizeof(struct View *); v++) {
+		if (view == Views[v])
+			return v;
+	}
+	return -1;
+}
 void redrawCharInverted(struct View *view, uint32_t x, uint32_t y) {
 	Color foreground = view->colors.foreground;
-	if (view - Views != focusedView)
+	if (getViewNumber(view) != focusedView)
 		foreground =
 		    colorLerp(view->colors.background, view->colors.foreground, 64);
-	drawCharAtView(view, view->textBuffer[y][x], x, y - view->scrollY,
-	               foreground, view->colors.background);
+	drawCharAtView(view, INDEX_TEXT_BUFFER(view->textBuffer, y, x), x,
+	               y - view->scrollY, foreground, view->colors.background);
 }
 void redrawChar(struct View *view, uint32_t x, uint32_t y) {
-	drawCharAtView(view, view->textBuffer[y][x], x, y - view->scrollY,
-	               view->colors.background, view->colors.foreground);
+	drawCharAtView(view, INDEX_TEXT_BUFFER(view->textBuffer, y, x), x,
+	               y - view->scrollY, view->colors.background,
+	               view->colors.foreground);
 }
 
 void consume(struct View *view, int count) {
@@ -195,20 +305,28 @@ bool isPrintable(unsigned char ch) {
 
 void changeFocusView(uint8_t newFocusViewNumber) {
 	focusedView = newFocusViewNumber;
+	struct Desktop *desktop = &Desktops[currentDesktop];
 	// Redraw cursors
-	for (int i = 0; i < sizeof(Views) / sizeof(*Views); i++) {
-		redrawCharInverted(&Views[i], Views[i].cursorX, Views[i].cursorY);
+	for (int i = 0; i < desktop->views; i++) {
+		struct View *view = &desktop->Views[i];
+		redrawCharInverted(view, view->cursorX, view->cursorY);
 	}
 }
+void focusNextView() {
+	struct View *view = Views[focusedView];
+	struct Desktop *desktop = &Desktops[view->desktop];
+	int newSubIndex = (view->subIndex + 1) % desktop->views;
+	setFocus(getViewNumber(&desktop->Views[newSubIndex]));
+}
 void clearGraphic(struct View *view) {
-	drawRectangleRaw(getOffsetX() + (view->positionX * getFontWidth()),
-	                 getOffsetY() + (view->positionY * getFontHeight()),
-	                 view->width * getFontWidth(),
-	                 view->height * getFontHeight(), BLACK, VIEWCLIP);
+	drawRectangleRaw(getOffsetX() + (view->positionX * FINAL_FONT_WIDTH),
+	                 getOffsetY() + (view->positionY * FINAL_FONT_HEIGHT),
+	                 view->width * FINAL_FONT_WIDTH,
+	                 view->height * FINAL_FONT_HEIGHT, BLACK, VIEWCLIP);
 }
 void reDraw(struct View *view) {
 	if (view->graphic) {
-		clearGraphic(view);
+		flip(getViewNumber(view));
 	} else {
 		for (int y = 0; y < view->height; y++) {
 			for (int x = 0; x < view->width; x++) {
@@ -220,8 +338,26 @@ void reDraw(struct View *view) {
 			redrawCharInverted(view, view->cursorX, view->cursorY);
 	}
 }
+void reDrawDesktop() {
+	drawImage(backgroundImage);
+	struct Desktop *desktop = &Desktops[currentDesktop];
+	for (int i = 0; i < desktop->views; i++) {
+		struct View *view = &desktop->Views[i];
+		reDraw(view);
+		drawRectangleBorders(
+		    getOffsetX() + (view->positionX * FINAL_FONT_WIDTH),
+		    getOffsetY() + (view->positionY * FINAL_FONT_HEIGHT),
+		    view->width * FINAL_FONT_WIDTH, view->height * FINAL_FONT_HEIGHT, 3,
+		    GREY);
+	}
+}
+void focusDesktop(int desktopNumber) {
+	currentDesktop = desktopNumber;
+	setFocus(getViewNumber(&Desktops[currentDesktop].Views[0]));
+	reDrawDesktop();
+}
 void lookAround(uint8_t viewNumber, int deltaY) {
-	struct View *view = &Views[viewNumber];
+	struct View *view = Views[viewNumber];
 	if (deltaY > 0) {
 		int objY = view->scrollY + view->height + deltaY - 1;
 		if (objY >= TEXT_BUFFER_HEIGHT) {
@@ -237,7 +373,7 @@ void lookAround(uint8_t viewNumber, int deltaY) {
 	}
 }
 int scrollTo(uint8_t viewNumber, int y) {
-	struct View *view = &Views[viewNumber];
+	struct View *view = Views[viewNumber];
 
 	while (y >= TEXT_BUFFER_HEIGHT) {
 		int move = 10;
@@ -246,9 +382,10 @@ int scrollTo(uint8_t viewNumber, int y) {
 		for (; l < TEXT_BUFFER_HEIGHT; l++) {
 			int from = l + move, to = l;
 			for (int i = 0; i < TEXT_BUFFER_WIDTH; i++) {
-				view->textBuffer[to][i] = from < TEXT_BUFFER_HEIGHT
-				                              ? view->textBuffer[from][i]
-				                              : '\0';
+				INDEX_TEXT_BUFFER(view->textBuffer, to, i) =
+				    from < TEXT_BUFFER_HEIGHT
+				        ? INDEX_TEXT_BUFFER(view->textBuffer, from, i)
+				        : '\0';
 			}
 		}
 		y = newY;
@@ -271,7 +408,7 @@ uint64_t countCharsAfter(struct View *view, int xFrom, int yFrom) {
 	int length = 0;
 	for (int y = yFrom;; y++) {
 		for (int x = y == yFrom ? xFrom : 0; x < view->width; x++) {
-			if (view->textBuffer[y][x] == '\0')
+			if (INDEX_TEXT_BUFFER(view->textBuffer, y, x) == '\0')
 				return length;
 			length++;
 		}
@@ -289,7 +426,7 @@ void moveFollowing(uint8_t viewNumber, int xFrom, int yFrom, int count) {
 	if (count == 0)
 		return;
 
-	struct View *view = &Views[viewNumber];
+	struct View *view = Views[viewNumber];
 #define getXfor(startX, length) umod(startX + length, view->width)
 #define getYfor(startX, startY, length)                                        \
 	(startY + idiv(startX + length, (int)view->width))
@@ -303,8 +440,8 @@ void moveFollowing(uint8_t viewNumber, int xFrom, int yFrom, int count) {
 	for (int length = 0; length < totalLength; length++) {
 		int l = count > 0 ? totalLength - length - 1 : length;
 		int yToI = getYfor(xTo, yTo, l), xToI = getXfor(xTo, l);
-		view->textBuffer[yToI][xToI] =
-		    view->textBuffer[getYfor(xFrom, yFrom, l)][getXfor(xFrom, l)];
+		INDEX_TEXT_BUFFER(view->textBuffer, yToI, xToI) = INDEX_TEXT_BUFFER(
+		    view->textBuffer, getYfor(xFrom, yFrom, l), getXfor(xFrom, l));
 		redrawChar(view, xToI, yToI);
 	}
 
@@ -329,7 +466,7 @@ void moveFollowing(uint8_t viewNumber, int xFrom, int yFrom, int count) {
 	for (int y = yFrom; y <= yTo; y++) {
 		for (int x = y == yFrom ? xFrom : 0;
 		     y == yTo ? x < xTo : x < view->width; x++) {
-			view->textBuffer[y][x] = '\0';
+			INDEX_TEXT_BUFFER(view->textBuffer, y, x) = '\0';
 			redrawChar(view, x, y);
 		}
 	}
@@ -339,14 +476,14 @@ void moveFollowing(uint8_t viewNumber, int xFrom, int yFrom, int count) {
 }
 
 void setChar(uint8_t viewNumber, char ch) {
-	struct View *view = &Views[viewNumber];
+	struct View *view = Views[viewNumber];
 	moveFollowing(viewNumber, view->cursorX, view->cursorY, 1);
-	view->textBuffer[view->cursorY][view->cursorX] = ch;
+	INDEX_TEXT_BUFFER(view->textBuffer, view->cursorY, view->cursorX) = ch;
 	redrawChar(view, view->cursorX, view->cursorY);
 }
 
 void printChar(uint8_t viewNumber, char ch) {
-	struct View *view = &Views[viewNumber];
+	struct View *view = Views[viewNumber];
 	view->outputBuffer[view->outputLength++] = ch;
 
 	int newCursorX = view->cursorX, newCursorY = view->cursorY;
@@ -392,7 +529,7 @@ void printChar(uint8_t viewNumber, char ch) {
 			finish = false;
 		} else if (view->outputBuffer[0] == '\r') {
 			for (int x = 0; x < newCursorX; x++) {
-				view->textBuffer[newCursorY][x] = '\0';
+				INDEX_TEXT_BUFFER(view->textBuffer, newCursorY, x) = '\0';
 				redrawChar(view, x, newCursorY);
 			}
 			newCursorX = 0;
@@ -418,13 +555,13 @@ void printChar(uint8_t viewNumber, char ch) {
 }
 
 void setViewGraphic(uint8_t viewNumber, bool value) {
-	struct View *view = &Views[viewNumber];
+	struct View *view = Views[viewNumber];
 	view->graphic = value;
 	reDraw(view);
 }
 
 void setCursorAt(uint8_t viewNumber, int x, int y) {
-	struct View *view = &Views[viewNumber];
+	struct View *view = Views[viewNumber];
 
 	if (x < 0 && y <= 0) {
 		x = 0;
@@ -460,12 +597,12 @@ void print(uint8_t viewNumber, char *str) {
 }
 
 void clear(uint8_t viewNumber) {
-	struct View *view = &Views[viewNumber];
+	struct View *view = Views[viewNumber];
 
 	view->scrollY = 0;
 	for (int y = 0; y < TEXT_BUFFER_HEIGHT; y++) {
 		for (int x = 0; x < TEXT_BUFFER_WIDTH; x++) {
-			view->textBuffer[y][x] = '\0';
+			INDEX_TEXT_BUFFER(view->textBuffer, y, x) = '\0';
 		}
 	}
 	view->cursorX = 0;
@@ -509,36 +646,63 @@ void printHexPointer(uint8_t viewNumber, void *ptr) {
 	printUnsignedN(viewNumber, (uint64_t)ptr, 16, 16);
 }
 
-void drawCircle(uint8_t viewNumber, uint16_t x, uint16_t y, uint16_t radius) {
-	struct View *view = &Views[viewNumber];
+#define min(a, b) ((a) < (b) ? (a) : (b))
+#define max(a, b) ((a) > (b) ? (a) : (b))
 
-	drawCircleRaw(getOffsetX() + (view->positionX * getFontWidth()) + x,
-	              getOffsetY() + (view->positionY * getFontHeight()) + y,
-	              radius, view->colors.foreground, VIEWCLIP);
+#define drawByPixel(xStart, yStart, xEnd, yEnd, code)                          \
+	for (int y = (yStart); y < (yEnd); y++) {                                  \
+		for (int x = (xStart); x < (xEnd); x++) {                              \
+			code                                                               \
+		}                                                                      \
+	}
+
+void setBufferPixel(struct View *view, uint16_t x, uint16_t y, Color color) {
+	view->frameBuffer[y * VIEW_WIDTH + x] = color;
 }
 
-void drawRectangle(uint8_t viewNumber, uint16_t x, uint16_t y, uint16_t width,
-                   uint16_t height) {
-	struct View *view = &Views[viewNumber];
+void drawCircle(uint8_t viewNumber, uint16_t centerX, uint16_t centerY,
+                uint16_t radius) {
+	struct View *view = Views[viewNumber];
+	Color color = view->colors.foreground;
 
-	drawRectangleRaw(getOffsetX() + (view->positionX * getFontWidth()) + x,
-	                 getOffsetY() + (view->positionY * getFontHeight()) + y,
-	                 width, height, view->colors.foreground, VIEWCLIP);
+	drawByPixel(
+	    max(0, centerX - radius), max(0, centerY - radius),
+	    min(VIEW_WIDTH, centerX + radius), min(VIEW_HEIGHT, centerY + radius),
+	    if ((x - centerX) * (x - centerX) + (y - centerY) * (y - centerY) <
+	        radius * radius) setBufferPixel(view, x, y, color);)
 }
 
-void drawBitmap(uint8_t viewNumber, uint16_t x, uint16_t y, uint16_t width,
-                uint16_t height, Color bitmap[][width]) {
-	struct View *view = &Views[viewNumber];
-	drawBitmapRaw(getOffsetX() + (view->positionX * getFontWidth()) + x,
-	              getOffsetY() + (view->positionY * getFontHeight()) + y, width,
-	              height, bitmap, VIEWCLIP);
+void drawRectangle(uint8_t viewNumber, uint16_t xStart, uint16_t yStart,
+                   uint16_t width, uint16_t height) {
+	struct View *view = Views[viewNumber];
+	Color color = view->colors.foreground;
+
+	drawByPixel(max(0, xStart), max(0, yStart), min(VIEW_WIDTH, xStart + width),
+	            min(VIEW_HEIGHT, yStart + height),
+	            setBufferPixel(view, x, y, color);)
+}
+
+void drawBitmap(uint8_t viewNumber, uint16_t xStart, uint16_t yStart,
+                uint16_t width, uint16_t height, Color bitmap[][width]) {
+	struct View *view = Views[viewNumber];
+
+	drawByPixel(max(0, xStart), max(0, yStart), min(VIEW_WIDTH, xStart + width),
+	            min(VIEW_HEIGHT, yStart + height),
+	            setBufferPixel(view, x, y, bitmap[y - yStart][x - xStart]);)
+}
+
+void flip(uint8_t viewNumber) {
+	struct View *view = Views[viewNumber];
+	if (view->desktop == currentDesktop) {
+		drawBitmapRaw(VIEWCLIP, (Color(*)[])view->frameBuffer, VIEWCLIP);
+	}
 }
 
 void getViewInfo(uint8_t viewNumber, WindowInfo *windowInfo) {
-	struct View *view = &Views[viewNumber];
+	struct View *view = Views[viewNumber];
 
-	windowInfo->pixelWidth = view->width * getFontWidth();
-	windowInfo->pixelHeight = view->height * getFontHeight();
+	windowInfo->pixelWidth = view->width * FINAL_FONT_WIDTH;
+	windowInfo->pixelHeight = view->height * FINAL_FONT_HEIGHT;
 	windowInfo->textWidth = view->width;
 	windowInfo->textHeight = view->height;
 }

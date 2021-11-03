@@ -24,6 +24,10 @@
 #define K_F2 0x3C
 #define K_F3 0x3D
 #define K_F4 0x3E
+#define K_F5 0x3F
+#define K_F6 0x40
+#define K_F7 0x41
+#define K_F8 0x42
 
 #define K_PGUP 0x49
 #define K_PGDN 0x51
@@ -78,23 +82,33 @@ void handleSingleByteKey(uint8_t key, bool pressed) {
 		sendChar('\n');
 	} else if (key == K_BACKSPACE && pressed) {
 		sendChar('\b');
-	} else if ((key == K_F1 || key == K_F2 || key == K_F3 || key == K_F4) &&
+	} else if ((key == K_F1 || key == K_F2 || key == K_F3 || key == K_F4 ||
+	            key == K_F5 || key == K_F6 || key == K_F7 || key == K_F8) &&
 	           pressed) {
+		// if (key == K_F1) {
+		// 	setFocus(0);
+		// } else if (key == K_F2) {
+		// 	setFocus(1);
+		// } else if (key == K_F3) {
+		// 	setFocus(2);
+		// } else if (key == K_F4) {
+		// 	setFocus(3);
+		// } else if (key == K_F5) {
+		// 	setFocus(4);
+		// } else if (key == K_F6) {
+		// 	setFocus(5);
+		// }
 		if (key == K_F1) {
-			setFocus(0);
+			focusDesktop(0);
 		} else if (key == K_F2) {
-			setFocus(1);
-		} else if (key == K_F3) {
-			setFocus(2);
-		} else if (key == K_F4) {
-			setFocus(3);
+			focusDesktop(1);
 		}
 		// sendChar(ESC);
 		// sendChar('O');
 		// sendChar(code);
 		deadActive = false;
 	} else if ((key == K_TAB) && pressed) {
-		setFocus((getFocusedProcess()->tty + 1) % 2);
+		focusNextView();
 		deadActive = false;
 	} else {
 		if (pressed) {

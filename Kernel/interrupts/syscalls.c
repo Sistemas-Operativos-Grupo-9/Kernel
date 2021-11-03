@@ -93,6 +93,8 @@ void getWindowInfo(WindowInfo *windowInfo) {
 	getViewInfo(getCurrentProcess()->tty, windowInfo);
 }
 
+void flipCall() { flip(getCurrentProcess()->tty); }
+
 uint64_t syscallDispatcher(uint64_t rdi, uint64_t param1, uint64_t param2,
                            uint64_t param3, uint64_t param4, uint64_t param5) {
 	switch (rdi) {
@@ -133,6 +135,9 @@ uint64_t syscallDispatcher(uint64_t rdi, uint64_t param1, uint64_t param2,
 		break;
 	case DRAWBITMAP:
 		drawBitmapCall(param1, param2, param3, param4, (Color(*)[])param5);
+		break;
+	case FLIP:
+		flipCall();
 		break;
 	}
 	return 0;

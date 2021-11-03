@@ -47,6 +47,7 @@ void render(uint16_t maxIter, double centerX, double centerY, float zoom) {
 
 	setGraphic(true);
 	drawBitmap(0, 0, width, height, buffer);
+	flip();
 }
 
 int main() {

@@ -76,20 +76,13 @@ void drawCircleLocal(Color buffer[][windowInfo.pixelWidth], uint64_t centerX,
 
 void render(State state,
             Color buffer[windowInfo.pixelHeight][windowInfo.pixelWidth]) {
-	// for (int y = 0; y < 100; y++) {
-	// 	for (int x = 0; x < 100; x++) {
-	// 		buffer[y][x] = (Color){255, 255, 255};
-	// 	}
-	// }
-	// setForeground(0, 0, 0);
-	// drawRectangle(0, 0, windowInfo.pixelWidth, windowInfo.pixelHeight);
 	for (int i = 0; i < state.count; i++) {
 		Color color = state.marbles[i].color;
 		Vector pos = state.marbles[i].pos;
-		drawCircleLocal(buffer, pos.x, pos.y, RADIUS, color);
+		setForeground(color.red, color.green, color.blue);
+		drawCircle((int)pos.x, (int)pos.y, RADIUS);
 	}
-
-	drawBitmap(0, 0, windowInfo.pixelWidth, windowInfo.pixelHeight, buffer);
+	flip();
 }
 Vector randomVector() {
 	Vector vec;
@@ -103,8 +96,12 @@ Color randomColor() {
 	    .red = rand() % 256, .green = rand() % 256, .blue = rand() % 256};
 }
 int main() {
-	setGraphic(true);
 	windowInfo = getWindowInfo();
+
+	setForeground(0, 0, 0);
+	drawRectangle(0, 0, windowInfo.pixelWidth, windowInfo.pixelHeight);
+	setGraphic(true);
+
 	State state = {.count = 10, .gravity = {.x = 0, .y = 100}};
 	srand(millis());
 

@@ -198,7 +198,9 @@ void initializeHaltProcess() {
 	    .entryPoint = haltMain};
 	processes[HALT_PID] = haltProcess;
 }
+extern uint8_t endOfKernel;
 
+#define PROCESSES_START &endOfKernel
 #define PROCESS_MEMORY 0x200000
 
 int createProcess(uint8_t tty, char *name, char **argv, int argc,
@@ -208,7 +210,7 @@ int createProcess(uint8_t tty, char *name, char **argv, int argc,
 		return -1;
 	START_LOCK;
 	uint64_t pid = getFreePID();
-	void *entryPoint = (void *)(pid * PROCESS_MEMORY + 0x500000);
+	void *entryPoint = (void *)(pid * PROCESS_MEMORY + PROCESSES_START);
 	uint64_t *stack =
 	    (uint64_t
 	         *)(entryPoint + PROCESS_MEMORY -

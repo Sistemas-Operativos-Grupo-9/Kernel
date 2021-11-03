@@ -1,10 +1,7 @@
 
 #include <stdbool.h>
 // #include "Fonts/monogram.h"
-#include "Fonts/SourceCodePro-Regular.h"
 #include "basicVideo.h"
-
-#define FONT_SCALE 1
 
 mode_info_block *const infoBlock = (mode_info_block *)0x0000000000005C00;
 
@@ -101,10 +98,6 @@ void drawBitmapRaw(uint64_t xStart, uint64_t yStart, uint64_t width,
 
 uint16_t getOffsetX() { return charOffsetX; }
 uint16_t getOffsetY() { return charOffsetY; }
-
-uint16_t getFontWidth() { return FONT_WIDTH * FONT_SCALE; }
-
-uint16_t getFontHeight() { return FONT_HEIGHT * FONT_SCALE; }
 
 void drawRectangleBorders(uint64_t xStart, uint64_t yStart, uint64_t width,
                           uint64_t height, uint16_t borderSize, Color color) {
