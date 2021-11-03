@@ -74,8 +74,7 @@ void drawCircleLocal(Color buffer[][windowInfo.pixelWidth], uint64_t centerX,
 	        radius * radius) buffer[y][x] = color;)
 }
 
-void render(State state,
-            Color buffer[windowInfo.pixelHeight][windowInfo.pixelWidth]) {
+void render(State state) {
 	for (int i = 0; i < state.count; i++) {
 		Color color = state.marbles[i].color;
 		Vector pos = state.marbles[i].pos;
@@ -115,15 +114,14 @@ int main() {
 		state.marbles[i].color = randomColor();
 	}
 
-	Color buffer[windowInfo.pixelHeight][windowInfo.pixelWidth];
 	int start = millis();
 	int last = start;
 	int current;
 	while (((current = millis()) - start) / 2000 < 2) {
 		state = loop(state, (float)(current - last) / 1000);
-		render(state, buffer);
+		render(state);
 		last = current;
-		// millisleep(10);
+		millisleep(10);
 	}
 
 	setForeground(255, 255, 255);
