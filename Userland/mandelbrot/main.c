@@ -78,6 +78,7 @@ int main() {
 		}
 	} while (key.data != 'q');
 
+	putchar('\n');
 	setGraphic(false);
 	return 0;
 }
