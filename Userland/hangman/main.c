@@ -86,13 +86,16 @@ void drawWord() {
 }
 
 void drawUsedLetters() {
-	setForeground(WHITE);
+	setForeground(ORANGE);
 	char ch[2] = {};
-	int y = 300;
-	drawText("Letras usadas: ", 300, y, false);
+	int y = 320;
+	int x = 10;
+	drawText("Letras usadas: ", x, y, false);
+	x += 180;
+	setForeground(GREEN_YELLOW);
 	for (int i = 0; i < state.usedLettersCount; i++) {
 		ch[0] = state.usedLetters[i];
-		drawText(ch, 480 + i * 20, y, false);
+		drawText(ch, x + i * 20, y, false);
 	}
 }
 
@@ -108,8 +111,8 @@ void draw() {
 	char *message = didPlayerWin()     ? "GANASTE!"
 	                : state.lives == 0 ? "PERDISTE!"
 	                                   : "";
-	setForeground(WHITE);
-	drawText(message, 500, 150, false);
+	setForeground(state.lives == 0 ? RED : GREEN);
+	drawText(message, 250, 200, false);
 	flip();
 }
 
