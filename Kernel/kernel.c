@@ -142,10 +142,10 @@ int main() {
 	// createProcess(0, "game", NULL, 0, true);
 	createProcess(1, "shell", NULL, 0, true);
 
-	createProcess(2, "mandelbrot", NULL, 0, true);
+	createProcess(2, "hangman", NULL, 0, true);
 	createProcess(3, "chrono", NULL, 0, true);
 	createProcess(4, "game", NULL, 0, true);
-	createProcess(5, "shell", NULL, 0, true);
+	createProcess(5, "sudoku", NULL, 0, true);
 
 	_startScheduler();
 
