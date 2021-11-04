@@ -20,6 +20,8 @@ typedef struct __attribute__((packed)) ProcessDescriptor {
 	bool active;
 	bool restart;
 	struct FileDescriptor fdTable[3];
+	char **argv;
+	int argc;
 } ProcessDescriptor;
 
 extern void _startScheduler();

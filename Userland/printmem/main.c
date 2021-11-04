@@ -8,7 +8,10 @@ int main(char **argv, int argc) {
 		return -1;
 	}
 
-	uint64_t *pointer = (uint64_t *)strtonum(argv[0], 16);
+	uint64_t *pointer;
+	if (!strtonum(argv[0], (uint64_t *)&pointer, 16)) {
+		return -2;
+	}
 	printHexPointer(pointer);
 	puts(":\n");
 

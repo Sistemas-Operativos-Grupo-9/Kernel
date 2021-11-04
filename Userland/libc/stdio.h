@@ -14,6 +14,7 @@ typedef struct {
 void putCSI();
 void moveCursorRight();
 void moveCursorLeft();
+void reset();
 void putchar(char ch);
 void puts(char *str);
 int getch();

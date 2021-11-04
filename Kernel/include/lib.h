@@ -9,7 +9,7 @@ void *memcpy(void *destination, const void *source, uint64_t length);
 char *cpuVendor(char *result);
 
 uint64_t strlen(char *str);
-void strcpy(char *dst, char *src);
+void strcpy(char *dst, const char *src);
 int strcmp(char *str1, char *str2);
 
 #endif

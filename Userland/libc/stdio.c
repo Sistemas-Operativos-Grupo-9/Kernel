@@ -19,6 +19,11 @@ void moveCursorLeft() {
 	putchar(ARROW_LEFT);
 }
 
+void reset() {
+	putchar(ESC);
+	putchar('c');
+}
+
 void putchar(char ch) { write(1, &ch, 1); }
 
 void puts(char *str) {

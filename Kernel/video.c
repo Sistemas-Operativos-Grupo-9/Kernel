@@ -521,6 +521,12 @@ void printChar(uint8_t viewNumber, char ch) {
 						consume(view, 3);
 						finish = false;
 					}
+				} else if (view->outputBuffer[1] == 'c') {
+					clear(viewNumber);
+					consume(view, 2);
+					newCursorX = view->cursorX;
+					newCursorY = view->cursorY;
+					finish = false;
 				} else {
 					view->outputBuffer[0] = '?';
 					finish = false;

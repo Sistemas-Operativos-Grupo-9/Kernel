@@ -109,11 +109,6 @@ void waitForIO() {
 
 void printClosingProcess(int retCode) {
 	ProcessDescriptor *process = getCurrentProcess();
-	// print(process->tty, "Process ");
-	print(process->tty, process->name);
-	print(process->tty, " -> ");
-	printInt(process->tty, retCode, 10);
-	printChar(process->tty, '\n');
 }
 
 bool killProcess(int pid) {
@@ -126,7 +121,8 @@ bool killProcess(int pid) {
 void restartProcess() {
 	ProcessDescriptor *process = getCurrentProcess();
 	print(process->tty, "Restarting process...");
-	createProcess(process->tty, process->name, NULL, 0, true);
+	createProcess(process->tty, process->name, process->argv, process->argc,
+	              true);
 
 	process->active = false;
 	_killAndNextProcess();
@@ -249,7 +245,10 @@ int createProcess(uint8_t tty, char *name, char **argv, int argc,
 	    .active = true,
 	    .restart = restartOnFinish,
 	    .stack = stack,
-	    .entryPoint = entryPoint};
+	    .entryPoint = entryPoint,
+	    .argc = argc,
+	    .argv = argv,
+	};
 	enqueueItem(&readyQueue, &processes[pid]);
 	END_LOCK;
 	return pid;

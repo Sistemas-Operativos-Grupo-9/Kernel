@@ -8,7 +8,7 @@
 
 struct State {
 	int lives;
-	char *word;
+	const char *word;
 	bool revealed[MAX_WORD_LENGTH];
 	char usedLetters[64];
 	int usedLettersCount;

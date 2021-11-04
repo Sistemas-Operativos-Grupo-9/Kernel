@@ -1,5 +1,4 @@
 #include "stdlib.h"
-#include "stdbool.h"
 
 bool isUppercase(char ch) { return ch >= 'A' && ch <= 'Z'; }
 bool isLowercase(char ch) { return ch >= 'a' && ch <= 'z'; }
@@ -16,15 +15,15 @@ uint8_t chartodig(char ch) {
 	return 255;
 }
 
-uint64_t strtonum(char *num, uint8_t base) {
-	uint64_t out = 0;
+bool strtonum(char *num, uint64_t *out, uint8_t base) {
+	*out = 0;
 	if (*num == '\0')
-		return -1;
+		return false;
 	do {
-		out *= base;
-		out += chartodig(*num);
+		*out *= base;
+		*out += chartodig(*num);
 		num++;
 	} while (*num != '\0');
 
-	return out;
+	return true;
 }

@@ -122,6 +122,12 @@ bool execCommand(char *command) {
 		puts(exec);
 		puts("\" is not a recognized program or module\n");
 	}
+
+	// print(process->name);
+	// puts(" -> ");
+	// printInt(retCode, 10);
+	// putchar('\n');
+
 	setForeground(WHITE);
 	return false;
 }

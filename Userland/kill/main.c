@@ -10,7 +10,10 @@ int main(char **argv, int argc) {
 		return -1;
 	}
 
-	uint64_t pid = strtonum(argv[0], 10);
+	uint64_t pid;
+	if (!strtonum(argv[0], &pid, 10)) {
+		return -1;
+	}
 	if (!kill(pid)) {
 		puts("Process ");
 		printUnsigned(pid, 10);
