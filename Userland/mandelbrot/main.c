@@ -17,8 +17,8 @@ uint16_t mandelbrot(uint16_t maxIter, double cx, double cy) {
 	return iter;
 }
 
-Color colors[] = {GREY_N3, GREY_N2, GREY_N1, GREY, GREY_1, GREY_2, GREY_3};
 Color iterToColor(uint16_t maxIter, uint16_t iters) {
+	Color colors[] = {GREY_N3, GREY_N2, GREY_N1, GREY, GREY_1, GREY_2, GREY_3};
 	if (iters == maxIter)
 		return BLACK;
 	return colors[iters % (sizeof(colors) / sizeof(Color))];

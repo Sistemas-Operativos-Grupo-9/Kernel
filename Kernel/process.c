@@ -107,10 +107,6 @@ void waitForIO() {
 	_yield();
 }
 
-void printClosingProcess(int retCode) {
-	ProcessDescriptor *process = getCurrentProcess();
-}
-
 bool killProcess(int pid) {
 	if (!processes[pid].active)
 		return false;
@@ -118,9 +114,10 @@ bool killProcess(int pid) {
 	return true;
 }
 
+// TODO: Disable restarting and mode it to a restarting program.
 void restartProcess() {
 	ProcessDescriptor *process = getCurrentProcess();
-	print(process->tty, "Restarting process...");
+	// print(process->tty, "Restarting process...\n");
 	createProcess(process->tty, process->name, process->argv, process->argc,
 	              true);
 
@@ -138,8 +135,7 @@ void terminateProcess() {
 
 void processReturned() {
 	_cli();
-	register int retCode __asm__("eax");
-	printClosingProcess(retCode);
+	// register int retCode __asm__("eax");
 	childDeadUpdate();
 	if (processes[PID].restart)
 		restartProcess();

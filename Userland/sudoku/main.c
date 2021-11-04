@@ -236,6 +236,8 @@ int main() {
 				if (state.cursor.y < 8)
 					state.cursor.y++;
 				break;
+			default:
+				break;
 			}
 		} else if (key.isPrintable && isDigit(key.data)) {
 			uint8_t digit = charToDigit(key.data);

@@ -60,7 +60,10 @@
         "datetime.h": "c",
         "stdlib.h": "c",
         "color.h": "c",
-        "window.h": "c"
+        "window.h": "c",
+        "null.h": "c",
+        "random.h": "c",
+        "words.h": "c"
     },
     "C_Cpp.default.systemIncludePath": [
         "Userland/libc",

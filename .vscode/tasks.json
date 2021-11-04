@@ -6,7 +6,7 @@
         {
             "label": "Build",
             "type": "shell",
-            "command": "colormake all",
+            "command": "./dcom colormake all",
             "problemMatcher": {
                 "base": "$gcc",
                 "fileLocation": [
@@ -22,7 +22,7 @@
         {
             "label": "Clean",
             "type": "shell",
-            "command": "colormake clean",
+            "command": "./dcom colormake clean",
             "problemMatcher": []
         },
         {
