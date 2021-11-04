@@ -314,6 +314,15 @@ bool isPrintable(unsigned char ch) {
 	        (ch >= 0x91 && ch <= 0x9C) || (ch == 0x9F) || (ch >= 0xA1));
 }
 
+void reDrawViewBorders(uint8_t viewNumber) {
+	struct View *view = Views[viewNumber];
+
+	Color color = getViewNumber(view) == focusedView ? LIGHT_SALMON : GREY;
+	drawRectangleBorders(getOffsetX() + (view->positionX * FINAL_FONT_WIDTH),
+	                     getOffsetY() + (view->positionY * FINAL_FONT_HEIGHT),
+	                     view->width * FINAL_FONT_WIDTH,
+	                     view->height * FINAL_FONT_HEIGHT, 3, color);
+}
 void changeFocusView(uint8_t newFocusViewNumber) {
 	focusedView = newFocusViewNumber;
 	struct Desktop *desktop = &Desktops[currentDesktop];
@@ -321,6 +330,7 @@ void changeFocusView(uint8_t newFocusViewNumber) {
 	for (int i = 0; i < desktop->views; i++) {
 		struct View *view = &desktop->Views[i];
 		redrawCharInverted(view, view->cursorX, view->cursorY);
+		reDrawViewBorders(getViewNumber(view));
 	}
 }
 void focusNextView() {
@@ -355,11 +365,7 @@ void reDrawDesktop() {
 	for (int i = 0; i < desktop->views; i++) {
 		struct View *view = &desktop->Views[i];
 		reDraw(view);
-		drawRectangleBorders(
-		    getOffsetX() + (view->positionX * FINAL_FONT_WIDTH),
-		    getOffsetY() + (view->positionY * FINAL_FONT_HEIGHT),
-		    view->width * FINAL_FONT_WIDTH, view->height * FINAL_FONT_HEIGHT, 3,
-		    GREY);
+		reDrawViewBorders(getViewNumber(view));
 	}
 }
 void focusDesktop(int desktopNumber) {
