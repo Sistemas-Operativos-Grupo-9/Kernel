@@ -47,6 +47,8 @@
                 "-daemonize",
                 "-display",
                 "gtk,zoom-to-fit=on",
+                "-rtc",
+                "base=localtime",
                 // "-enable-kvm",
             ],
             "dependsOn": [
