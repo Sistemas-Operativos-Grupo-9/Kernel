@@ -112,13 +112,19 @@ bool didPlayerWin() { return isComplete() && isSudokuValid(); }
 #define SUDOKU_SQUARE_BORDER 3
 #define SUDOKU_BORDER 1
 #define SQUARE_SIDE 36
-#define BIG_SQUARE_SIDE SQUARE_SIDE * 3 + SUDOKU_BORDER * 2
-#define FULL_SIDE SQUARE_SIDE * 9 + SUDOKU_SQUARE_BORDER * 4 + SUDOKU_BORDER * 6
+#define BIG_SQUARE_SIDE (SQUARE_SIDE * 3 + SUDOKU_BORDER * 2)
+#define FULL_SIDE                                                              \
+	(SQUARE_SIDE * 9 + SUDOKU_SQUARE_BORDER * 4 + SUDOKU_BORDER * 6)
 
 void drawSudoku() {
+	WindowInfo winInfo = getWindowInfo();
+	const uint16_t SUDOKU_OFFSET_X = (winInfo.pixelWidth - FULL_SIDE) / 2;
+	const uint16_t SUDOKU_OFFSET_Y = (winInfo.pixelHeight - FULL_SIDE) / 2;
 	bool valid = isSudokuValid();
+	setForeground(GREY_N3);
+	drawRectangle(0, 0, winInfo.pixelWidth, winInfo.pixelHeight);
 	setForeground(valid ? GREY_N2 : RED);
-	drawRectangle(0, 0, FULL_SIDE, FULL_SIDE);
+	drawRectangle(SUDOKU_OFFSET_X, SUDOKU_OFFSET_Y, FULL_SIDE, FULL_SIDE);
 	char c[2] = {0};
 
 	for (int sy = 0; sy < 3; sy++) {
@@ -128,11 +134,11 @@ void drawSudoku() {
 					uint8_t finalX = sx * 3 + x;
 					uint8_t finalY = sy * 3 + y;
 					uint16_t px =
-					    SUDOKU_SQUARE_BORDER +
+					    SUDOKU_OFFSET_X + SUDOKU_SQUARE_BORDER +
 					    sx * (BIG_SQUARE_SIDE + SUDOKU_SQUARE_BORDER) +
 					    x * (SQUARE_SIDE + SUDOKU_BORDER);
 					uint16_t py =
-					    SUDOKU_SQUARE_BORDER +
+					    SUDOKU_OFFSET_Y + SUDOKU_SQUARE_BORDER +
 					    sy * (BIG_SQUARE_SIDE + SUDOKU_SQUARE_BORDER) +
 					    y * (SQUARE_SIDE + SUDOKU_BORDER);
 					setForeground(BLACK);
