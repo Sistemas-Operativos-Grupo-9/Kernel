@@ -24,6 +24,7 @@ enum Figures {
 	CIRCLE = 0,
 	RECTANGLE,
 	TEXT,
+	LINE,
 };
 
 #define EOF -1

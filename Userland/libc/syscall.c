@@ -66,6 +66,10 @@ void drawText(char *text, uint16_t x, uint16_t y, bool center) {
 	drawFigure(TEXT, (uint64_t)text, x, y, center);
 }
 
+void drawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2) {
+	drawFigure(LINE, x1, y1, x2, y2);
+}
+
 WindowInfo getWindowInfo() {
 	WindowInfo windowInfo;
 	syscall(GETWINDOWINFO, (uint64_t)&windowInfo, 0, 0, 0, 0);

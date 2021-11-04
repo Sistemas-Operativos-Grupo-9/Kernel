@@ -724,6 +724,22 @@ void drawText(uint8_t viewNumber, char *text, uint16_t x, uint16_t y,
 	}
 }
 
+void drawLine(uint8_t viewNumber, uint16_t x1, uint16_t y1, uint16_t x2,
+              uint16_t y2) {
+	struct View *view = Views[viewNumber];
+
+	int maxLength = max(abs((int)y2 - y1), abs((int)x2 - x1));
+	float deltaX = ((float)x2 - x1) / maxLength;
+	float deltaY = ((float)y2 - y1) / maxLength;
+
+	float x = x1, y = y1;
+	for (int i = 0; i < maxLength; i++) {
+		setBufferPixel(view, (uint16_t)x, (uint16_t)y, view->colors.foreground);
+		x += deltaX;
+		y += deltaY;
+	}
+}
+
 void flip(uint8_t viewNumber) {
 	struct View *view = Views[viewNumber];
 	if (view->desktop == currentDesktop) {

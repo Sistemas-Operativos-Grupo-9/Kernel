@@ -71,6 +71,10 @@ void drawTextCall(char *text, uint16_t x, uint16_t y, bool center) {
 	drawText(getCurrentProcess()->tty, text, x, y, center);
 }
 
+void drawLineCall(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2) {
+	drawLine(getCurrentProcess()->tty, x1, y1, x2, y2);
+}
+
 void drawFigure(enum Figures figure, uint64_t param2, uint64_t param3,
                 uint64_t param4, uint64_t param5) {
 	switch (figure) {
@@ -82,6 +86,9 @@ void drawFigure(enum Figures figure, uint64_t param2, uint64_t param3,
 		break;
 	case TEXT:
 		drawTextCall((char *)param2, param3, param4, param5);
+		break;
+	case LINE:
+		drawLineCall(param2, param3, param4, param5);
 		break;
 	}
 }

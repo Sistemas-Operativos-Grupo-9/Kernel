@@ -25,4 +25,5 @@ WindowInfo getWindowInfo();
 void drawBitmap(uint16_t x, uint16_t y, uint16_t width, uint16_t height,
                 Color bitmap[][width]);
 void drawText(char *text, uint16_t x, uint16_t y, bool center);
+void drawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
 void flip();
