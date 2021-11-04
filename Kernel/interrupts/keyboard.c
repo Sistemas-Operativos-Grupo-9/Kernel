@@ -29,6 +29,20 @@
 #define K_F7 0x41
 #define K_F8 0x42
 
+#define K_KP7 0x47
+#define K_KP8 0x48
+#define K_KP9 0x49
+#define K_KPMINUS 0x4A
+#define K_KP4 0x4B
+#define K_KP5 0x4C
+#define K_KP6 0x4D
+#define K_KPPLUS 0x4E
+#define K_KP1 0x4F
+#define K_KP2 0x50
+#define K_KP3 0x51
+#define K_KP0 0x52
+#define K_KPDOT 0x53
+
 #define K_PGUP 0x49
 #define K_PGDN 0x51
 
@@ -82,6 +96,43 @@ void handleSingleByteKey(uint8_t key, bool pressed) {
 		sendChar('\n');
 	} else if (key == K_BACKSPACE && pressed) {
 		sendChar('\b');
+	} else if ((key == K_KP0 || key == K_KP1 || key == K_KP2 || key == K_KP3 ||
+	            key == K_KP4 || key == K_KP5 || key == K_KP6 || key == K_KP7 ||
+	            key == K_KP8 || key == K_KP9) &&
+	           pressed) {
+
+		switch (key) {
+		case K_KP0:
+			sendChar('0');
+			break;
+		case K_KP1:
+			sendChar('1');
+			break;
+		case K_KP2:
+			sendChar('2');
+			break;
+		case K_KP3:
+			sendChar('3');
+			break;
+		case K_KP4:
+			sendChar('4');
+			break;
+		case K_KP5:
+			sendChar('5');
+			break;
+		case K_KP6:
+			sendChar('6');
+			break;
+		case K_KP7:
+			sendChar('7');
+			break;
+		case K_KP8:
+			sendChar('8');
+			break;
+		case K_KP9:
+			sendChar('9');
+			break;
+		}
 	} else if ((key == K_F1 || key == K_F2 || key == K_F3 || key == K_F4 ||
 	            key == K_F5 || key == K_F6 || key == K_F7 || key == K_F8) &&
 	           pressed) {
