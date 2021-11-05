@@ -2,8 +2,8 @@
 #include "registers.h"
 #include "syscalls.h"
 
-uint64_t syscall(uint64_t code, uint64_t param1, uint64_t param2,
-                 uint64_t param3, uint64_t param4, uint64_t param5) {
+static uint64_t syscall(uint64_t code, uint64_t param1, uint64_t param2,
+                        uint64_t param3, uint64_t param4, uint64_t param5) {
 	__asm__("int $0x80");
 
 	register uint64_t ret __asm__("rax");
@@ -47,8 +47,8 @@ uint64_t millis() { return syscall(MILLIS, 0, 0, 0, 0, 0); }
 
 void setGraphic(bool value) { syscall(SETGRAPHIC, value, 0, 0, 0, 0); }
 
-void drawFigure(enum Figures figure, uint64_t param1, uint64_t param2,
-                uint64_t param3, uint64_t param4) {
+static void drawFigure(enum Figures figure, uint64_t param1, uint64_t param2,
+                       uint64_t param3, uint64_t param4) {
 	syscall(DRAWFIGURE, figure, param1, param2, param3, param4);
 }
 

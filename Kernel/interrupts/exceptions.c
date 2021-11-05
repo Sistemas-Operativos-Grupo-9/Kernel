@@ -10,8 +10,8 @@
 extern struct RegistersState registersState;
 
 void printReg(uint8_t viewNumber, uint64_t value, const char *name) {
-	print(viewNumber, name);
-	print(viewNumber, " = ");
+	puts(viewNumber, name);
+	puts(viewNumber, " = ");
 	printHexPrefix(viewNumber);
 	printUnsignedN(viewNumber, value, 16, 16);
 }
@@ -19,9 +19,9 @@ void printReg(uint8_t viewNumber, uint64_t value, const char *name) {
 void printRegs(uint8_t viewNumber, uint64_t value1, const char *name1,
                uint64_t value2, const char *name2) {
 	printReg(viewNumber, value1, name1);
-	print(viewNumber, "   -   ");
+	puts(viewNumber, "   -   ");
 	printReg(viewNumber, value2, name2);
-	printChar(viewNumber, '\n');
+	putchar(viewNumber, '\n');
 }
 
 void printRegisters(uint8_t viewNumber) {
@@ -40,23 +40,23 @@ void printRegisters(uint8_t viewNumber) {
 void exceptionDispatcher(int exception, uint64_t rip) {
 	struct ProcessDescriptor *process = getCurrentProcess();
 
-	print(process->tty, "Exception: ");
+	puts(process->tty, "Exception: ");
 	printUnsigned(process->tty, exception, 10);
-	printChar(process->tty, '\n');
+	putchar(process->tty, '\n');
 	if (exception == 0) {
-		print(process->tty, "Division by zero\n");
+		puts(process->tty, "Division by zero\n");
 	} else if (exception == 6) {
-		print(process->tty, "Invalid opcode\n");
+		puts(process->tty, "Invalid opcode\n");
 	}
-	print(process->tty, "Instruction Pointer: ");
+	puts(process->tty, "Instruction Pointer: ");
 	printHexPointer(process->tty, (void *)rip);
-	printChar(process->tty, '\n');
+	putchar(process->tty, '\n');
 
 	// printHexPointer((void *)returnAddress);
-	// printChar('\n');
+	// putchar('\n');
 	_storeRegisters();
 	printRegisters(process->tty);
-	// print("Finished\n");
+	// puts("Finished\n");
 	// while (1);
 	terminateProcess();
 }

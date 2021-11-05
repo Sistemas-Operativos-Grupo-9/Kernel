@@ -117,7 +117,7 @@ bool killProcess(int pid) {
 // TODO: Disable restarting and mode it to a restarting program.
 void restartProcess() {
 	ProcessDescriptor *process = getCurrentProcess();
-	// print(process->tty, "Restarting process...\n");
+	// puts(process->tty, "Restarting process...\n");
 	createProcess(process->tty, process->name, process->argv, process->argc,
 	              true);
 

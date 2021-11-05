@@ -1,6 +1,6 @@
 
 # DATAFILES=0001-sampleDataModule.bin
-PROGRAMS=$(shell find . -maxdepth 1 -mindepth 1 -type d ! -name BUILD ! -name libc)
+PROGRAMS=$(shell find . -maxdepth 1 -mindepth 1 -type d ! -name BUILD ! -name libc ! -name ".*")
 OUTDIR  = BUILD
 OUTPUTS = $(PROGRAMS:%=$(OUTDIR)/%.bin)
 

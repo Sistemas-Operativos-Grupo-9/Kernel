@@ -123,7 +123,7 @@ bool execCommand(char *command) {
 		puts("\" is not a recognized program or module\n");
 	}
 
-	// print(process->name);
+	// puts(process->name);
 	// puts(" -> ");
 	// printInt(retCode, 10);
 	// putchar('\n');

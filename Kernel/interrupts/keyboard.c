@@ -204,7 +204,7 @@ void handleSingleByteKey(uint8_t key, bool pressed) {
 void keyboard_handler() {
 	uint8_t key = in(0x60);
 	keyBuffer[keyBufferSize++] = key;
-	// printChar(0, ' ');
+	// putchar(0, ' ');
 	// printHexByte(0, key);
 
 	// Process buffer

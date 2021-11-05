@@ -13,8 +13,8 @@ void initScreen();
 uint32_t getCursorY();
 uint32_t getCursorX();
 void setCursorAt(uint8_t viewNumber, int x, int y);
-void print(uint8_t viewNumber, char *str);
-void printChar(uint8_t viewNumber, char ch);
+void puts(uint8_t viewNumber, const char *str);
+void putchar(uint8_t viewNumber, char ch);
 
 void setForeground(uint8_t viewNumber, Color color);
 void setBackground(uint8_t viewNumber, Color color);

@@ -11,7 +11,6 @@ typedef struct {
 	bool isTimeout;
 } KeyStroke;
 
-void putCSI();
 void moveCursorRight();
 void moveCursorLeft();
 void reset();

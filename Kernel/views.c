@@ -26,4 +26,4 @@ char readInput(uint8_t tty) {
 	return ret;
 }
 
-void writeOutput(uint8_t tty, char ch) { printChar(tty, ch); }
+void writeOutput(uint8_t tty, char ch) { putchar(tty, ch); }

@@ -1,9 +1,9 @@
 #include "stdlib.h"
 
-bool isUppercase(char ch) { return ch >= 'A' && ch <= 'Z'; }
-bool isLowercase(char ch) { return ch >= 'a' && ch <= 'z'; }
+static bool isUppercase(char ch) { return ch >= 'A' && ch <= 'Z'; }
+static bool isLowercase(char ch) { return ch >= 'a' && ch <= 'z'; }
 
-uint8_t chartodig(char ch) {
+static uint8_t chartodig(char ch) {
 	if (ch >= '0' && ch <= '9')
 		return ch - '0';
 

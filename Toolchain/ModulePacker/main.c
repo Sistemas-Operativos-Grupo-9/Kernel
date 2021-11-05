@@ -56,8 +56,10 @@ int buildImage(array_t fileArray, char *output_file) {
 	}
 
 	// First, write the kernel
+	printf("Writing kernel. ");
 	FILE *source = fopen(fileArray.array[0], "r");
 	write_file(target, source);
+	putchar('\n');
 
 	// Write how many extra binaries we got.
 	int extraBinaries = fileArray.length - 1;
@@ -75,9 +77,9 @@ int buildImage(array_t fileArray, char *output_file) {
 		write_size(target, fileArray.array[i]);
 
 		printf("File: %s ", fileArray.array[i]);
-		putchar('\n');
 		// Write the binary
 		write_file(target, source);
+		putchar('\n');
 
 		fclose(source);
 	}
@@ -111,18 +113,21 @@ int write_size(FILE *target, char *filename) {
 	struct stat st;
 	stat(filename, &st);
 	uint32_t size = st.st_size;
-	printf("Size: %u ", size);
+	// printf("Size: %u ", size);
 	fwrite(&size, sizeof(uint32_t), 1, target);
 }
 
 int write_file(FILE *target, FILE *source) {
 	char buffer[BUFFER_SIZE];
 	int read;
+	uint64_t total = 0;
 
 	while (!feof(source)) {
 		read = fread(buffer, 1, BUFFER_SIZE, source);
 		fwrite(buffer, 1, read, target);
+		total += read;
 	}
+	printf("Copied: %u ", total);
 
 	return TRUE;
 }

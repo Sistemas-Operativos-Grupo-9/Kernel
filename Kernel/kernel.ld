@@ -17,7 +17,7 @@ SECTIONS
 		endOfKernelBinary = .;
 	}
 	startOfModules = .;
-	. += 0x100000;
+	. += 0x200000-1;
 	. = ALIGN(0x100000);
 	endOfModules = .;
 	.bss ALIGN(0x1000) : AT(ADDR(.bss))

@@ -158,12 +158,12 @@ struct View *Views[] = {
 static int currentDesktop = 0;
 uint8_t focusedView = 0;
 
-uint32_t abs(int32_t n) {
+static uint32_t abs(int32_t n) {
 	if (n < 0)
 		return -n;
 	return n;
 }
-uint16_t sqrt(uint32_t n) {
+static uint16_t sqrt(uint32_t n) {
 	uint16_t s;
 	for (s = 0; s * s < n; s++)
 		;
@@ -180,7 +180,7 @@ uint16_t sqrt(uint32_t n) {
 // }
 
 // Generates an image with dots
-Color backgroundImage(uint16_t x, uint16_t y) {
+static Color backgroundImage(uint16_t x, uint16_t y) {
 
 	// const uint64_t lightDistances = 64;
 	// // Color colors[] = {BLUE, RED, GREEN};
@@ -280,7 +280,7 @@ Color invertColor(Color color) {
 	               .green = 255 - color.green,
 	               .blue = 255 - color.blue};
 }
-int getViewNumber(struct View *view) {
+static int getViewNumber(struct View *view) {
 	for (int v = 0; v < sizeof(Views) / sizeof(struct View *); v++) {
 		if (view == Views[v])
 			return v;
@@ -296,25 +296,25 @@ void redrawCharInverted(struct View *view, uint32_t x, uint32_t y) {
 	drawCharAtView(view, INDEX_TEXT_BUFFER(view->textBuffer, y, x).letter, x,
 	               y - view->scrollY, foreground, view->colors.background);
 }
-void redrawChar(struct View *view, uint32_t x, uint32_t y) {
+static void redrawChar(struct View *view, uint32_t x, uint32_t y) {
 	drawCharAtView(view, INDEX_TEXT_BUFFER(view->textBuffer, y, x).letter, x,
 	               y - view->scrollY, view->colors.background,
 	               INDEX_TEXT_BUFFER(view->textBuffer, y, x).color);
 }
 
-void consume(struct View *view, int count) {
+static void consume(struct View *view, int count) {
 	view->outputLength -= count;
 	for (int i = 0; i < view->outputLength; i++) {
 		view->outputBuffer[i] = view->outputBuffer[i + count];
 	}
 }
 
-bool isPrintable(unsigned char ch) {
+static bool isPrintable(unsigned char ch) {
 	return ((ch >= 0x20 && ch <= 0x7E) || (ch >= 0x82 && ch <= 0x8C) ||
 	        (ch >= 0x91 && ch <= 0x9C) || (ch == 0x9F) || (ch >= 0xA1));
 }
 
-void reDrawViewBorders(uint8_t viewNumber) {
+static void reDrawViewBorders(uint8_t viewNumber) {
 	struct View *view = Views[viewNumber];
 
 	Color color = getViewNumber(view) == focusedView ? LIGHT_SALMON : GREY;
@@ -500,7 +500,7 @@ void setChar(uint8_t viewNumber, char ch) {
 	redrawChar(view, view->cursorX, view->cursorY);
 }
 
-void printChar(uint8_t viewNumber, char ch) {
+void putchar(uint8_t viewNumber, char ch) {
 	struct View *view = Views[viewNumber];
 	view->outputBuffer[view->outputLength++] = ch;
 
@@ -615,9 +615,9 @@ void setCursorAt(uint8_t viewNumber, int x, int y) {
 //     return cursorX;
 // }
 
-void print(uint8_t viewNumber, char *str) {
+void puts(uint8_t viewNumber, const char *str) {
 	while (*str) {
-		printChar(viewNumber, *str++);
+		putchar(viewNumber, *str++);
 	}
 }
 
@@ -639,7 +639,7 @@ void clear(uint8_t viewNumber) {
 void printIntN(uint8_t viewNumber, int value, uint8_t digits, uint8_t base) {
 	char str[digits + 1];
 	numToString(value, digits, str, base);
-	print(viewNumber, str);
+	puts(viewNumber, str);
 }
 void printInt(uint8_t viewNumber, int value, uint8_t base) {
 	printIntN(viewNumber, value, countDigits(value, base), base);
@@ -649,7 +649,7 @@ void printUnsignedN(uint8_t viewNumber, uint64_t value, uint8_t digits,
                     uint8_t base) {
 	char str[digits + 1];
 	unsignedToString(value, digits, str, base);
-	print(viewNumber, str);
+	puts(viewNumber, str);
 }
 
 void printUnsigned(uint8_t viewNumber, uint64_t value, uint8_t base) {
@@ -657,8 +657,8 @@ void printUnsigned(uint8_t viewNumber, uint64_t value, uint8_t base) {
 }
 
 void printHexPrefix(uint8_t viewNumber) {
-	printChar(viewNumber, '0');
-	printChar(viewNumber, 'x');
+	putchar(viewNumber, '0');
+	putchar(viewNumber, 'x');
 }
 
 void printHexByte(uint8_t viewNumber, uint8_t value) {

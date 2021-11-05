@@ -35,8 +35,8 @@ void *initializeKernelBinary() {
 	char buffer[10];
 
 #define printHexPointer(ptr) printHexPointer(0, ptr);
-#define printChar(str) printChar(0, str);
-#define print(str) print(0, str);
+#define printChar(str) putchar(0, str);
+#define print(str) puts(0, str);
 
 	print("[x64BareBones]\n");
 
@@ -102,14 +102,14 @@ int main() {
 	do {                                                                       \
 		struct Module *module = getModule(moduleName);                         \
 		if (module == NULL) {                                                  \
-			print(0, "ERROR!\n");                                              \
+			puts(0, "ERROR!\n");                                               \
 			break;                                                             \
 		}                                                                      \
-		print(0, "Module \"");                                                 \
-		print(0, module->name);                                                \
-		print(0, "\" loaded in address ");                                     \
+		puts(0, "Module \"");                                                  \
+		puts(0, module->name);                                                 \
+		puts(0, "\" loaded in address ");                                      \
 		printHexPointer(0, module->address);                                   \
-		printChar(0, '\n');                                                    \
+		putchar(0, '\n');                                                      \
 	} while (0)
 
 	// PRINT_MODULE("random");

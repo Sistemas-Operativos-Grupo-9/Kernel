@@ -4,7 +4,7 @@
 #include "syscall.h"
 #include "syscalls.h"
 
-void putCSI() {
+static void putCSI() {
 	putchar(ESC);
 	putchar(BRACKET);
 }

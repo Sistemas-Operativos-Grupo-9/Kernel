@@ -1,5 +1,4 @@
 /* _loader.c */
-#include <stdint.h>
 #include <string.h>
 
 extern char bss;
