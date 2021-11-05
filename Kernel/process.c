@@ -27,7 +27,7 @@ int PID = NO_PID;
 static int focusPID = 0;
 
 static int getFreePID() {
-	static int lastPID = -1;
+	static int lastPID = 0;
 
 	while (processes[lastPID].active) {
 		lastPID++;
