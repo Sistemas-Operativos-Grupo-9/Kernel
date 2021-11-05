@@ -163,12 +163,12 @@ static uint32_t abs(int32_t n) {
 		return -n;
 	return n;
 }
-static uint16_t sqrt(uint32_t n) {
-	uint16_t s;
-	for (s = 0; s * s < n; s++)
-		;
-	return s;
-}
+// static uint16_t sqrt(uint32_t n) {
+// 	uint16_t s;
+// 	for (s = 0; s * s < n; s++)
+// 		;
+// 	return s;
+// }
 
 // Color circle(uint64_t x, uint64_t y) {
 // 	x -= getWidth() / 2;
