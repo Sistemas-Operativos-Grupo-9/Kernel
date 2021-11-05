@@ -118,6 +118,7 @@ bool didPlayerWin() { return isComplete() && isSudokuValid(); }
 
 void drawSudoku() {
 	WindowInfo winInfo = getWindowInfo();
+	uint8_t hovering = getFinalNumber(state.cursor.x, state.cursor.y);
 	const uint16_t SUDOKU_OFFSET_X = (winInfo.pixelWidth - FULL_SIDE) / 2;
 	const uint16_t SUDOKU_OFFSET_Y = (winInfo.pixelHeight - FULL_SIDE) / 2;
 	bool valid = isSudokuValid();
@@ -145,15 +146,16 @@ void drawSudoku() {
 					drawRectangle(px, py, SQUARE_SIDE, SQUARE_SIDE);
 					bool isCursor =
 					    state.cursor.x == finalX && state.cursor.y == finalY;
-					if (isCursor) {
-						setForeground(GREEN);
+					uint8_t n = getFinalNumber(finalX, finalY);
+					bool isHovering = hovering != 0 && hovering == n;
+					if (isCursor || isHovering) {
+						setForeground(isCursor ? GREEN : GREY_2);
 						drawRectangle(px, py, SQUARE_SIDE, SQUARE_SIDE);
 						setForeground(BLACK);
 						drawRectangle(px + SUDOKU_BORDER, py + SUDOKU_BORDER,
 						              SQUARE_SIDE - SUDOKU_BORDER * 2,
 						              SQUARE_SIDE - SUDOKU_BORDER * 2);
 					}
-					uint8_t n = getFinalNumber(finalX, finalY);
 					bool playerNumber = state.numbers[finalY][finalX];
 					if (n) {
 						c[0] = n + '0';
