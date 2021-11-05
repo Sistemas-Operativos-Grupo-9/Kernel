@@ -172,7 +172,9 @@ _irq00Handler:
 	pushState
 	mov rdi, 0 ; pasaje de parametro
 	; mov rsi, rsp
+	sub rsp, 8
 	call irqDispatcher
+	add rsp, 8
 
 	popState
 
@@ -184,7 +186,9 @@ _irq00Handler:
 	test al, al
 	pop rax
 	jz ret00
+	sub rsp, 8
 	call _switchContext
+	add rsp, 8
 	ret00:
 	EOI
 	iretq
@@ -217,7 +221,9 @@ _nextProcess:
 	test al, al
 	pop rax
 	jz ret01
+	sub rsp, 8
 	call _switchContext
+	add rsp, 8
 	ret01:
 	; sti
 	iretq

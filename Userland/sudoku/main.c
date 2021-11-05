@@ -121,7 +121,7 @@ void drawSudoku() {
 	const uint16_t SUDOKU_OFFSET_X = (winInfo.pixelWidth - FULL_SIDE) / 2;
 	const uint16_t SUDOKU_OFFSET_Y = (winInfo.pixelHeight - FULL_SIDE) / 2;
 	bool valid = isSudokuValid();
-	setForeground(GREY_N3);
+	setForeground(GREY_N4);
 	drawRectangle(0, 0, winInfo.pixelWidth, winInfo.pixelHeight);
 	setForeground(valid ? GREY_N2 : RED);
 	drawRectangle(SUDOKU_OFFSET_X, SUDOKU_OFFSET_Y, FULL_SIDE, FULL_SIDE);
@@ -166,40 +166,6 @@ void drawSudoku() {
 		}
 	}
 	flip();
-	// for (int y = 0; y < 9; y++) {
-	// 	if (y % 3 == 0) {
-	// 		for (int i = 0; i < 13; i++)
-	// 			putchar('-');
-	// 		putchar('\n');
-	// 	}
-	// 	for (int x = 0; x < 9; x++) {
-	// 		uint8_t value = state.sudoku[y][x];
-	// 		uint8_t userValue = state.numbers[y][x];
-	// 		if (x % 3 == 0)
-	// 			putchar('|');
-	// 		bool isCursor = state.cursor.x == x && state.cursor.y == y;
-	// 		if (!valid)
-	// 			setForeground(RED);
-	// 		else if (isCursor)
-	// 			setForeground(ORANGE);
-	// 		else if (userValue != 0)
-	// 			setForeground(GREEN);
-
-	// 		if (userValue != 0) {
-	// 			printUnsignedN(userValue, 1, 10);
-	// 		} else if (value == 0) {
-	// 			putchar(isCursor ? '#' : ' ');
-	// 		} else {
-	// 			printUnsignedN(value, 1, 10);
-	// 		}
-	// 		setForeground(WHITE);
-	// 	}
-	// 	putchar('|');
-	// 	putchar('\n');
-	// }
-	// for (int i = 0; i < 13; i++)
-	// 	putchar('-');
-	// putchar('\n');
 }
 
 bool isDigit(char digit) { return digit >= '0' && digit <= '9'; }

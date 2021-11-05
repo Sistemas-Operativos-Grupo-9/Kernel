@@ -63,7 +63,8 @@
         "window.h": "c",
         "null.h": "c",
         "random.h": "c",
-        "words.h": "c"
+        "words.h": "c",
+        "help.h": "c"
     },
     "C_Cpp.default.systemIncludePath": [
         "Userland/libc",

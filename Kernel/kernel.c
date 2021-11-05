@@ -18,6 +18,7 @@ extern uint8_t bss;
 extern uint8_t endOfKernelBinary;
 extern uint8_t endOfKernel;
 extern uint8_t endOfKernelStack;
+extern uint8_t startOfModules;
 
 typedef int (*EntryPoint)();
 
@@ -25,14 +26,10 @@ void clearBSS(void *bssAddress, uint64_t bssSize) {
 	memset(bssAddress, 0, bssSize);
 }
 
-void *getStackBase() {
-	return (void *)((uint64_t)&endOfKernelStack // The size of the stack itself,
-	                                            // 32KiB
-	                - sizeof(uint64_t)          // Begin at the top of the stack
-	);
-}
+void *getStackBase() { return &endOfKernelStack; }
 
 void *initializeKernelBinary() {
+	clearBSS(&bss, &endOfKernel - &bss);
 
 	char buffer[10];
 	char infoBuffer[1024];
@@ -57,7 +54,7 @@ void *initializeKernelBinary() {
 
 	print("[Loading modules]\n");
 
-	if (loadModules(&endOfKernelBinary)) {
+	if (loadModules(&startOfModules)) {
 		print("FAILED TO LOAD MODULES!");
 	} else {
 		// struct Module *modules = (struct Module *)&endOfKernelStack;
@@ -75,8 +72,7 @@ void *initializeKernelBinary() {
 	print("[Done]\n\n");
 
 	print("[Initializing kernel's binary]\n");
-	clearBSS(&bss, &endOfKernel - &bss);
-	readBackup();
+	// readBackup();
 
 	print("  text: ");
 	printHexPointer(&text);

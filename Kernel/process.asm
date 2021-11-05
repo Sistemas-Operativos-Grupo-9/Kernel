@@ -53,7 +53,9 @@ global _startScheduler
 _startScheduler:
 	cli
 	mov byte [schedulerEnabled], 1
+	sub rsp, 8
 	call _killAndNextProcess ; We "kill" this process and start processing the queue
+	add rsp, 8
 	iretq
 
 global _yield
@@ -71,9 +73,11 @@ _switchContext:
 	pushState
 	mov r12, [rsp + (8 * 16)] ; get return pointer
 	mov rdi, 1
+	sub rsp, 8
 	mov rsi, rsp
 	call doSwitch
 	mov rsp, rax
+	add rsp, 8
 	mov [rsp + (8 * 16)], r12
 	popState
 	ret
@@ -84,9 +88,11 @@ _killAndNextProcess:
 	pushState
 	mov r12, [rsp + (8 * 16)]
 	mov rdi, 0
+	sub rsp, 8
 	mov rsi, rsp
 	call doSwitch
 	mov rsp, rax
+	add rsp, 8
 	mov [rsp + (8 * 16)], r12
 	popState
 	ret

@@ -3,11 +3,6 @@
 #include "myUtils.h"
 #include "stdint.h"
 
-void wait() {
-	for (uint64_t i = 0; i < 40000000UL; i++)
-		__asm__("nop");
-}
-
 void toISO8601(Time time, char out[21]) {
 	numToString(time.year, 4, out, 10);
 	out[4] = '-';

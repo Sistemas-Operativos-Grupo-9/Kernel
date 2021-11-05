@@ -16,6 +16,10 @@ SECTIONS
 		*(.data*)
 		endOfKernelBinary = .;
 	}
+	startOfModules = .;
+	. += 0x100000;
+	. = ALIGN(0x100000);
+	endOfModules = .;
 	.bss ALIGN(0x1000) : AT(ADDR(.bss))
 	{
 		bss = .;
@@ -25,8 +29,6 @@ SECTIONS
 	. = ALIGN(0x1000);
 	endOfKernel = .;
 	. += 0x8000;
-	endOfKernelStack = .;
-	. += 0x100000;
 	. = ALIGN(0x100000);
-	endOfModules = .;
+	endOfKernelStack = .;
 }

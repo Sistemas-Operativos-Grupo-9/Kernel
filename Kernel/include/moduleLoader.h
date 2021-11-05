@@ -2,7 +2,7 @@
 #define MODULELOADER_H
 
 struct Module {
-	char name[32];
+	char *name;
 	void *address;
 	uint64_t size;
 };

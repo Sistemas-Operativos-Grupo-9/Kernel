@@ -21,7 +21,7 @@ Color colorLerp(Color a, Color b, uint8_t lerp) {
 	               .blue = a.blue + (b.blue - a.blue) * lerp / 255};
 }
 
-void setPixel(Color color, uint16_t x, uint16_t y) {
+static void setPixel(Color color, uint16_t x, uint16_t y) {
 	((Color *)(uint64_t)infoBlock->physbase)[x + y * WIDTH] = color;
 }
 

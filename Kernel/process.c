@@ -123,6 +123,8 @@ void restartProcess() {
 
 	process->active = false;
 	_killAndNextProcess();
+
+	__asm__("add $8, %rsp");
 	__asm__("iretq");
 }
 
@@ -130,6 +132,7 @@ void terminateProcess() {
 	ProcessDescriptor *process = getCurrentProcess();
 	process->active = false;
 	_killAndNextProcess();
+	__asm__("add $8, %rsp");
 	__asm__("iretq");
 }
 
@@ -164,12 +167,13 @@ void initializeHaltProcess() {
 	*--stack = 0x202;
 	*--stack = 8;
 	*--stack = (uint64_t)haltMain;
-	// *--stack = 0; // This value is changed in _switchContext
-	uint64_t *leaveStack = stack;
-	*--stack = (uint64_t)leaveStack;
+	*--stack = 0;
+	*--stack = 0; // Stack return address (changed in _switchContext)
 	*--stack = (uint64_t)0;
 	*--stack = (uint64_t)0;
-	stack -= 14; // 16 - 2
+	for (int i = 0; i < 15; i++)
+		*--stack = 0;
+	// stack -= 14; // 16 - 2
 
 	struct ProcessDescriptor haltProcess = {
 	    .tty = 0,
@@ -190,9 +194,9 @@ void initializeHaltProcess() {
 	    .entryPoint = haltMain};
 	processes[HALT_PID] = haltProcess;
 }
-extern uint8_t endOfModules;
+extern uint8_t endOfKernelStack;
 
-#define PROCESSES_START &endOfModules
+#define PROCESSES_START &endOfKernelStack
 #define PROCESS_MEMORY 0x200000
 
 int createProcess(uint8_t tty, char *name, char **argv, int argc,
@@ -218,12 +222,13 @@ int createProcess(uint8_t tty, char *name, char **argv, int argc,
 	*--stack = 0x202;
 	*--stack = 8;
 	*--stack = (uint64_t)entryPoint;
-	// *--stack = 0; // This value is changed in _switchContext
-	uint64_t *leaveStack = stack;
-	*--stack = (uint64_t)leaveStack;
+	*--stack = 0;
+	*--stack = 0; // Stack return address (changed in _switchContext)
 	*--stack = (uint64_t)argv;
 	*--stack = (uint64_t)argc;
-	stack -= 14; // 16 - 2
+	for (int i = 0; i < 15; i++)
+		*--stack = 0;
+	// stack -= 14; // 16 - 2
 
 	processes[pid] = (struct ProcessDescriptor){
 	    .tty = tty,
@@ -279,7 +284,7 @@ void *doSwitch(bool pushCurrent, uint64_t *stackPointer) {
 	int newPid = getProcessPID(newProcess);
 	PID = newPid;
 
-	return newProcess->stack;
+	return newProcess->stack; // Returned stack is aligned to 8 (not 16)
 }
 
 uint64_t countProcesses() {

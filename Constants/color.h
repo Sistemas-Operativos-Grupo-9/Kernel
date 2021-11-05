@@ -25,6 +25,10 @@ typedef struct {
 	(Color) { 122, 160, 255 }
 #define GREEN_YELLOW                                                           \
 	(Color) { 47, 255, 173 }
+#define GREY_N5                                                                \
+	(Color) { 15, 15, 15 }
+#define GREY_N4                                                                \
+	(Color) { 25, 25, 25 }
 #define GREY_N3                                                                \
 	(Color) { 50, 50, 50 }
 #define GREY_N2                                                                \
