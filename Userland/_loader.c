@@ -1,26 +1,15 @@
 /* _loader.c */
 #include <stdint.h>
+#include <string.h>
 
 extern char bss;
 extern char endOfBinary;
 
 int main(char **argv, int argc);
 
-void *memset(void *destiny, int32_t c, uint64_t length);
-
 int _start(char **argv, int argc) {
 	// Clean BSS
 	memset(&bss, 0, &endOfBinary - &bss);
 
 	return main(argv, argc);
-}
-
-void *memset(void *destination, int32_t c, uint64_t length) {
-	uint8_t chr = (uint8_t)c;
-	char *dst = (char *)destination;
-
-	while (length--)
-		dst[length] = chr;
-
-	return destination;
 }

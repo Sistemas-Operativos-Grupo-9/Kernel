@@ -30,21 +30,13 @@ void *getStackBase() { return &endOfKernelStack; }
 
 void *initializeKernelBinary() {
 	clearBSS(&bss, &endOfKernel - &bss);
+	initScreen();
 
 	char buffer[10];
-	char infoBuffer[1024];
-	int infoIndex = 0;
-#define printChar(ch) infoBuffer[infoIndex++] = ch
-#define print(str)                                                             \
-	{                                                                          \
-		char *ptr = str;                                                       \
-		while (*ptr)                                                           \
-			printChar(*(ptr++));                                               \
-	}
-#define printHexPointer(ptr)                                                   \
-	print("0x");                                                               \
-	unsignedToString((uint64_t)ptr, 16, infoBuffer + infoIndex, 16);           \
-	infoIndex += 16
+
+#define printHexPointer(ptr) printHexPointer(0, ptr);
+#define printChar(str) printChar(0, str);
+#define print(str) print(0, str);
 
 	print("[x64BareBones]\n");
 
@@ -90,13 +82,10 @@ void *initializeKernelBinary() {
 	print("[Done]\n");
 
 	printChar('\n');
-	printChar('\0');
 
 #undef print
 #undef printChar
 #undef printHexPointer
-	initScreen();
-	print(0, infoBuffer);
 
 	return getStackBase();
 }

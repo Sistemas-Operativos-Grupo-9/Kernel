@@ -27,11 +27,16 @@
         },
         {
             "label": "Rebuild",
-            "dependsOn": [
-                "Clean",
-                "Build",
-            ],
-            "problemMatcher": []
+            "type": "shell",
+            "command": "./dcom colormake rebuild",
+            "problemMatcher": {
+                "base": "$gcc",
+                "fileLocation": [
+                    "relative",
+                    "${cwd}/Kernel"
+                ]
+            },
+            "group": "build"
         },
         {
             "label": "Open QEMU",
@@ -49,6 +54,8 @@
                 "gtk,zoom-to-fit=on",
                 "-rtc",
                 "base=localtime",
+                "-cpu",
+                "Nehalem",
                 // "-enable-kvm",
             ],
             "dependsOn": [
