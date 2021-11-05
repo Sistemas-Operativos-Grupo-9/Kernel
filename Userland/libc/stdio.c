@@ -26,7 +26,7 @@ void reset() {
 
 void putchar(char ch) { write(1, &ch, 1); }
 
-void puts(char *str) {
+void puts(const char *str) {
 	while (*str != '\0') {
 		putchar(*str);
 		str++;

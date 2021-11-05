@@ -1,4 +1,5 @@
 #include "syscall.h"
+#include "registers.h"
 #include "syscalls.h"
 
 uint64_t syscall(uint64_t code, uint64_t param1, uint64_t param2,
@@ -31,7 +32,11 @@ Time gettime() {
 	return time;
 }
 
-void printreg() { syscall(PRINTREG, 0, 0, 0, 0, 0); }
+struct RegistersState getRegisters() {
+	struct RegistersState out;
+	syscall(GETREGISTERS, (uint64_t)&out, 0, 0, 0, 0);
+	return out;
+}
 
 bool kill(int pid) { return syscall(KILL, pid, 0, 0, 0, 0); }
 

@@ -66,3 +66,17 @@ memmove(void *s1, const void *s2, uint64_t n) {
 
 	return s1;
 }
+
+__attribute__((used, optimize("-fno-tree-loop-distribute-patterns"))) int
+memcmp(const void *ptr1, const void *ptr2, uint64_t num) {
+	unsigned char u1, u2;
+
+	for (; num--; ptr1++, ptr2++) {
+		u1 = *(unsigned char *)ptr1;
+		u2 = *(unsigned char *)ptr2;
+		if (u1 != u2) {
+			return (u1 - u2);
+		}
+	}
+	return 0;
+}

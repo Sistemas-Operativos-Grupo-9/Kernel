@@ -1,5 +1,6 @@
 #include "keyboard.h"
 #include "Layouts/Latin American.h"
+#include "interrupts.h"
 #include "keys.h"
 #include "port.h"
 #include "process.h"
@@ -24,10 +25,16 @@
 #define K_F2 0x3C
 #define K_F3 0x3D
 #define K_F4 0x3E
+
 #define K_F5 0x3F
 #define K_F6 0x40
 #define K_F7 0x41
 #define K_F8 0x42
+
+#define K_F9 0x43
+#define K_F10 0x44
+#define K_F11 0x57
+#define K_F12 0x58
 
 #define K_KP7 0x47
 #define K_KP8 0x48
@@ -134,7 +141,8 @@ void handleSingleByteKey(uint8_t key, bool pressed) {
 			break;
 		}
 	} else if ((key == K_F1 || key == K_F2 || key == K_F3 || key == K_F4 ||
-	            key == K_F5 || key == K_F6 || key == K_F7 || key == K_F8) &&
+	            key == K_F5 || key == K_F6 || key == K_F7 || key == K_F8 ||
+	            key == K_F9 || key == K_F10 || key == K_F11 || key == K_F12) &&
 	           pressed) {
 		// if (key == K_F1) {
 		// 	setFocus(0);
@@ -153,6 +161,9 @@ void handleSingleByteKey(uint8_t key, bool pressed) {
 			focusDesktop(0);
 		} else if (key == K_F2) {
 			focusDesktop(1);
+		}
+		if (key == K_F12) {
+			_storeRegisters();
 		}
 		// sendChar(ESC);
 		// sendChar('O');

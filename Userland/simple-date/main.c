@@ -4,8 +4,6 @@
 #include <time.h>
 
 int main() {
-	char out[21];
-
 	Time time = gettime();
 	printUnsignedN(time.hours, 2, 10);
 	puts("::");

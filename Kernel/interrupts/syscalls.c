@@ -3,6 +3,7 @@
 #include "../datetime.h"
 #include "interrupts.h"
 #include "process.h"
+#include "registers.h"
 #include "time.h"
 #include "video.h"
 #include "window.h"
@@ -42,8 +43,12 @@ uint64_t proccount() { return countProcesses(); }
 
 void gettime(Time *time) { *time = getTime(); }
 
-extern void _printRegisters();
-void printreg() { _printRegisters(); }
+struct RegistersState registersState = {0};
+
+void getRegisters(struct RegistersState *out) { *out = registersState; }
+
+// extern void _printRegisters();
+// void printreg() { _printRegisters(); }
 
 bool kill(int pid) { return killProcess(pid); }
 
@@ -125,8 +130,8 @@ uint64_t syscallDispatcher(uint64_t rdi, uint64_t param1, uint64_t param2,
 	case GETTIME:
 		gettime((Time *)param1);
 		break;
-	case PRINTREG:
-		printreg();
+	case GETREGISTERS:
+		getRegisters((struct RegistersState *)param1);
 		break;
 	case KILL:
 		return kill(param1);

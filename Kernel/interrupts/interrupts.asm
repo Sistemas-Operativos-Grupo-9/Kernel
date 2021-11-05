@@ -254,41 +254,6 @@ _syscallHandler:
 	iretq
 
 
-
-%macro newLine 0
-	mov rsi, 0Ah
-	call printChar
-%endmacro
-
-%macro print64bit 1
-	mov rsi, %1
-	mov rdx, 16
-	mov rcx, 16
-	call printUnsignedN
-%endmacro
-
-%macro printRegister 1
-	pushState
-	push %1
-	call getCurrentProcess
-	mov rdi, [rax + 11]
-	push rdi
-	mov rsi, %1%+String
-	call print
-	pop rdi
-	push rdi
-	mov rsi, equalString
-	call print
-
-	pop rdi
-	pop rsi
-	push rdi
-	print64bit rsi
-	pop rdi
-	newLine
-	popState
-%endmacro
-
 ;Zero Division Exception
 _exception0Handler:
 	exceptionHandler 0
@@ -296,24 +261,29 @@ _exception0Handler:
 _exception6Handler:
 	exceptionHandler 6
 
-_printRegisters:
-	printRegister rdi
-	printRegister rsi
-	printRegister rax
-	printRegister rbx
-	printRegister rcx
-	printRegister rdx
-	printRegister rsp
-	printRegister rbp
-	; printRegister rip
-	printRegister r8
-	printRegister r9
-	printRegister r10
-	printRegister r11
-	printRegister r12
-	printRegister r13
-	printRegister r14
-	printRegister r15
+
+EXTERN registersState
+GLOBAL _storeRegisters 
+_storeRegisters:
+	mov [registersState + 0 * 8], rdi
+	mov [registersState + 1 * 8], rsi
+	mov [registersState + 2 * 8], rax
+	mov [registersState + 3 * 8], rbx
+	mov [registersState + 4 * 8], rcx
+	mov [registersState + 5 * 8], rdx
+	mov QWORD [registersState + 6 * 8], $
+	mov [registersState + 7 * 8], rsp
+	mov [registersState + 8 * 8], rbp
+	mov [registersState + 9 * 8], r8
+	mov [registersState + 10 * 8], r9
+	mov [registersState + 11 * 8], r10
+	mov [registersState + 12 * 8], r11
+	mov [registersState + 13 * 8], r12
+	mov [registersState + 14 * 8], r13
+	mov [registersState + 15 * 8], r14
+	mov [registersState + 16 * 8], r15
+	pushfq
+	pop QWORD [registersState + 17 * 8]
 	ret
 
 haltcpu:

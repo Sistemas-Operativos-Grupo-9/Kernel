@@ -16,6 +16,6 @@ void moveCursorRight();
 void moveCursorLeft();
 void reset();
 void putchar(char ch);
-void puts(char *str);
+void puts(const char *str);
 int getch();
 KeyStroke readKeyStroke(uint64_t timeout);

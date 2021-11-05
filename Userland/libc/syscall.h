@@ -12,7 +12,7 @@ uint8_t getpid();
 int execve(char *moduleName, char **argv, int argc);
 uint64_t proccount();
 Time gettime();
-void printreg();
+struct RegistersState getRegisters();
 bool kill(int pid);
 void microsleep(uint64_t micros);
 void millisleep(uint64_t millis);
