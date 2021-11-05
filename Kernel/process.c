@@ -28,13 +28,13 @@ static int focusPID = 0;
 
 static int getFreePID() {
 	static int lastPID = -1;
-	lastPID++;
 
-	if (lastPID >= sizeof(processes) / sizeof(*processes)) {
-		lastPID = 0;
-	}
-	while (processes[lastPID].active)
+	while (processes[lastPID].active) {
 		lastPID++;
+		if (lastPID >= sizeof(processes) / sizeof(*processes)) {
+			lastPID = 0;
+		}
+	}
 
 	return lastPID;
 }

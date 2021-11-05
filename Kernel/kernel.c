@@ -129,7 +129,7 @@ int main() {
 
 	createProcess(2, "hangman", NULL, 0, true);
 	createProcess(3, "chrono", NULL, 0, true);
-	char *watchArgs[] = {"date"};
+	char *watchArgs[] = {"simple-date"};
 	createProcess(4, "watch", watchArgs, 1, true);
 	createProcess(5, "sudoku", NULL, 0, true);
 
