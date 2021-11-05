@@ -3,6 +3,6 @@
 #include <syscall.h>
 
 int main() {
-	write(1, help_txt, help_txt_len);
+	write(1, (char *)help_txt, help_txt_len);
 	return 0;
 }

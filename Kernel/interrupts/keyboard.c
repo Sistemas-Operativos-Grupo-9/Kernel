@@ -212,7 +212,7 @@ void keyboard_handler() {
 		    pressed) {
 			sendChar(ESC);
 			sendChar(BRACKET);
-			char arrowChar;
+			char arrowChar = '?';
 			switch (code) {
 			case K_UP:
 				arrowChar = 'A';
