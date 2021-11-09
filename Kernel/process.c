@@ -124,16 +124,16 @@ void restartProcess() {
 	process->active = false;
 	_killAndNextProcess();
 
-	__asm__("add $8, %rsp");
-	__asm__("iretq");
+	__asm__ __volatile__("add $8, %rsp");
+	__asm__ __volatile__("iretq");
 }
 
 void terminateProcess() {
 	ProcessDescriptor *process = getCurrentProcess();
 	process->active = false;
 	_killAndNextProcess();
-	__asm__("add $8, %rsp");
-	__asm__("iretq");
+	__asm__ __volatile__("add $8, %rsp");
+	__asm__ __volatile__("iretq");
 }
 
 void processReturned() {
@@ -148,7 +148,7 @@ void processReturned() {
 
 void haltMain() {
 	while (true) {
-		__asm__("hlt");
+		__asm__ __volatile__("hlt");
 		// __asm__("nop");
 	}
 }
@@ -210,7 +210,7 @@ int createProcess(uint8_t tty, char *name, char **argv, int argc,
 	uint64_t *stack =
 	    (uint64_t
 	         *)(entryPoint + PROCESS_MEMORY -
-	            8); // Position process stack at the end of it's memory region
+	            16); // Position process stack at the end of it's memory region
 
 	memcpy((void *)entryPoint, (void *)module->address, module->size);
 
