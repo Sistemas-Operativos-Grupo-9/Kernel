@@ -176,7 +176,7 @@ uint8_t charToDigit(char digit) { return digit - '0'; }
 int main() {
 	setGraphic(true);
 	srand(millis());
-	int random = rand() % 128;
+	int random = rand() % (sizeof(sudokus) / sizeof(sudokus[0]));
 	for (int y = 0; y < 9; y++) {
 		for (int x = 0; x < 9; x++) {
 			state.sudoku[y][x] = sudokus[random][y][x];

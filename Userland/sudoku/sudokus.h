@@ -1,6 +1,6 @@
 #pragma once
 #include <stdint.h>
-static uint8_t sudokus[128][9][9] = {
+static uint8_t sudokus[64][9][9] = {
     {
         {6, 0, 4, 0, 0, 7, 0, 9, 0},
         {1, 2, 3, 0, 0, 0, 0, 0, 0},
