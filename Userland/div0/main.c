@@ -1,4 +1,7 @@
 
 #pragma GCC diagnostic ignored "-Wunused-variable"
 #pragma GCC diagnostic ignored "-Wdiv-by-zero"
-void main() { int a = 1 / 0; }
+int main() {
+	volatile int x = 0;
+	return 1 / x;
+}

@@ -10,6 +10,10 @@ SECTIONS
 	}
 	.data ALIGN(0x1000) :
 	{
+		got = .;
+		*(.got*)
+		. += 8 * 32;
+		gotEnd = .;
 		*(.data*)
 	}
 	.bss ALIGN(0x1000) :

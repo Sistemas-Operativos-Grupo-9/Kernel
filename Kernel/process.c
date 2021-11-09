@@ -5,9 +5,9 @@
 #include "lib.h"
 #include "lock.h"
 #include "moduleLoader.h"
-#include "null.h"
 #include "queue.h"
 #include "video.h"
+#include <stddef.h>
 #include <views.h>
 #define NO_PID -1
 #define HALT_PID 0

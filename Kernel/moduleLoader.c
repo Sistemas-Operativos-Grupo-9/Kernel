@@ -1,6 +1,6 @@
 #include <lib.h>
 #include <moduleLoader.h>
-#include <null.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <string.h>
 #include <video.h>

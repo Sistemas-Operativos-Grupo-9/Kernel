@@ -61,17 +61,8 @@
         "stdlib.h": "c",
         "color.h": "c",
         "window.h": "c",
-        "null.h": "c",
         "random.h": "c",
         "words.h": "c",
         "help.h": "c"
     },
-    "C_Cpp.default.systemIncludePath": [
-        "Userland/libc",
-    ],
-    "C_Cpp.default.includePath": [
-        "Kernel/include",
-        "Constants",
-    ],
-    // "editor.formatOnSave": false
 }

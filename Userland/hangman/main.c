@@ -1,7 +1,8 @@
 #include "words.h"
-#include <null.h>
 #include <print.h>
 #include <random.h>
+#include <stdbool.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <string.h>
 #include <syscall.h>
@@ -150,7 +151,15 @@ void guessLetter(char letter) {
 	}
 }
 
+void _start();
+void setupWords() {
+	for (int i = 0; i < sizeof(words) / sizeof(*words); i++) {
+		words[i] += (uint64_t)_start;
+	}
+}
+
 int main() {
+	setupWords();
 	setGraphic(true);
 	srand(millis());
 	int random = rand() % (sizeof(words) / sizeof(*words));

@@ -1,7 +1,8 @@
 #pragma once
 
 #include "keys.h"
-#include "stdbool.h"
+#include <stdbool.h>
+#include <stdint.h>
 
 typedef struct {
 	bool isPrintable;

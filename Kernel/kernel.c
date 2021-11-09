@@ -6,8 +6,8 @@
 #include "process.h"
 #include <lib.h>
 #include <moduleLoader.h>
-#include <null.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <video.h>
 
@@ -124,7 +124,7 @@ int main() {
 	char *helpArgs[] = {"--print-help"};
 
 	createProcess(0, "shell", helpArgs, 1, true);
-	// createProcess(0, "game", NULL, 0, true);
+	// createProcess(0, "hangman", NULL, 0, true);
 	createProcess(1, "shell", NULL, 0, true);
 
 	createProcess(2, "hangman", NULL, 0, true);
