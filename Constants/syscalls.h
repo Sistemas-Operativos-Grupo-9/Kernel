@@ -18,6 +18,7 @@ enum Syscalls {
 	GETWINDOWINFO = 110,
 	DRAWBITMAP,
 	FLIP,
+	SWITCHTODESKTOP,
 };
 
 enum Figures {

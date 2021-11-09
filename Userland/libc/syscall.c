@@ -82,3 +82,7 @@ WindowInfo getWindowInfo() {
 }
 
 void flip() { syscall(FLIP, 0, 0, 0, 0, 0); }
+
+void switchToDesktop(uint8_t desktop) {
+	syscall(SWITCHTODESKTOP, desktop, 0, 0, 0, 0);
+}

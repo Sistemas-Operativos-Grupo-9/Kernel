@@ -114,6 +114,8 @@ void getWindowInfo(WindowInfo *windowInfo) {
 
 void flipCall() { flip(getCurrentProcess()->tty); }
 
+void switchToDesktop(uint8_t desktop) { focusDesktop(desktop); }
+
 uint64_t syscallDispatcher(uint64_t rdi, uint64_t param1, uint64_t param2,
                            uint64_t param3, uint64_t param4, uint64_t param5) {
 	switch (rdi) {
@@ -157,6 +159,9 @@ uint64_t syscallDispatcher(uint64_t rdi, uint64_t param1, uint64_t param2,
 		break;
 	case FLIP:
 		flipCall();
+		break;
+	case SWITCHTODESKTOP:
+		switchToDesktop(param1);
 		break;
 	}
 	return 0;
