@@ -317,7 +317,7 @@ static bool isPrintable(unsigned char ch) {
 static void reDrawViewBorders(uint8_t viewNumber) {
 	struct View *view = Views[viewNumber];
 
-	Color color = getViewNumber(view) == focusedView ? LIGHT_SALMON : GREY;
+	Color color = getViewNumber(view) == focusedView ? LIGHT_BLUE : GREY;
 	drawRectangleBorders(getOffsetX() + (view->positionX * FINAL_FONT_WIDTH),
 	                     getOffsetY() + (view->positionY * FINAL_FONT_HEIGHT),
 	                     view->width * FINAL_FONT_WIDTH,

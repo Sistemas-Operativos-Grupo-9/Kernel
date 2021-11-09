@@ -13,6 +13,8 @@ typedef struct {
 	(Color) { 255, 255, 255 }
 #define BLUE                                                                   \
 	(Color) { 255, 0, 0 }
+#define LIGHT_BLUE                                                             \
+	(Color) { 200, 80, 80 }
 #define GREEN                                                                  \
 	(Color) { 0, 255, 0 }
 #define RED                                                                    \

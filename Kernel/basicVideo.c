@@ -1,7 +1,6 @@
 
-#include <stdbool.h>
-// #include "Fonts/monogram.h"
 #include "basicVideo.h"
+#include <stdbool.h>
 
 mode_info_block *const infoBlock = (mode_info_block *)0x0000000000005C00;
 
@@ -34,7 +33,9 @@ void setCharOffset(uint16_t widthCount, uint16_t heightCount) {
 void drawCharAtFree(void(setPixel)(Color, uint16_t, uint16_t), char ch,
                     uint16_t x, uint16_t y, Color background,
                     Color foreground) {
-	FONT_ROW_TYPE *l = font_letters[font_mapping[(uint8_t)ch]];
+	FONT_ROW_TYPE *l =
+	    source_code_pro__regular_letters[source_code_pro__regular_mapping[(
+	        uint8_t)ch]];
 	for (int fontY = 0; fontY < FONT_HEIGHT; fontY++) {
 		for (int fontX = 0; fontX < FONT_WIDTH; fontX++) {
 			int val =

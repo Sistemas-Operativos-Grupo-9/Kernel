@@ -8,5 +8,5 @@
 #define FONT_HEIGHT 24
 #define FONT_BPP 2
 typedef uint32_t FONT_ROW_TYPE;
-extern uint32_t ubuntu_mono__regular_letters[189][24];
-extern uint8_t ubuntu_mono__regular_mapping[256];
+extern uint32_t fixedsys__excelsior_3_01__regular_letters[189][24];
+extern uint8_t fixedsys__excelsior_3_01__regular_mapping[256];
