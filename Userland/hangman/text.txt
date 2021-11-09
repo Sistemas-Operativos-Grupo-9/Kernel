@@ -1,0 +1,68 @@
+Implementar un kernel que administre los recursos de hardware de una computadora 
+y muestre características del modo protegido de Intel. 
+ 
+Enunciado 
+ 
+Implementar un kernel booteable por Pure64, modificado y provisto por la cátedra. El 
+mismo debe administrar los recursos de hardware y proveer una API para que aplicaciones 
+de usuarios puedan utilizar estos recursos. 
+  Se deben definir dos espacios claramente separados, uno kernel space y el otro user space. El espacio del kernel interactuará directamente con el hardwaremediante drivers, mientras al mismo tiempo proveerá funciones al user space. El espacio de usuario no debe acceder por ninguna razón directamente al hardware, sólo a través del espacio de kernel. En la Figura 1se puede ver un ejemplo de los módulos que conforman el espacio de usuario y los módulos que conforman el espacio de kernel. 
+  Se deberá definir una API con la cual el espacio de usuario puede acceder a las 
+funciones del kernel. Este acceso deberá ser implementado a través de la interrupción de 
+software 80h, ya que estos dos módulos se encuentran en distintos espacios de memoria. 
+Dicha API deberá basarse en la API de Linux, que está comprendida por funciones como 
+read ywrite. 
+ 
+Además se deberá definir un set de funciones para interactuar con dicha API, 
+deberá formar parte al equivalente en Linux a la biblioteca estándar de C. En la cual, se 
+deberá estar basado. Por ejemplo, deberá contar con funciones como scanf, printf, 
+putChar, getChar. 
+ 
+La implementación del sistema deberá contar con los siguiente: 
+ 
+  Se dispondrá de un intérprete de comandos que demuestre el funcionamiento 
+del kernel . Deberá tomar dichos comandos por entrada estándar y mostrar el 
+resultado de la ejecución por salida estándar. El intérprete deberá interactuar 
+con el sistema mediante un modelo de Terminal. Cada intérprete de comandos 
+deberá siempre despegar su prompt para ingreso de nuevos comandos en la 
+línea inferior de su parte de la pantalla y cada vez que se muestre una nueva 
+línea se deberá desplazar las líneas de información ya existentes hacia arriba 
+eliminando la línea más antigua si fuera necesario. 
+ 
+●  Funcionalidades: 
+Arquitecturas de las Computadoras  ITBA 
+ 
+1.  Una función de ayuda, que muestre los distintos programas 
+disponibles. 
+2.  Intérprete de comandos, tipo Shell que desencadene las 
+distintas funcionalidades. 
+3.  El kernel deberá poder manejar dos tipos de excepciones : división 
+por cero y código de operación inválido. Ante estas excepciones se 
+deberá desplegar información sobre el tipo de error, instruction pointer 
+y registros en el momento del error. 
+4.  Módulos/comandos para verificar el funcionamiento de las rutinas 
+de excepción antes descritas. 
+5.  Desarrolle el comando "inforeg" que imprime en pantalla el valor de todos 
+los registros. 
+6.  Desarrolle el comando "printmem" el cual recibe como argumento 
+un puntero y realiza en memoria un volcado de memoria de 32 
+bytes a partir de la dirección recibida como argumento. 
+7.  Módulo/comando para desplegar el día y  la hora del sistema. 
+8.  Cuando el sistema arranca, debe preguntar qué módulo se desea 
+correr 
+9.  EL sistema debera disponer de un comando disponible a traves del shell 
+descripto anteriormente con el cual la pantalla se dividirá en cuatro 
+ventanas con las siguientes funciones: 
+a.  en una ventana se desplegará la hora en formato hh::mm:ss 
+actualizándose permanentemente 
+b.  En otra ventana se dispondrá de un cronómetro con décimas de segundo 
+que se operaŕá desde el teclado 
+c.  En una tercera ventana se podrá jugar al sudoku detectando la 
+finalización del juego y posibles jugadas inválidas (numero repetido en 
+fila, columna o cuadrante interior) 
+d.  En la cuarta ventana se podrá jugar al “ahorcado” 
+e.  Las cuatro ventanas deberán funcionar y deberán poder ser 
+operadas serán operadas en forma simultánea.| 
+ 
+Cualquier otra función que el grupo considere apropiada para mostrar el 
+funcionamiento interno del sistema
