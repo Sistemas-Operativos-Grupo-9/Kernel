@@ -10,7 +10,7 @@ def getSudoku(i):
         "https://sugoku.herokuapp.com/board?difficulty=easy").json()['board']
 
 
-sudokus = list(process_map(getSudoku, range(128), max_workers=4))
+sudokus = list(process_map(getSudoku, range(32), max_workers=4))
 print(sudokus)
 
 cw = CodeWriter()
