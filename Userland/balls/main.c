@@ -117,7 +117,7 @@ int main() {
 	int start = millis();
 	int last = start;
 	int current;
-	while (((current = millis()) - start) / 2000 < 2) {
+	while (((current = millis()) - start) / 1000 < 2) {
 		state = loop(state, (float)(current - last) / 1000);
 		render(state);
 		last = current;

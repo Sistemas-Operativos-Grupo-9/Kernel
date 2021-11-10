@@ -6,7 +6,7 @@ chrono: time stopwatch:
 date: prints the current date and time in ISO 8601.
 div0: causes a division by zero interrupt.
 hangman: classic hangman game.
-help: prints this help
+help: prints this help message
 inforeg: prints all the basic registers and its values.
 jobs: prints the count of running processes.
 kill: kills a process by PID.
@@ -29,4 +29,4 @@ sudoku: classic sudoku puzzle:
     0-9 digits for writing to the cursor location.
     "q" for quitting.
 watch: Usage: watch <program> [n=1000]
-    runs program periodically every n milliseconds.
+    runs program periodically every n milliseconds until "q" is pressed.
