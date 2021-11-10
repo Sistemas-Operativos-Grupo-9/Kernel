@@ -1,2 +1,2 @@
 Usage: watch <program> [n=1000]
-    runs program periodically every n milliseconds.
+    runs program periodically every n milliseconds until "q" is pressed.

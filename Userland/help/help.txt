@@ -1,1 +1,1 @@
-prints this help
+prints this help message
