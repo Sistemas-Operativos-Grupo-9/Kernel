@@ -1,0 +1,1 @@
+prints all the basic registers and its values.

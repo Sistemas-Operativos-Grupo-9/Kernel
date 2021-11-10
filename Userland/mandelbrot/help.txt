@@ -1,0 +1,6 @@
+Mandelbrot visualization program:
+    "." for zoom+.
+    "," for zoom-.
+    "l" for iterations+.
+    "k" for iterations-.
+    "q" for quitting.

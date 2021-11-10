@@ -1,0 +1,1 @@
+prints the current time of the day in HH:MM:SS format.

@@ -1,0 +1,4 @@
+classic sudoku puzzle:
+    arrows for moving the cursor.
+    0-9 digits for writing to the cursor location.
+    "q" for quitting.

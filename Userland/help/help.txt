@@ -1,14 +1,1 @@
-help:
-Available programs: 
-    help: prints this help
-    jobs: prints the running processes count
-    shell: it's the shell program
-    date: prints the current date and time in ISO 8601
-    div0: causes a division by zero interrupt
-    printmem: prints 32 bytes after the address read from arguments
-    inforeg: prints all the basic registers ans its values
-    loop: prints l o o p slowly multiple times
-    
-Shell commands: 
-    pid: prints the pid of the current shell
-    exit/quit: exits the shell
+prints this help

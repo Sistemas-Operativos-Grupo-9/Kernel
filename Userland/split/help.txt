@@ -1,0 +1,1 @@
+splits desktop into 4 windows (same as pressing F2) (come back using F1).

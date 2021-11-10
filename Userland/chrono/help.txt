@@ -1,0 +1,4 @@
+time stopwatch:
+    "space" for starting/toggling pause.
+    "backspace" for stopping.
+    "q" for quitting.

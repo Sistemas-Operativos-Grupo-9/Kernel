@@ -1,0 +1,1 @@
+prints the current date and time in ISO 8601.
