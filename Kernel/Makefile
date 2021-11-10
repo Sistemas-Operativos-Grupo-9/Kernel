@@ -44,6 +44,6 @@ $(LOADEROBJECT):
 	$(ASM) $(ASMFLAGS) $(LOADERSRC) -o $(LOADEROBJECT) -g
 
 clean:
-	rm -rf BUILD .bin
+	rm -rf BUILD *.bin*
 
 .PHONY: all clean

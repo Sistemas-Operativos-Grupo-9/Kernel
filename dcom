@@ -1,11 +1,15 @@
 #!/bin/sh
 
 dcom() {
-    docker run \
-    -v ${PWD}:"/home/osdev/OS/" \
-    --security-opt seccomp:unconfined \
-    -t alansartorio/osdev:version1.0 \
-    -c "$*";
+    docker run -v ${PWD}:/root -u 1000:1000 -w /root -ti agodio/itba-so:1.0 ${*};
 }
+
+# dcom() {
+#     docker run \
+#     -v ${PWD}:"/home/osdev/OS/" \
+#     --security-opt seccomp:unconfined \
+#     -t alansartorio/osdev:version1.0 \
+#     -c "$*";
+# }
 
 dcom $@

@@ -6,7 +6,7 @@
         {
             "label": "Build",
             "type": "shell",
-            "command": "./dcom colormake all",
+            "command": "./dcom make all",
             "problemMatcher": {
                 "base": "$gcc",
                 "fileLocation": [
@@ -22,13 +22,13 @@
         {
             "label": "Clean",
             "type": "shell",
-            "command": "./dcom colormake clean",
+            "command": "./dcom make clean",
             "problemMatcher": []
         },
         {
             "label": "Rebuild",
             "type": "shell",
-            "command": "./dcom colormake rebuild",
+            "command": "./dcom make rebuild",
             "problemMatcher": {
                 "base": "$gcc",
                 "fileLocation": [
