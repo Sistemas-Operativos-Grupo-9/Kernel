@@ -44,7 +44,6 @@ SECTION .text
 	push rsi
 	push r8
 	push r9
-	pushfq
 	push r10
 	push r11
 	push r12
@@ -60,7 +59,6 @@ SECTION .text
 	pop r12
 	pop r11
 	pop r10
-	popfq
 	pop r9
 	pop r8
 	pop rsi
@@ -92,15 +90,18 @@ SECTION .text
 
 %macro exceptionHandler 1
 	pushState
-
+	
+	push QWORD [rsp+15*8] ; get RIP from frame
+	push QWORD [rsp+(16+3)*8] ; get RSP from frame
+	push QWORD [rsp+(17+2)*8] ; get RFlags from frame
 
 	; newLine
 	; printStack
 	mov rdi, %1 ; pasaje de parametro
-	mov rsi, [rsp + 8 * 16] ; Instruction pointer
-	; mov rsi, rsp
+	mov rsi, rsp ; pasaje de parametro
 	call exceptionDispatcher
 
+	add rsp, 8*3
 	popState
 	iretq
 %endmacro
@@ -228,10 +229,23 @@ _nextProcess:
 	; sti
 	iretq
 
+EXTERN keyboard_handler
 ;Keyboard
 _irq01Handler:
-	irqHandlerMaster 1
+	pushState
+	push QWORD [rsp+15*8]
+	push QWORD [rsp+(16+3)*8]
+	push QWORD [rsp+(17+2)*8]
 
+	mov rdi, rsp ; pasaje de parametro
+	call keyboard_handler
+
+	EOI
+
+	add rsp, 3*8
+	
+	popState
+	iretq
 ;Cascade pic never called
 _irq02Handler:
 	irqHandlerMaster 2
@@ -250,7 +264,6 @@ _irq05Handler:
 
 _syscallHandler:
 	call syscallDispatcher
-
 	iretq
 
 
@@ -262,29 +275,29 @@ _exception6Handler:
 	exceptionHandler 6
 
 
-EXTERN registersState
-GLOBAL _storeRegisters 
-_storeRegisters:
-	mov [registersState + 0 * 8], rdi
-	mov [registersState + 1 * 8], rsi
-	mov [registersState + 2 * 8], rax
-	mov [registersState + 3 * 8], rbx
-	mov [registersState + 4 * 8], rcx
-	mov [registersState + 5 * 8], rdx
-	mov QWORD [registersState + 6 * 8], $
-	mov [registersState + 7 * 8], rsp
-	mov [registersState + 8 * 8], rbp
-	mov [registersState + 9 * 8], r8
-	mov [registersState + 10 * 8], r9
-	mov [registersState + 11 * 8], r10
-	mov [registersState + 12 * 8], r11
-	mov [registersState + 13 * 8], r12
-	mov [registersState + 14 * 8], r13
-	mov [registersState + 15 * 8], r14
-	mov [registersState + 16 * 8], r15
-	pushfq
-	pop QWORD [registersState + 17 * 8]
-	ret
+;EXTERN registersState
+;GLOBAL _storeRegisters 
+;_storeRegisters:
+	;mov [registersState + 0 * 8], rdi
+	;mov [registersState + 1 * 8], rsi
+	;mov [registersState + 2 * 8], rax
+	;mov [registersState + 3 * 8], rbx
+	;mov [registersState + 4 * 8], rcx
+	;mov [registersState + 5 * 8], rdx
+	;pop [registersState + 6 * 8] ; Save RIP (it has to be pushed to the stack)
+	;mov [registersState + 7 * 8], rsp
+	;mov [registersState + 8 * 8], rbp
+	;mov [registersState + 9 * 8], r8
+	;mov [registersState + 10 * 8], r9
+	;mov [registersState + 11 * 8], r10
+	;mov [registersState + 12 * 8], r11
+	;mov [registersState + 13 * 8], r12
+	;mov [registersState + 14 * 8], r13
+	;mov [registersState + 15 * 8], r14
+	;mov [registersState + 16 * 8], r15
+	;pushfq
+	;pop QWORD [registersState + 17 * 8]
+	;ret
 
 haltcpu:
 	cli

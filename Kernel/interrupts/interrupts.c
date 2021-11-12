@@ -7,3 +7,9 @@ bool getIF() {
 	                     : "=rm"(flags)::"memory");
 	return (flags & 1 << 9) != 0;
 }
+
+extern struct RegistersState registersState;
+
+void _storeRegisters(struct RegistersState *structure) {
+	registersState = *structure;
+}

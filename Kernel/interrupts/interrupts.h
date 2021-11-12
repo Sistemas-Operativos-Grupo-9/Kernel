@@ -11,6 +11,7 @@
 #include "idtLoader.h"
 #include "stdbool.h"
 #include "stdint.h"
+#include "registers.h"
 
 void _irq00Handler(void);
 void _irq01Handler(void);
@@ -31,7 +32,7 @@ void _sti(void);
 
 void _hlt(void);
 
-void _storeRegisters(void);
+void _storeRegisters(struct RegistersState *structure);
 
 void picMasterMask(uint8_t mask);
 

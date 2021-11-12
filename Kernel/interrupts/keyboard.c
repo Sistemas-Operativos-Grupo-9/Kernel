@@ -1,6 +1,7 @@
 #include "keyboard.h"
 #include "Layouts/Latin American.h"
 #include "interrupts.h"
+#include "registers.h"
 #include "keys.h"
 #include "port.h"
 #include "process.h"
@@ -88,7 +89,7 @@ void sendEOF() { getFocusedProcess()->fdTable->eof = true; }
 
 extern bool eof;
 
-void handleSingleByteKey(uint8_t key, bool pressed) {
+void handleSingleByteKey(uint8_t key, bool pressed, struct RegistersState *registers) {
 	if (key == K_LSHIFT || key == K_RSHIFT) {
 		shift = pressed;
 	} else if (key == K_CAPS) {
@@ -163,7 +164,7 @@ void handleSingleByteKey(uint8_t key, bool pressed) {
 			focusDesktop(1);
 		}
 		if (key == K_F12) {
-			_storeRegisters();
+			_storeRegisters(registers);
 		}
 		// sendChar(ESC);
 		// sendChar('O');
@@ -201,7 +202,7 @@ void handleSingleByteKey(uint8_t key, bool pressed) {
 	}
 }
 
-void keyboard_handler() {
+void keyboard_handler(struct RegistersState *registers) {
 	uint8_t key = in(0x60);
 	keyBuffer[keyBufferSize++] = key;
 	// putchar(0, ' ');
@@ -256,6 +257,6 @@ void keyboard_handler() {
 		return;
 	}
 
-	handleSingleByteKey(keyBuffer[0] & ~0x80, pressed);
+	handleSingleByteKey(keyBuffer[0] & ~0x80, pressed, registers);
 	keyBufferSize = 0;
 }

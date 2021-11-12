@@ -37,7 +37,7 @@ void printRegisters(uint8_t viewNumber) {
 	printRegs(viewNumber, s.r14, "r14", s.r15, "  r15");
 }
 
-void exceptionDispatcher(int exception, uint64_t rip) {
+void exceptionDispatcher(int exception, struct RegistersState *registers) {
 	struct ProcessDescriptor *process = getCurrentProcess();
 
 	puts(process->tty, "Exception: ");
@@ -48,13 +48,10 @@ void exceptionDispatcher(int exception, uint64_t rip) {
 	} else if (exception == 6) {
 		puts(process->tty, "Invalid opcode\n");
 	}
-	puts(process->tty, "Instruction Pointer: ");
-	printHexPointer(process->tty, (void *)rip);
-	putchar(process->tty, '\n');
 
 	// printHexPointer((void *)returnAddress);
 	// putchar('\n');
-	_storeRegisters();
+	_storeRegisters(registers);
 	printRegisters(process->tty);
 	// puts("Finished\n");
 	// while (1);
