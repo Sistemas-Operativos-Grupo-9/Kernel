@@ -1,1 +1,1 @@
-prints the count of running processes.
+prints count and information about each running process.
