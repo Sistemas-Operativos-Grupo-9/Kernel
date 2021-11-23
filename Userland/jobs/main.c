@@ -13,6 +13,9 @@ int main() {
 	puts(" processes running.\n");
 	for (int i = 0; i < count; i++) {
 		setForeground(processes[i].waiting ? RED : GREEN);
+		puts("[PID=");
+		printUnsignedN(processes[i].pid, 3, 10);
+		puts("] ");
 		puts(processes[i].name);
 		putchar(' ');
 
