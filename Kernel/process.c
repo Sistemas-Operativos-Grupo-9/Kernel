@@ -197,7 +197,6 @@ void initializeHaltProcess() {
 extern uint8_t endOfKernelStack;
 
 #define PROCESSES_START &endOfKernelStack
-#define PROCESS_MEMORY 0x200000
 
 int createProcess(uint8_t tty, char *name, char **argv, int argc,
                   bool restartOnFinish) {

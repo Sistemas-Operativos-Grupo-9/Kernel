@@ -1,6 +1,7 @@
 #include "syscall.h"
 #include "registers.h"
 #include "syscalls.h"
+#include "processes.h"
 
 static uint64_t syscall(uint64_t code, uint64_t param1, uint64_t param2,
                         uint64_t param3, uint64_t param4, uint64_t param5) {
@@ -44,6 +45,10 @@ void microsleep(uint64_t micros) { syscall(MICROSLEEP, micros, 0, 0, 0, 0); }
 void millisleep(uint64_t millis) { microsleep(millis * 1000); }
 
 uint64_t millis() { return syscall(MILLIS, 0, 0, 0, 0, 0); }
+
+uint8_t getProcesses(struct Process processes[256]) {
+	return syscall(GETPROCS, (uint64_t)processes, 0, 0, 0, 0);
+}
 
 void setGraphic(bool value) { syscall(SETGRAPHIC, value, 0, 0, 0, 0); }
 

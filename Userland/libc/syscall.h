@@ -1,6 +1,7 @@
 #pragma once
 
 #include "color.h"
+#include "processes.h"
 #include <datetime.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -17,6 +18,7 @@ bool kill(int pid);
 void microsleep(uint64_t micros);
 void millisleep(uint64_t millis);
 uint64_t millis();
+uint8_t getProcesses(struct Process processes[256]);
 void setGraphic(bool value);
 void drawCircle(uint16_t x, uint16_t y, uint16_t radius);
 void drawRectangle(uint16_t x, uint16_t y, uint16_t width, uint16_t height);

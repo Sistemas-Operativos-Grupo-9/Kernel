@@ -263,6 +263,7 @@ _irq05Handler:
 	irqHandlerMaster 5
 
 _syscallHandler:
+	sti
 	call syscallDispatcher
 	iretq
 

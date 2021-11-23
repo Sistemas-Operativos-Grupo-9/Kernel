@@ -9,6 +9,8 @@
 #include "window.h"
 #include <stdbool.h>
 #include <stdint.h>
+#include <string.h>
+#include "processes.h"
 
 int64_t read(uint64_t fd, char *buf, uint64_t count, uint64_t timeout) {
 	struct ProcessDescriptor process = *getCurrentProcess();
@@ -60,6 +62,25 @@ void microsleep(uint64_t micros) {
 }
 
 uint64_t millis() { return microseconds_elapsed() / 1000; }
+
+extern struct ProcessDescriptor processes[256];
+uint8_t getProcesses(struct Process processList[256]) {
+	int pi = 0;
+	for (int i = 0; i < 256; i++) {
+		struct ProcessDescriptor *process = getProcess(i);
+		if (process->active) {
+			processList[pi] = (struct Process) {
+				.pid = i,
+				.entryPoint = process->entryPoint,
+				.stackStart = process->entryPoint + PROCESS_MEMORY,
+				.waiting = process->waiting
+			};
+			strcpy(processList[pi].name, process->name);
+			pi++;
+		}
+	}
+	return pi;
+}
 
 void setGraphic(bool value) { setViewGraphic(getCurrentProcess()->tty, value); }
 
@@ -142,6 +163,8 @@ uint64_t syscallDispatcher(uint64_t rdi, uint64_t param1, uint64_t param2,
 		break;
 	case MILLIS:
 		return millis();
+	case GETPROCS:
+		return getProcesses((struct Process *)param1);
 	case SETGRAPHIC:
 		setGraphic(param1);
 		break;

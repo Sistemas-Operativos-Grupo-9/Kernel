@@ -9,6 +9,8 @@ struct FileDescriptor {
 	int (*write)(uint8_t tty, char *buf, uint64_t count);
 };
 
+#define PROCESS_MEMORY 0x200000
+
 typedef struct __attribute__((packed)) ProcessDescriptor {
 	void *stack;
 	bool initialized;
