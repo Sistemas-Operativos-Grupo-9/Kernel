@@ -3,8 +3,8 @@
 
 struct RegistersState {
 	uint64_t flags;
-	uint64_t rip;
 	uint64_t rsp;
+	uint64_t rip;
 
 	uint64_t r15;
 	uint64_t r14;
