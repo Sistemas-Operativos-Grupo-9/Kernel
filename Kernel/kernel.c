@@ -127,11 +127,10 @@ int main() {
 	// createProcess(0, "hangman", NULL, 0, true);
 	createProcess(1, "shell", NULL, 0, true);
 
-	createProcess(2, "hangman", NULL, 0, true);
-	createProcess(3, "chrono", NULL, 0, true);
-	char *watchArgs[] = {"simple-date"};
-	createProcess(4, "watch", watchArgs, 1, true);
-	createProcess(5, "sudoku", NULL, 0, true);
+	createProcess(2, "shell", NULL, 0, true);
+	createProcess(3, "shell", NULL, 0, true);
+	createProcess(4, "shell", NULL, 0, true);
+	createProcess(5, "shell", NULL, 0, true);
 
 	_startScheduler();
 
