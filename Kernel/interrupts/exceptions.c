@@ -1,7 +1,7 @@
 #include "interrupts.h"
 #include "process.h"
 #include "registers.h"
-#include "video.h"
+#include "graphics/video.h"
 
 #define ZERO_EXCEPTION_ID 0
 #define INVALID_OPCODE_ID 6

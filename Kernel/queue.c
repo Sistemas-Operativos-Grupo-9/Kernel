@@ -1,5 +1,5 @@
 #include "queue.h"
-#include "interrupts/interrupts.h"
+#include "interrupts.h"
 #include "lock.h"
 
 void enqueueItem(Queue *queue, void *item) {

@@ -1,9 +1,9 @@
 #include <lib.h>
 #include <myUtils.h>
 #include <stdbool.h>
-#include <video.h>
+#include <graphics/video.h>
 
-#include "basicVideo.h"
+#include "graphics/basicVideo.h"
 #include "keys.h"
 #include "process.h"
 

@@ -10,6 +10,7 @@ struct FileDescriptor {
 };
 
 #define PROCESS_MEMORY 0x200000
+#define MAX_FILE_DESCRIPTORS 3
 
 typedef struct __attribute__((packed)) ProcessDescriptor {
 	void *stack;
@@ -21,7 +22,7 @@ typedef struct __attribute__((packed)) ProcessDescriptor {
 	void *entryPoint;
 	bool active;
 	bool restart;
-	struct FileDescriptor fdTable[3];
+	struct FileDescriptor fdTable[MAX_FILE_DESCRIPTORS];
 	char **argv;
 	int argc;
 } ProcessDescriptor;

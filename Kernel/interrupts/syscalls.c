@@ -1,11 +1,12 @@
 
 #include "syscalls.h"
-#include "../datetime.h"
+#include "datetime.h"
+#include "gettime.h"
 #include "interrupts.h"
 #include "process.h"
 #include "registers.h"
 #include "time.h"
-#include "video.h"
+#include "graphics/video.h"
 #include "window.h"
 #include <stdbool.h>
 #include <stdint.h>

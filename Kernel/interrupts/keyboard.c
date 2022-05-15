@@ -5,8 +5,8 @@
 #include "keys.h"
 #include "port.h"
 #include "process.h"
-#include "video.h"
-#include "views.h"
+#include "graphics/video.h"
+#include "graphics/views.h"
 #include <stdbool.h>
 
 #define K_RETURN 0x1C

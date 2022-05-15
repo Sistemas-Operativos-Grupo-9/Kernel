@@ -1,7 +1,7 @@
 # include Makefile.inc
 
 KERNEL=kernel.bin
-SOURCES=$(shell find . -name "*.c")
+SOURCES=$(shell find . -name "*.c" -not -name ".*")
 SOURCES_ASM=$(shell find . -name "*.asm" ! -name "loader.asm")
 BUILDDIR=BUILD
 OBJECTS=$(SOURCES:%.c=$(BUILDDIR)/%.o)
@@ -18,7 +18,7 @@ CFLAGS=-m64 -fno-exceptions -fno-asynchronous-unwind-tables \
 		  -fno-pie -fno-pic -mno-mmx -fno-builtin-malloc \
 		  -fno-builtin-free -fno-builtin-realloc -mno-red-zone -fno-stack-check \
 		  -fno-stack-protector -Wall -ffreestanding -nostdlib -fno-common -std=c99 \
-		  -g -flto -Os -march=nehalem -fno-isolate-erroneous-paths-dereference
+		  -g -march=nehalem -fno-isolate-erroneous-paths-dereference -flto -Os
 LDFLAGS=-Wl,--warn-common,--oformat=elf64-x86-64,--build-id=none -static
 # LDFLAGS=--warn-common -z max-page-size=0x1000 -T kernel.ld --oformat=elf64-x86-64 -nostdlib -g
 

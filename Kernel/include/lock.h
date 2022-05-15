@@ -1,4 +1,4 @@
-#include "interrupts/interrupts.h"
+#include "interrupts.h"
 
 extern int lock_count;
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Fonts/SourceCodePro-Regular.h"
+#include "fonts/SourceCodePro-Regular.h"
 #include "color.h"
 #include <stdint.h>
 

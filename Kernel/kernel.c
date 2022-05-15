@@ -1,15 +1,15 @@
-#include "basicVideo.h"
-#include "interrupts/idtLoader.h"
-#include "interrupts/keyboard.h"
-#include "interrupts/time.h"
+#include "idtLoader.h"
+#include "keyboard.h"
+#include "time.h"
 #include "myUtils.h"
 #include "process.h"
+#include <graphics/basicVideo.h>
+#include <graphics/video.h>
 #include <lib.h>
 #include <moduleLoader.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <video.h>
 
 extern uint8_t text;
 extern uint8_t rodata;

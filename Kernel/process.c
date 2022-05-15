@@ -1,18 +1,20 @@
 
 #include "process.h"
-#include "interrupts/interrupts.h"
-#include "interrupts/time.h"
+#include "interrupts.h"
+#include "time.h"
 #include "lib.h"
 #include "lock.h"
 #include "moduleLoader.h"
 #include "queue.h"
-#include "video.h"
+#include "graphics/video.h"
 #include <stddef.h>
-#include <views.h>
+#include <graphics/views.h>
 #define NO_PID -1
 #define HALT_PID 0
 
-static struct ProcessDescriptor processes[256];
+#define MAX_PROCESS_COUNT 256
+
+static struct ProcessDescriptor processes[MAX_PROCESS_COUNT];
 static uint64_t maxProcessCount = sizeof(processes) / sizeof(*processes);
 extern bool schedulerEnabled;
 bool schedulerEnabled = false;
