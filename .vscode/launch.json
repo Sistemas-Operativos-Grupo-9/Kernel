@@ -1,26 +1,21 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "type": "gdb",
-            "request": "attach",
-            "name": "Attach to gdbserver",
-            // "executable": "Kernel/kernel.bin.elf",
-            "target": ":1234",
-            "remote": true,
-            "cwd": "${workspaceRoot}",
-            "valuesFormatting": "parseText",
-            "preLaunchTask": "Open QEMU",
-            "postDebugTask": "Close QEMU",
-            // "autorun": [
-            //     "add-symbol-file Kernel/kernel.bin.elf 0x100000",
-            //     // "add-symbol-file Userland/BUILD/shell.bin.elf 0x500000",
-            //     // "add-symbol-file Userland/BUILD/shell.bin.elf 0x600000",
-            //     "set dissasembly-flavor intel"
-            // ],
-        }
-    ]
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Attach to gdbserver",
+      "type": "lldb",
+      "request": "custom",
+      "targetCreateCommands": [
+        "target create \"Kernel/kernel.bin.elf\""
+      ],
+      "processCreateCommands": [
+        "gdb-remote 1234"
+      ],
+      "initCommands": [
+        "settings append target.source-map . Kernel",
+        "settings append target.source-map . Kernel/interrupts",
+        "settings append target.source-map . Kernel/Fonts"
+      ]
+    }
+  ]
 }

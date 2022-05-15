@@ -9,7 +9,7 @@ CFLAGS = -I../libc -I../../Constants -m64 -fno-exceptions -std=c99 \
 		 -Wall -ffreestanding -nostdlib -fno-common -mno-red-zone \
 		 -mno-mmx -fno-builtin-malloc -fno-builtin-free \
 		 -fno-builtin-realloc -fno-stack-check -fno-stack-protector \
-		 -g -fpie -fpic -fdata-sections -ffunction-sections -march=nehalem #-Os -flto
+		 -g -fpie -fpic -fdata-sections -ffunction-sections -march=nehalem -flto # -Os -flto
 LDFLAGS = -Wl,--warn-common,--build-id=none,-pie,--oformat=elf64-x86-64,--gc-sections -static
 LDLIBS = -L../libc
 
