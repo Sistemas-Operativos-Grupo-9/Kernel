@@ -1,14 +1,14 @@
 
 #include "process.h"
+#include "graphics/video.h"
 #include "interrupts.h"
-#include "time.h"
 #include "lib.h"
 #include "lock.h"
 #include "moduleLoader.h"
 #include "queue.h"
-#include "graphics/video.h"
-#include <stddef.h>
+#include "time.h"
 #include <graphics/views.h>
+#include <stddef.h>
 #define NO_PID -1
 #define HALT_PID 0
 
@@ -116,20 +116,6 @@ bool killProcess(int pid) {
 	return true;
 }
 
-// TODO: Disable restarting and mode it to a restarting program.
-void restartProcess() {
-	ProcessDescriptor *process = getCurrentProcess();
-	// puts(process->tty, "Restarting process...\n");
-	createProcess(process->tty, process->name, process->argv, process->argc,
-	              true);
-
-	process->active = false;
-	_killAndNextProcess();
-
-	__asm__ __volatile__("add $8, %rsp");
-	__asm__ __volatile__("iretq");
-}
-
 void terminateProcess() {
 	ProcessDescriptor *process = getCurrentProcess();
 	process->active = false;
@@ -142,10 +128,7 @@ void processReturned() {
 	_cli();
 	// register int retCode __asm__("eax");
 	childDeadUpdate();
-	if (processes[PID].restart)
-		restartProcess();
-	else
-		terminateProcess();
+	terminateProcess();
 }
 
 void haltMain() {
@@ -191,7 +174,6 @@ void initializeHaltProcess() {
 	                .write = (int (*)(uint8_t, char *, uint64_t))writeTTY},
 	        },
 	    .active = true,
-	    .restart = false,
 	    .stack = stack,
 	    .entryPoint = haltMain};
 	processes[HALT_PID] = haltProcess;
@@ -225,8 +207,8 @@ int createProcess(uint8_t tty, char *name, char **argv, int argc,
 	*--stack = (uint64_t)entryPoint;
 	*--stack = 0;
 	*--stack = 0; // Stack return address (changed in _switchContext)
-	*--stack = (uint64_t)argv;
 	*--stack = (uint64_t)argc;
+	*--stack = (uint64_t)argv;
 	for (int i = 0; i < 15; i++)
 		*--stack = 0;
 	// stack -= 14; // 16 - 2
@@ -245,11 +227,8 @@ int createProcess(uint8_t tty, char *name, char **argv, int argc,
 	                .write = (int (*)(uint8_t, char *, uint64_t))writeTTY},
 	        },
 	    .active = true,
-	    .restart = restartOnFinish,
 	    .stack = stack,
 	    .entryPoint = entryPoint,
-	    .argc = argc,
-	    .argv = argv,
 	};
 	enqueueItem(&readyQueue, &processes[pid]);
 	END_LOCK;

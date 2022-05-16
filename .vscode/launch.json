@@ -6,16 +6,24 @@
       "type": "lldb",
       "request": "custom",
       "targetCreateCommands": [
-        "target create \"Kernel/kernel.bin.elf\""
+        "target create \"Kernel/kernel.bin.elf\"",
+        "target modules add Userland/BUILD/rerun.bin.elf",
+        "target modules load --file rerun.bin.elf --slide 0xb00000",
+        // "target modules load --file rerun.bin.elf --slide 0x1700000",
+        // "target modules add Userland/BUILD/shell.bin.elf",
+        // "target modules load --file shell.bin.elf --slide 0xb00000",
       ],
       "processCreateCommands": [
         "gdb-remote 1234"
       ],
       "initCommands": [
+        "settings append target.source-map /root .",
         "settings append target.source-map . Kernel",
         "settings append target.source-map . Kernel/interrupts",
-        "settings append target.source-map . Kernel/Fonts"
-      ]
+        "settings append target.source-map . Kernel/graphics"
+      ],
+      "preLaunchTask": "Open QEMU",
+      "postDebugTask": "Close QEMU"
     }
   ]
 }

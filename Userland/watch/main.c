@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <syscall.h>
 
-int main(char **argv, int argc) {
+int main(int argc, char **argv) {
 	if (argc == 0) {
 		return -1;
 	}

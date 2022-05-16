@@ -1,8 +1,8 @@
 #include "idtLoader.h"
 #include "keyboard.h"
-#include "time.h"
 #include "myUtils.h"
 #include "process.h"
+#include "time.h"
 #include <graphics/basicVideo.h>
 #include <graphics/video.h>
 #include <lib.h>
@@ -121,16 +121,15 @@ int main() {
 	// createProcess(1, "random", sampleCodeModuleAddress, (uint64_t *)shell -
 	// 1);
 	initializeHaltProcess();
-	char *helpArgs[] = {"--print-help"};
+	char *helpArgs[] = {"shell", "--print-help"};
+	char *args[] = {"shell"};
 
-	createProcess(0, "shell", helpArgs, 1, true);
-	// createProcess(0, "hangman", NULL, 0, true);
-	createProcess(1, "shell", NULL, 0, true);
-
-	createProcess(2, "shell", NULL, 0, true);
-	createProcess(3, "shell", NULL, 0, true);
-	createProcess(4, "shell", NULL, 0, true);
-	createProcess(5, "shell", NULL, 0, true);
+	createProcess(0, "rerun", helpArgs, 2, true);
+	createProcess(1, "rerun", args, 1, true);
+	createProcess(2, "rerun", args, 1, true);
+	createProcess(3, "rerun", args, 1, true);
+	createProcess(4, "rerun", args, 1, true);
+	createProcess(5, "rerun", args, 1, true);
 
 	_startScheduler();
 

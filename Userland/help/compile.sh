@@ -1,6 +1,6 @@
 #!/bin/sh
 
-helpFiles=$(find ../* -name help.txt)
+helpFiles=$(find ../* -name help.txt -not -path "**/.*/help.txt")
 
 exec 3>"compiled.txt"
 

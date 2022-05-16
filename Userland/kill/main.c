@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <syscall.h>
 
-int main(char **argv, int argc) {
+int main(int argc, char **argv) {
 	if (argc != 1) {
 		puts("Usage: kill <pid>\n");
 		return -1;

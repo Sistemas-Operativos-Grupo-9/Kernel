@@ -21,10 +21,7 @@ typedef struct __attribute__((packed)) ProcessDescriptor {
 	char *name;
 	void *entryPoint;
 	bool active;
-	bool restart;
 	struct FileDescriptor fdTable[MAX_FILE_DESCRIPTORS];
-	char **argv;
-	int argc;
 } ProcessDescriptor;
 
 extern void _startScheduler();

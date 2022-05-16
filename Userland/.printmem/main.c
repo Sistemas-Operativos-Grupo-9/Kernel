@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int main(char **argv, int argc) {
+int main(int argc, char **argv) {
 	if (argc != 1) {
 		puts("Usage: printmem <pointer (without 0x)>\n");
 		return -1;

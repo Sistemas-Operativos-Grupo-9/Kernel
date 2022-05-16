@@ -1,32 +1,11 @@
-balls: random colored balls bouncing (graphic mode).
-chrono: time stopwatch:
-    "space" for starting/toggling pause.
-    "backspace" for stopping.
-    "q" for quitting.
 date: prints the current date and time in ISO 8601.
-div0: causes a division by zero interrupt.
-hangman: classic hangman game.
 help: prints this help message
-inforeg: prints all the basic registers and its values.
-jobs: prints the count of running processes.
+jobs: prints count and information about each running process.
 kill: kills a process by PID.
-loop: prints l o o p slowly multiple times
-mandelbrot: Mandelbrot visualization program:
-    "." for zoom+.
-    "," for zoom-.
-    "l" for iterations+.
-    "k" for iterations-.
-    "q" for quitting.
-printmem: prints 32 bytes after the address read from arguments.
 shell: it's the shell program:
     Shell extra commands: 
         pid: prints the pid of the current shell.
         exit/quit: exits the shell.
 simple-date: prints the current time of the day in HH:MM:SS format.
-split: splits desktop into 4 windows (same as pressing F2) (come back using F1).
-sudoku: classic sudoku puzzle:
-    arrows for moving the cursor.
-    0-9 digits for writing to the cursor location.
-    "q" for quitting.
 watch: Usage: watch <program> [n=1000]
     runs program periodically every n milliseconds until "q" is pressed.

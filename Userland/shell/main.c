@@ -132,7 +132,7 @@ bool execCommand(char *command) {
 	return false;
 }
 
-int main(char **argv, int argc) {
+int main(int argc, char **argv) {
 	if (argc == 1 && strcmp(argv[0], "--print-help") == 0) {
 		puts("Use PgUp and PgDown to scroll.\n");
 		puts("View command history with up and down arrows.\n");
