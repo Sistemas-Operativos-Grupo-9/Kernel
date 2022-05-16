@@ -9,9 +9,9 @@
 #define INTERRUPS_H_
 
 #include "idtLoader.h"
+#include "registers.h"
 #include "stdbool.h"
 #include "stdint.h"
-#include "registers.h"
 
 void _irq00Handler(void);
 void _irq01Handler(void);

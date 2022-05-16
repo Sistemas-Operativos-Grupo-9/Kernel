@@ -1,9 +1,9 @@
+#include <graphics/video.h>
 #include <lib.h>
 #include <moduleLoader.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
-#include <graphics/video.h>
 
 static struct Module modules[32] = {};
 static uint32_t moduleCount = 0;

@@ -1,7 +1,7 @@
 #include "syscall.h"
+#include "processes.h"
 #include "registers.h"
 #include "syscalls.h"
-#include "processes.h"
 
 static uint64_t syscall(uint64_t code, uint64_t param1, uint64_t param2,
                         uint64_t param3, uint64_t param4, uint64_t param5) {

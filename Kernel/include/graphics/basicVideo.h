@@ -1,7 +1,7 @@
 #pragma once
 
-#include "fonts/SourceCodePro-Regular.h"
 #include "color.h"
+#include "fonts/SourceCodePro-Regular.h"
 #include <stdint.h>
 
 typedef struct __attribute__((packed)) {

@@ -1,7 +1,7 @@
+#include <graphics/video.h>
 #include <lib.h>
 #include <myUtils.h>
 #include <stdbool.h>
-#include <graphics/video.h>
 
 #include "graphics/basicVideo.h"
 #include "keys.h"

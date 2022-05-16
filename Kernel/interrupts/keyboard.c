@@ -1,12 +1,12 @@
 #include "keyboard.h"
 #include "Layouts/Latin American.h"
+#include "graphics/video.h"
+#include "graphics/views.h"
 #include "interrupts.h"
-#include "registers.h"
 #include "keys.h"
 #include "port.h"
 #include "process.h"
-#include "graphics/video.h"
-#include "graphics/views.h"
+#include "registers.h"
 #include <stdbool.h>
 
 #define K_RETURN 0x1C
@@ -89,7 +89,8 @@ void sendEOF() { getFocusedProcess()->fdTable->eof = true; }
 
 extern bool eof;
 
-void handleSingleByteKey(uint8_t key, bool pressed, struct RegistersState *registers) {
+void handleSingleByteKey(uint8_t key, bool pressed,
+                         struct RegistersState *registers) {
 	if (key == K_LSHIFT || key == K_RSHIFT) {
 		shift = pressed;
 	} else if (key == K_CAPS) {

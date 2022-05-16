@@ -1,7 +1,7 @@
 
 #include "graphics/views.h"
-#include "process.h"
 #include "graphics/video.h"
+#include "process.h"
 
 static struct View {
 	char inputBuffer[128];

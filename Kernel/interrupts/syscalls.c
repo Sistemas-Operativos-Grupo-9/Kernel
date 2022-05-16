@@ -2,16 +2,16 @@
 #include "syscalls.h"
 #include "datetime.h"
 #include "gettime.h"
+#include "graphics/video.h"
 #include "interrupts.h"
 #include "process.h"
+#include "processes.h"
 #include "registers.h"
 #include "time.h"
-#include "graphics/video.h"
 #include "window.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
-#include "processes.h"
 
 int64_t read(uint64_t fd, char *buf, uint64_t count, uint64_t timeout) {
 	struct ProcessDescriptor process = *getCurrentProcess();
@@ -70,11 +70,11 @@ uint8_t getProcesses(struct Process processList[256]) {
 	for (int i = 0; i < 256; i++) {
 		struct ProcessDescriptor *process = getProcess(i);
 		if (process->active) {
-			processList[pi] = (struct Process) {
-				.pid = i,
-				.entryPoint = process->entryPoint,
-				.stackStart = process->entryPoint + PROCESS_MEMORY,
-				.waiting = process->waiting
+			processList[pi] = (struct Process){
+			    .pid = i,
+			    .entryPoint = process->entryPoint,
+			    .stackStart = process->entryPoint + PROCESS_MEMORY,
+			    .waiting = process->waiting,
 			};
 			strcpy(processList[pi].name, process->name);
 			pi++;

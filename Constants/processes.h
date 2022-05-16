@@ -9,4 +9,3 @@ struct Process {
 	void *stackStart;
 	bool waiting;
 };
-
