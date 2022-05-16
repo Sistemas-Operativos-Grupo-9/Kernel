@@ -18,6 +18,7 @@
       ],
       "initCommands": [
         "settings append target.source-map /root .",
+        "settings append target.source-map /home/osdev/OS .",
         "settings append target.source-map . Kernel",
         "settings append target.source-map . Kernel/interrupts",
         "settings append target.source-map . Kernel/graphics"
