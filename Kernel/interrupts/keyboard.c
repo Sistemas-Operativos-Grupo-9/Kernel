@@ -4,9 +4,9 @@
 #include "graphics/views.h"
 #include "interrupts.h"
 #include "keys.h"
-#include "port.h"
 #include "process.h"
 #include "registers.h"
+#include "x86.h"
 #include <stdbool.h>
 
 #define K_RETURN 0x1C
