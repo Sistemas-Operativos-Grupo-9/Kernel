@@ -9,7 +9,7 @@ extern int lock_count;
 	} while (0)
 #define END_LOCK                                                               \
 	do {                                                                       \
-		if (--lock_count)                                                      \
+		if (--lock_count == 0)                                                 \
 			_sti();                                                            \
 	} while (0)
 

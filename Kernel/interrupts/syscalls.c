@@ -4,6 +4,7 @@
 #include "gettime.h"
 #include "graphics/video.h"
 #include "interrupts.h"
+#include "lock.h"
 #include "process.h"
 #include "processes.h"
 #include "registers.h"
@@ -31,7 +32,8 @@ uint8_t getpid() { return getProcessPID(getCurrentProcess()); }
 
 int execve(char *moduleName, char **argv, int argc) {
 	struct ProcessDescriptor *process = getCurrentProcess();
-	int pid = createProcess(process->tty, moduleName, argv, argc, false);
+	LOCK(int pid = createProcess(process->tty, moduleName, argv, argc, false);)
+	/*int pid = createProcess(process->tty, moduleName, argv, argc, false);*/
 	if (pid == -1)
 		return -1;
 	_sti();
