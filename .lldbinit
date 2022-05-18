@@ -1,0 +1,12 @@
+settings set target.x86-disassembly-flavor intel
+
+target create "Kernel/kernel.bin.elf"
+target modules add "Userland/BUILD/rerun.bin.elf"
+target modules load --file rerun.bin.elf --slide 0xb00000
+settings append target.source-map /root .
+settings append target.source-map /home/osdev/OS .
+settings append target.source-map . Kernel
+settings append target.source-map . Kernel/interrupts
+settings append target.source-map . Kernel/graphics
+
+gdb-remote 1234
