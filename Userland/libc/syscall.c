@@ -91,3 +91,27 @@ void flip() { syscall(FLIP, 0, 0, 0, 0, 0); }
 void switchToDesktop(uint8_t desktop) {
 	syscall(SWITCHTODESKTOP, desktop, 0, 0, 0, 0);
 }
+
+SID semInit(const char *name, semValue value) {
+	return syscall(SEMINIT, (uint64_t)name, value, 0, 0, 0);
+}
+
+bool semClose(SID sem) {
+	return syscall(SEMCLOSE, sem, 0, 0, 0, 0);
+}
+
+bool semWait(SID sem) {
+	return syscall(SEMWAIT, sem, 0, 0, 0, 0);
+}
+
+bool semPost(SID sem) {
+	return syscall(SEMPOST, sem, 0, 0, 0, 0);
+}
+
+SID semOpen(const char *name) {
+	return syscall(SEMINIT, (uint64_t)name, 0, 0, 0, 0);
+}
+
+void semPrintList() {
+	syscall(SEMPRINTLIST, 0, 0, 0, 0, 0);
+}

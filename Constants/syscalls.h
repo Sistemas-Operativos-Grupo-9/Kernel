@@ -4,6 +4,14 @@
 enum Syscalls {
 	READ = 0,
 	WRITE = 1,
+
+	SEMPOST = 10,
+	SEMWAIT,
+	SEMINIT,
+	SEMOPEN,
+	SEMCLOSE,
+	SEMPRINTLIST,
+
 	GETPID = 39,
 	EXECVE = 59,
 	KILL = 62,

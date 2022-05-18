@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <string.h>
+#include <stddef.h>
 
 __attribute__((used, optimize("-fno-tree-loop-distribute-patterns"))) void *
 memset(void *destination, int32_t c, uint64_t length) {
@@ -57,6 +58,33 @@ void strcpy(char *dst, const char *src) {
 	} while (*(dst - 1) != '\0');
 }
 
+// https://www.techiedelight.com/implement-strncpy-function-c/
+char* strncpy(char* destination, const char* source, uint64_t num)
+{
+    // return if no memory is allocated to the destination
+    if (destination == NULL) {
+        return NULL;
+    }
+ 
+    // take a pointer pointing to the beginning of the destination string
+    char* ptr = destination;
+ 
+    // copy first `num` characters of C-string pointed by source
+    // into the array pointed by destination
+    while (*source && num--)
+    {
+        *destination = *source;
+        destination++;
+        source++;
+    }
+ 
+    // null terminate destination string
+    *destination = '\0';
+ 
+    // the destination is returned by standard `strncpy()`
+    return ptr;
+}
+
 int strcmp(char *str1, char *str2) {
 	do {
 		if (*str1 > *str2)
@@ -65,4 +93,23 @@ int strcmp(char *str1, char *str2) {
 			return -1;
 	} while (*str1++ != '\0' && *str2++ != '\0');
 	return 0;
+}
+
+// https://stackoverflow.com/questions/32560167/strncmp-implementation
+int strncmp( const char * s1, const char * s2, uint64_t n )
+{
+    while ( n && *s1 && ( *s1 == *s2 ) )
+    {
+        ++s1;
+        ++s2;
+        --n;
+    }
+    if ( n == 0 )
+    {
+        return 0;
+    }
+    else
+    {
+        return ( *(unsigned char *)s1 - *(unsigned char *)s2 );
+    }
 }

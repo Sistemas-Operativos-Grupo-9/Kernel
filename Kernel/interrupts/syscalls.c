@@ -8,6 +8,7 @@
 #include "process.h"
 #include "processes.h"
 #include "registers.h"
+#include "semaphore.h"
 #include "time.h"
 #include "window.h"
 #include <stdbool.h>
@@ -146,6 +147,21 @@ uint64_t syscallDispatcher(uint64_t rdi, uint64_t param1, uint64_t param2,
 		return read(param1, (char *)param2, param3, param4);
 	case WRITE: // getChar
 		return write(param1, (char *)param2, param3);
+
+	case SEMPOST:
+		return semPost(param1);
+	case SEMWAIT:
+		return semWait(param1);
+	case SEMINIT:
+		return semInit((char *)param1, param2);
+	case SEMOPEN:
+		return semOpen((char *)param1);
+	case SEMCLOSE:
+		return semClose(param1);
+	case SEMPRINTLIST:
+		semPrintList();
+		break;
+
 	case GETPID: // getChar
 		return getpid();
 	case EXECVE: // getChar

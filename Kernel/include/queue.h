@@ -11,3 +11,4 @@ typedef struct Queue {
 void enqueueItem(Queue *queue, void *item);
 void *dequeueItem(Queue *queue);
 uint64_t getLength(Queue *queue);
+void queueIterate(Queue *queue, void (*fn)(void *));

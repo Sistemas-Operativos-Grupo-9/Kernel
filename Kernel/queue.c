@@ -27,3 +27,9 @@ uint64_t getLength(Queue *queue) {
 	}
 	return (uint64_t)length;
 }
+
+void queueIterate(Queue *queue, void (*fn)(void *)) {
+	for (uint16_t i = queue->tail; i != queue->head; i = (i + 1) % QUEUE_SIZE) {
+		fn(queue->items[i]);
+	}
+}

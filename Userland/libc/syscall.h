@@ -2,6 +2,7 @@
 
 #include "color.h"
 #include "processes.h"
+#include "semaphores.h"
 #include <datetime.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -30,3 +31,10 @@ void drawText(char *text, uint16_t x, uint16_t y, bool center);
 void drawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
 void flip();
 void switchToDesktop(uint8_t desktop);
+
+SID semInit(const char *name, semValue value);
+bool semClose(SID sem);
+bool semWait(SID sem);
+bool semPost(SID sem);
+SID semOpen(const char *name);
+void semPrintList();
