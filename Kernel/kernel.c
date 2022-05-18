@@ -11,6 +11,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+size_t *mem_amount = (size_t *)(0x0000000000005A00 + 132);
+
 extern uint8_t text;
 extern uint8_t rodata;
 extern uint8_t data;

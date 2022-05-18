@@ -191,7 +191,9 @@ _irq00Handler:
 	call _switchContext
 	add rsp, 8
 	ret00:
+	push rax
 	EOI
+	pop rax
 	iretq
 
 ;nextProcess interruption

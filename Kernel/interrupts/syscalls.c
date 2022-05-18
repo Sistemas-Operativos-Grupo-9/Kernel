@@ -32,8 +32,7 @@ uint8_t getpid() { return getProcessPID(getCurrentProcess()); }
 
 int execve(char *moduleName, char **argv, int argc) {
 	struct ProcessDescriptor *process = getCurrentProcess();
-	LOCK(int pid = createProcess(process->tty, moduleName, argv, argc, false);)
-	/*int pid = createProcess(process->tty, moduleName, argv, argc, false);*/
+	int pid = createProcess(process->tty, moduleName, argv, argc, false);
 	if (pid == -1)
 		return -1;
 	_sti();
