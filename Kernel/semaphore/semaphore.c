@@ -55,9 +55,16 @@ bool semWait(SID sid) {
 	Semaphore *sem = getSemaphore(sid);
 	if (!sem->active)
 		return true;
-	//
+
+	while (sem->value == 0) {
+		ProcessDescriptor *process = getCurrentProcess();
+		process->waiting = true;
+		enqueueItem(&sem->blockedProcesses, process);
+		_yield();
+	}
+	puts(getCurrentProcess()->tty, "s\n");
+	sem->value--;
 	
-	enqueueItem(&sem->blockedProcesses, getCurrentProcess());
 	return false;
 }
 
@@ -66,13 +73,22 @@ bool semPost(SID sid) {
 	if (!sem->active)
 		return true;
 
-	// Wake up blocked process
+	if (sem->value++ == 0) {
+		puts(getCurrentProcess()->tty, "p\n");
+		// Wake up blocked process
+		while (getLength(&sem->blockedProcesses) > 0) {
+			dequeueItem(&sem->blockedProcesses);
+		}
+
+		semaphoreUpdate();
+	}
+
+
 	return false;
 }
 
 static SID semFindByName(const char *name) {
 	for (int i = 0; i < MAX_SEMAPHORES; i++) {
-
 		Semaphore *sem = getSemaphore(i);
 		if (sem->active) {
 			if (strncmp(name, sem->name, sizeof(sem->name)) == 0) {

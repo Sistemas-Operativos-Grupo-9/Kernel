@@ -109,7 +109,7 @@ bool semPost(SID sem) {
 }
 
 SID semOpen(const char *name) {
-	return syscall(SEMINIT, (uint64_t)name, 0, 0, 0, 0);
+	return syscall(SEMOPEN, (uint64_t)name, 0, 0, 0, 0);
 }
 
 void semPrintList() {

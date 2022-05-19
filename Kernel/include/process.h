@@ -47,5 +47,6 @@ void initializeHaltProcess();
 void timerUpdate();
 void keypressUpdate();
 void childDeadUpdate();
+void semaphoreUpdate();
 
 void waitForIO();

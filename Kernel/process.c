@@ -70,6 +70,8 @@ void keypressUpdate() { unpauseProcesses(); }
 
 void childDeadUpdate() { unpauseProcesses(); }
 
+void semaphoreUpdate() { unpauseProcesses(); }
+
 void enqueueHalt() { enqueueItem(&readyQueue, &processes[HALT_PID]); }
 
 extern void _nextProcess();

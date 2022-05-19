@@ -6,10 +6,9 @@
 
 
 void main() {
-	puts("PID: ");
-	printUnsigned(getpid(), 10);
-	putchar('\n');
 	SID sem = semInit("hola", 1);
-	semWait(sem);
-	semPrintList();
+	while (true) {
+		semWait(sem);
+		puts("hola\n");
+	}
 }
