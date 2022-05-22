@@ -1,18 +1,11 @@
 #include "interrupts.h"
+#include <stdatomic.h>
 
-extern int lock_count;
+extern _Atomic(int) lock_count;
 
-#define START_LOCK                                                             \
-	do {                                                                       \
-		lock_count++;                                                          \
-		_cli();                                                                \
-	} while (0)
-#define END_LOCK                                                               \
-	do {                                                                       \
-		if (--lock_count == 0)                                                 \
-			_sti();                                                            \
-	} while (0)
+void startLock();
+void endLock();
 
 #define LOCK(code)                                                             \
-	START_LOCK;                                                                \
-	code END_LOCK;
+	startLock();                                                               \
+	code endLock();

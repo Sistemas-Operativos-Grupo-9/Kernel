@@ -10,6 +10,8 @@ extern PID
 extern getProcessPID
 extern getLength
 extern haltProcess
+extern startLock
+extern endLock
 
 %macro pushState 0
 	push rdi
@@ -71,6 +73,7 @@ extern doSwitch
 global _switchContext
 _switchContext:
 	pushState
+	call startLock
 	mov r12, [rsp + (8 * 16)] ; get return pointer
 	mov rdi, 1
 	sub rsp, 8
@@ -79,6 +82,7 @@ _switchContext:
 	mov rsp, rax
 	add rsp, 8
 	mov [rsp + (8 * 16)], r12
+	call endLock
 	popState
 	ret
 

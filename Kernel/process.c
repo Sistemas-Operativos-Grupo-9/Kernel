@@ -177,25 +177,28 @@ void initializeHaltProcess() {
 	        },
 	    .active = true,
 	    .stack = stack,
-	    .entryPoint = haltMain};
+	};
 	processes[HALT_PID] = haltProcess;
 }
 extern uint8_t endOfKernelStack;
 
 #define PROCESSES_START &endOfKernelStack
 
+void getProcessBoundaries(int pid, void **processStart, void **processEnd) {
+	*processStart = (void *)((pid - 1) * PROCESS_MEMORY + PROCESSES_START);
+	*processEnd = *processStart + PROCESS_MEMORY - 16;
+}
+
 int createProcess(uint8_t tty, char *name, char **argv, int argc,
                   bool restartOnFinish) {
 	struct Module *module = getModule(name);
 	if (module == NULL)
 		return -1;
-	START_LOCK;
+	startLock();
 	uint64_t pid = getFreePID();
-	void *entryPoint = (void *)(pid * PROCESS_MEMORY + PROCESSES_START);
-	uint64_t *stack =
-	    (uint64_t
-	         *)(entryPoint + PROCESS_MEMORY -
-	            16); // Position process stack at the end of it's memory region
+	void *entryPoint;
+	uint64_t *stack;
+	getProcessBoundaries(pid, &entryPoint, (void **)&stack);
 
 	memcpy((void *)entryPoint, (void *)module->address, module->size);
 
@@ -230,10 +233,9 @@ int createProcess(uint8_t tty, char *name, char **argv, int argc,
 	        },
 	    .active = true,
 	    .stack = stack,
-	    .entryPoint = entryPoint,
 	};
 	enqueueItem(&readyQueue, &processes[pid]);
-	END_LOCK;
+	endLock();
 	return pid;
 }
 

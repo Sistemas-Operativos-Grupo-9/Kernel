@@ -127,6 +127,7 @@ int main() {
 	char *args[] = {"shell"};
 
 	createProcess(0, "rerun", helpArgs, 2, true);
+	/*createProcess(0, "rerun", args, 1, true);*/
 	createProcess(1, "rerun", args, 1, true);
 	createProcess(2, "rerun", args, 1, true);
 	createProcess(3, "rerun", args, 1, true);

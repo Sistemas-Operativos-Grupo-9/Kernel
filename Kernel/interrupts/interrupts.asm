@@ -198,7 +198,6 @@ _irq00Handler:
 
 ;nextProcess interruption
 _nextProcess:
-	cli
 
 	; trap frame
 
@@ -265,7 +264,7 @@ _irq05Handler:
 	irqHandlerMaster 5
 
 _syscallHandler:
-	sti
+	;sti
 	call syscallDispatcher
 	iretq
 

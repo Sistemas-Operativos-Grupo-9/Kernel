@@ -33,7 +33,7 @@ void load_idt() {
 	setup_IDT_entry(0x81, (uint64_t)&_nextProcess);
 
 	// Set timer frequency
-	uint16_t count = 11932; // 1.193182 MHz / 100Hz
+	uint16_t count = 47727; // 1.193182 MHz / 25Hz
 	out(0x40, count & 0xff);
 	out(0x40, (count & 0xff00) >> 8);
 

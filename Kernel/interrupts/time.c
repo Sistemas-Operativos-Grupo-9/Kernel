@@ -1,7 +1,7 @@
 #include "process.h"
 #include <time.h>
 
-#define TICKS_PER_SECOND 100
+#define TICKS_PER_SECOND 25
 
 static unsigned long ticks = 0;
 extern bool schedulerEnabled;
