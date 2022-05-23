@@ -16,6 +16,7 @@ typedef struct __attribute__((packed)) ProcessDescriptor {
 	void *stack;
 	bool initialized;
 	bool toKill;
+	bool toFork;
 	bool waiting;
 	uint8_t tty;
 	char *name;
@@ -26,7 +27,7 @@ typedef struct __attribute__((packed)) ProcessDescriptor {
 
 extern void _startScheduler();
 extern void _switchContext();
-extern void _yield();
+extern int _yield();
 extern void _killAndNextProcess();
 
 bool killProcess(int pid);

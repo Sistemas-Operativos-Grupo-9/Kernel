@@ -73,16 +73,16 @@ extern doSwitch
 global _switchContext
 _switchContext:
 	pushState
-	call startLock
 	mov r12, [rsp + (8 * 16)] ; get return pointer
 	mov rdi, 1
 	sub rsp, 8
+	call startLock
 	mov rsi, rsp
 	call doSwitch
 	mov rsp, rax
+	call endLock
 	add rsp, 8
 	mov [rsp + (8 * 16)], r12
-	call endLock
 	popState
 	ret
 

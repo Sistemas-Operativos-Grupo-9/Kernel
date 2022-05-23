@@ -14,6 +14,7 @@ enum Syscalls {
 
 	GETPID = 39,
 	EXECVE = 59,
+	FORK,
 	KILL = 62,
 	PROCCOUNT,
 	GETPROCS,

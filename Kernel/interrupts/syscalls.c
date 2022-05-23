@@ -31,6 +31,11 @@ int64_t write(uint64_t fd, char *buf, uint64_t count) {
 
 uint8_t getpid() { return getProcessPID(getCurrentProcess()); }
 
+int fork() {
+	getCurrentProcess()->toFork = true;
+	return _yield();
+}
+
 int execve(char *moduleName, char **argv, int argc) {
 	struct ProcessDescriptor *process = getCurrentProcess();
 	int pid = createProcess(process->tty, moduleName, argv, argc, false);
@@ -166,6 +171,8 @@ uint64_t syscallDispatcher(uint64_t rdi, uint64_t param1, uint64_t param2,
 		return getpid();
 	case EXECVE: // getChar
 		return execve((char *)param1, (char **)param2, (int)param3);
+	case FORK: // getChar
+		return fork();
 	case PROCCOUNT: // getChar
 		return proccount();
 	case GETTIME:

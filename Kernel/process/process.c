@@ -1,4 +1,3 @@
-
 #include "process.h"
 #include "graphics/video.h"
 #include "interrupts.h"
@@ -6,6 +5,7 @@
 #include "lock.h"
 #include "moduleLoader.h"
 #include "queue.h"
+#include "string.h"
 #include "time.h"
 #include <graphics/views.h>
 #include <stddef.h>
@@ -17,8 +17,7 @@
 static struct ProcessDescriptor processes[MAX_PROCESS_COUNT];
 static uint64_t maxProcessCount = sizeof(processes) / sizeof(*processes);
 extern bool schedulerEnabled;
-bool schedulerEnabled = false;
-extern void *ret00;
+bool schedulerEnabled = false; extern void *ret00;
 
 Queue readyQueue;
 Queue waitingQueue;
@@ -241,16 +240,49 @@ int createProcess(uint8_t tty, char *name, char **argv, int argc,
 
 int getProcessPID(ProcessDescriptor *process) { return process - processes; }
 
+// Returns new process pid
+int cloneProcess(int pid) {
+	void *start, *end;
+	void *dstStart, *dstEnd;
+	getProcessBoundaries(pid, &start, &end);
+	int newPid = getFreePID();
+	getProcessBoundaries(newPid, &dstStart, &dstEnd);
+	memcpy(dstStart, start, end - start);
+	ProcessDescriptor *process = getProcess(pid);
+	ProcessDescriptor *newProcess = getProcess(newPid);
+	*newProcess = *process;
+	int64_t separation = dstStart - start;
+	newProcess->stack = process->stack + separation;
+	newProcess->entryPoint = dstStart;
+	((uint64_t *)newProcess->stack)[13] = 0;
+	((uint64_t *)process->stack)[13] = newPid;
+	
+	// 👀
+	for (uint64_t *i = dstStart; (void *)i < dstEnd; i++) {
+		if (*i >= (uint64_t)start && *i < (uint64_t)end) {
+			*i += separation;
+		}
+	}
+
+	enqueueItem(&readyQueue, newProcess);
+	return newPid;
+}
+
 void *doSwitch(bool pushCurrent, uint64_t *stackPointer) {
 	if (pushCurrent) {
 		ProcessDescriptor *process = getCurrentProcess();
 		process->initialized = true;
 		process->stack = stackPointer;
 		if (process->toKill) {
+			process->toKill = false;
 			processReturned();
 		}
 		int pid = getProcessPID(process);
 		if (pid != HALT_PID) {
+			if (process->toFork) {
+				process->toFork = false;
+				cloneProcess(PID);
+			}
 			Queue *queue;
 			if (process->waiting) {
 				queue = &waitingQueue;

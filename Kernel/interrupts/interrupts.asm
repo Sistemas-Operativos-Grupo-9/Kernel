@@ -31,6 +31,9 @@ EXTERN printChar
 EXTERN print
 EXTERN getCurrentProcess
 GLOBAL _printRegisters
+extern startLock
+extern endLock
+extern lock_count
 
 SECTION .text
 
@@ -217,14 +220,19 @@ _nextProcess:
 
 	; if (schedulerEnabled)
 	; 	_switchContext();
-
+	
+	cli
 	push rax
 	mov al, [schedulerEnabled]
 	test al, al
 	pop rax
 	jz ret01
 	sub rsp, 8
+	inc QWORD [lock_count]
+	;call startLock
 	call _switchContext
+	dec QWORD [lock_count]
+	;call endLock
 	add rsp, 8
 	ret01:
 	; sti

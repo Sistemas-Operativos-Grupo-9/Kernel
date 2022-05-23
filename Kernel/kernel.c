@@ -120,14 +120,12 @@ int main() {
 
 #undef PRINT_MODULE
 
-	// createProcess(1, "random", sampleCodeModuleAddress, (uint64_t *)shell -
-	// 1);
 	initializeHaltProcess();
 	char *helpArgs[] = {"shell", "--print-help"};
 	char *args[] = {"shell"};
 
+	/*createProcess(0, "fork", NULL, 0, true);*/
 	createProcess(0, "rerun", helpArgs, 2, true);
-	/*createProcess(0, "rerun", args, 1, true);*/
 	createProcess(1, "rerun", args, 1, true);
 	createProcess(2, "rerun", args, 1, true);
 	createProcess(3, "rerun", args, 1, true);

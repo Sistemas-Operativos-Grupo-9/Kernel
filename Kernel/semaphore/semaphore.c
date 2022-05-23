@@ -62,7 +62,7 @@ bool semWait(SID sid) {
 		enqueueItem(&sem->blockedProcesses, process);
 		_yield();
 	}
-	puts(getCurrentProcess()->tty, "s\n");
+	/*puts(getCurrentProcess()->tty, "s\n");*/
 	sem->value--;
 	
 	return false;
@@ -74,7 +74,7 @@ bool semPost(SID sid) {
 		return true;
 
 	if (sem->value++ == 0) {
-		puts(getCurrentProcess()->tty, "p\n");
+		/*puts(getCurrentProcess()->tty, "p\n");*/
 		// Wake up blocked process
 		while (getLength(&sem->blockedProcesses) > 0) {
 			dequeueItem(&sem->blockedProcesses);
