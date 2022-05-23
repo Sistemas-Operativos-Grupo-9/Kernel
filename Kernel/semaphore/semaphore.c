@@ -15,11 +15,11 @@ typedef struct Semaphore {
 
 static Semaphore semaphores[MAX_SEMAPHORES];
 
-static mut_signal(atomic_flag *lock) {
+static void mut_signal(atomic_flag *lock) {
 	atomic_flag_clear(lock);
 }
 
-static mut_wait(Semaphore *sem, atomic_flag *lock) {
+static void mut_wait(Semaphore *sem, atomic_flag *lock) {
 	while (atomic_flag_test_and_set(lock)) {
 		ProcessDescriptor *process = getCurrentProcess();
 		enqueueItem(&sem->blockedProcesses, process);
