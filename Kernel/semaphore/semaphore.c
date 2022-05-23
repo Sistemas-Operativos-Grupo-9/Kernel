@@ -3,15 +3,30 @@
 #include "lib.h"
 #include "process.h"
 #include "queue.h"
+#include <stdatomic.h>
 
 typedef struct Semaphore {
 	bool active;
 	char name[10];
 	semValue value;
+	atomic_flag lock;
 	Queue blockedProcesses;
 } Semaphore;
 
 static Semaphore semaphores[MAX_SEMAPHORES];
+
+static mut_signal(atomic_flag *lock) {
+	atomic_flag_clear(lock);
+}
+
+static mut_wait(Semaphore *sem, atomic_flag *lock) {
+	while (atomic_flag_test_and_set(lock)) {
+		ProcessDescriptor *process = getCurrentProcess();
+		enqueueItem(&sem->blockedProcesses, process);
+		process->waiting = true;
+		_yield();
+	}
+}
 
 static SID getFreeSID() {
 	static int lastSID = 0;
@@ -56,14 +71,18 @@ bool semWait(SID sid) {
 	if (!sem->active)
 		return true;
 
-	while (sem->value == 0) {
-		ProcessDescriptor *process = getCurrentProcess();
-		process->waiting = true;
-		enqueueItem(&sem->blockedProcesses, process);
-		_yield();
+	while (true) {
+		mut_wait(sem, &sem->lock);
+
+		if (sem->value > 0) {
+			sem->value--;
+			mut_signal(&sem->lock);
+			break;
+		}
+
+		mut_signal(&sem->lock);
 	}
 	/*puts(getCurrentProcess()->tty, "s\n");*/
-	sem->value--;
 	
 	return false;
 }
