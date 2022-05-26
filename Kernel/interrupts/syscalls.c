@@ -36,15 +36,18 @@ int fork() {
 	return _yield();
 }
 
+int waitpid(int pid) { return waitPID(pid); }
+
 int execve(char *moduleName, char **argv, int argc) {
 	struct ProcessDescriptor *process = getCurrentProcess();
 	int pid = createProcess(process->tty, moduleName, argv, argc, false);
 	if (pid == -1)
 		return -1;
 	_sti();
-	while (getProcess(pid)->active) {
+	while (getProcess(pid)->state == PROCESS_ACTIVE) {
 		waitForIO();
 	}
+	waitPID(pid);
 	_cli();
 	return 0;
 }
@@ -76,12 +79,13 @@ uint8_t getProcesses(struct Process processList[256]) {
 	int pi = 0;
 	for (int i = 0; i < 256; i++) {
 		struct ProcessDescriptor *process = getProcess(i);
-		if (process->active) {
+		if (process->state != PROCESS_DEAD) {
 			processList[pi] = (struct Process){
 			    .pid = i,
 			    .entryPoint = process->entryPoint,
 			    .stackStart = process->entryPoint + PROCESS_MEMORY,
 			    .waiting = process->waiting,
+			    .state = process->state,
 			};
 			strcpy(processList[pi].name, process->name);
 			pi++;
@@ -167,13 +171,15 @@ uint64_t syscallDispatcher(uint64_t rdi, uint64_t param1, uint64_t param2,
 		semPrintList();
 		break;
 
-	case GETPID: // getChar
+	case GETPID:
 		return getpid();
-	case EXECVE: // getChar
+	case EXECVE:
 		return execve((char *)param1, (char **)param2, (int)param3);
-	case FORK: // getChar
+	case FORK:
 		return fork();
-	case PROCCOUNT: // getChar
+	case WAITPID:
+		return waitpid((int)param1);
+	case PROCCOUNT:
 		return proccount();
 	case GETTIME:
 		gettime((Time *)param1);

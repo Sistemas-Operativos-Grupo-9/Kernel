@@ -17,7 +17,8 @@
 static struct ProcessDescriptor processes[MAX_PROCESS_COUNT];
 static uint64_t maxProcessCount = sizeof(processes) / sizeof(*processes);
 extern bool schedulerEnabled;
-bool schedulerEnabled = false; extern void *ret00;
+bool schedulerEnabled = false;
+extern void *ret00;
 
 Queue readyQueue;
 Queue waitingQueue;
@@ -30,7 +31,7 @@ static int focusPID = 0;
 static int getFreePID() {
 	static int lastPID = 0;
 
-	while (processes[lastPID].active) {
+	while (processes[lastPID].state == PROCESS_ACTIVE) {
 		lastPID++;
 		if (lastPID >= sizeof(processes) / sizeof(*processes)) {
 			lastPID = 0;
@@ -111,23 +112,37 @@ void waitForIO() {
 }
 
 bool killProcess(int pid) {
-	if (!processes[pid].active)
+	if (processes[pid].state == PROCESS_DEAD)
 		return false;
 	processes[pid].toKill = true;
 	return true;
 }
 
+int waitPID(int pid) {
+	ProcessDescriptor *process = getProcess(pid);
+	while (process->state != PROCESS_ZOMBIE) {
+		waitForIO();
+	}
+	int ret = process->returnCode;
+	process->state = PROCESS_DEAD;
+	return ret;
+}
+
 void terminateProcess() {
 	ProcessDescriptor *process = getCurrentProcess();
-	process->active = false;
+	process->state = PROCESS_ZOMBIE;
 	_killAndNextProcess();
 	__asm__ __volatile__("add $8, %rsp");
 	__asm__ __volatile__("iretq");
 }
 
 void processReturned() {
+	int retCode;
+	__asm__ __volatile__("movq %%rax, %q0" : "=r"(retCode)::"rax");
 	_cli();
-	// register int retCode __asm__("eax");
+	ProcessDescriptor *process = getCurrentProcess();
+	process->returnCode = retCode;
+
 	childDeadUpdate();
 	terminateProcess();
 }
@@ -174,7 +189,7 @@ void initializeHaltProcess() {
 	            (struct FileDescriptor){
 	                .write = (int (*)(uint8_t, char *, uint64_t))writeTTY},
 	        },
-	    .active = true,
+	    .state = PROCESS_ACTIVE,
 	    .stack = stack,
 	};
 	processes[HALT_PID] = haltProcess;
@@ -220,6 +235,7 @@ int createProcess(uint8_t tty, char *name, char **argv, int argc,
 	processes[pid] = (struct ProcessDescriptor){
 	    .tty = tty,
 	    .name = name,
+		.entryPoint = entryPoint,
 	    .fdTable =
 	        {
 	            (struct FileDescriptor){
@@ -230,7 +246,7 @@ int createProcess(uint8_t tty, char *name, char **argv, int argc,
 	            (struct FileDescriptor){
 	                .write = (int (*)(uint8_t, char *, uint64_t))writeTTY},
 	        },
-	    .active = true,
+	    .state = PROCESS_ACTIVE,
 	    .stack = stack,
 	};
 	enqueueItem(&readyQueue, &processes[pid]);
@@ -256,7 +272,7 @@ int cloneProcess(int pid) {
 	newProcess->entryPoint = dstStart;
 	((uint64_t *)newProcess->stack)[13] = 0;
 	((uint64_t *)process->stack)[13] = newPid;
-	
+
 	// 👀
 	for (uint64_t *i = dstStart; (void *)i < dstEnd; i++) {
 		if (*i >= (uint64_t)start && *i < (uint64_t)end) {
@@ -306,7 +322,7 @@ void *doSwitch(bool pushCurrent, uint64_t *stackPointer) {
 uint64_t countProcesses() {
 	int count = 0;
 	for (int i = 0; i < maxProcessCount; i++) {
-		if (processes[i].active) {
+		if (processes[i].state != PROCESS_DEAD) {
 			count++;
 		}
 	}
@@ -316,7 +332,7 @@ uint64_t countProcesses() {
 void setFocus(uint8_t tty) {
 	changeFocusView(tty);
 	for (int i = 0; i < sizeof(processes) / sizeof(*processes); i++) {
-		if (processes[i].active && processes[i].tty == tty) {
+		if (processes[i].state != PROCESS_DEAD && processes[i].tty == tty) {
 			focusPID = i;
 			return;
 		}

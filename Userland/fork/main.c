@@ -26,6 +26,7 @@ void main() {
 			printUnsigned(p, 10);
 			putchar('\n');
 			semPost(sem);
+			waitpid(p);
 			break;
 	}
 }

@@ -2,6 +2,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <processes.h>
 
 struct FileDescriptor {
 	bool eof;
@@ -12,6 +13,7 @@ struct FileDescriptor {
 #define PROCESS_MEMORY 0x200000
 #define MAX_FILE_DESCRIPTORS 3
 
+
 typedef struct __attribute__((packed)) ProcessDescriptor {
 	void *stack;
 	bool initialized;
@@ -21,7 +23,8 @@ typedef struct __attribute__((packed)) ProcessDescriptor {
 	uint8_t tty;
 	char *name;
 	void *entryPoint;
-	bool active;
+	ProcessState state;
+	int returnCode;
 	struct FileDescriptor fdTable[MAX_FILE_DESCRIPTORS];
 } ProcessDescriptor;
 
@@ -50,4 +53,5 @@ void keypressUpdate();
 void childDeadUpdate();
 void semaphoreUpdate();
 
+int waitPID(int pid);
 void waitForIO();

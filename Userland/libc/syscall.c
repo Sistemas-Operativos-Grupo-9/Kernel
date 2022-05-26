@@ -43,6 +43,10 @@ int fork() {
 	return syscall(FORK, 0, 0, 0, 0, 0);
 }
 
+int waitpid(int pid) {
+	return syscall(WAITPID, pid, 0, 0, 0, 0);
+}
+
 bool kill(int pid) { return syscall(KILL, pid, 0, 0, 0, 0); }
 
 void microsleep(uint64_t micros) { syscall(MICROSLEEP, micros, 0, 0, 0, 0); }
