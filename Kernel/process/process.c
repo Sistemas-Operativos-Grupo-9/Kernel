@@ -263,7 +263,7 @@ int cloneProcess(int pid) {
 	getProcessBoundaries(pid, &start, &end);
 	int newPid = getFreePID();
 	getProcessBoundaries(newPid, &dstStart, &dstEnd);
-	memcpy(dstStart, start, end - start);
+	memcpy(dstStart, start, (uint64_t)end - (uint64_t)start + 1 * 8);
 	ProcessDescriptor *process = getProcess(pid);
 	ProcessDescriptor *newProcess = getProcess(newPid);
 	*newProcess = *process;
