@@ -124,13 +124,13 @@ int main() {
 	char *helpArgs[] = {"shell", "--print-help"};
 	char *args[] = {"shell"};
 
-	createProcess(0, "fork", NULL, 0, true);
-	/*createProcess(0, "rerun", helpArgs, 2, true);*/
+	/*createProcess(0, "fork", NULL, 0, true);*/
+	createProcess(0, "rerun", helpArgs, 2, true);
 	createProcess(1, "rerun", args, 1, true);
-	/*createProcess(2, "rerun", args, 1, true);*/
-	/*createProcess(3, "rerun", args, 1, true);*/
-	/*createProcess(4, "rerun", args, 1, true);*/
-	/*createProcess(5, "rerun", args, 1, true);*/
+	createProcess(2, "rerun", args, 1, true);
+	createProcess(3, "rerun", args, 1, true);
+	createProcess(4, "rerun", args, 1, true);
+	createProcess(5, "rerun", args, 1, true);
 
 	_startScheduler();
 
