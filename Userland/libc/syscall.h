@@ -3,6 +3,7 @@
 #include "color.h"
 #include "processes.h"
 #include "semaphores.h"
+#include "memory.h"
 #include <datetime.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -50,3 +51,4 @@ void *ourMalloc(size_t byteCount);
 // Frees a previously allocated buffer.
 void ourFree(void *memPtr);
 
+MemoryState getMemoryState();

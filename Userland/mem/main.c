@@ -4,16 +4,17 @@
 
 
 void main(int argc, char **argv) {
-	
-	char *buf = ourMalloc(100);
-	char *buf2 = ourMalloc(100);
-	puts("Buf: ");
-	printHexPointer(buf);
+	MemoryState state = getMemoryState();
+	puts("Total Memory: ");
+	printUnsigned(state.totalMemory, 10);
 	putchar('\n');
-	puts("Buf2: ");
-	printHexPointer(buf2);
+	puts("Used Memory: ");
+	printUnsigned(state.usedMemory, 10);
 	putchar('\n');
-	ourFree(buf);
-	ourFree(buf2);
-
+	puts("Fragments Amount: ");
+	printUnsigned(state.fragmentsAmount, 10);
+	putchar('\n');
+	puts("Heap Start: ");
+	printHexPointer((void *)state.heapStart);
+	putchar('\n');
 }

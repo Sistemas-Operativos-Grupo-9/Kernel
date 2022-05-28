@@ -230,6 +230,9 @@ uint64_t syscallDispatcher(uint64_t rdi, uint64_t param1, uint64_t param2,
 	case FREE:
 		ourFree((void *)param1);
 		break;
+	case GETMEMORYSTATE:
+		getMemoryState((MemoryState *)param1);
+		break;
 	}
 	return 0;
 }

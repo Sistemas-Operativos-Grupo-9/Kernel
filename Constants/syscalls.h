@@ -34,6 +34,7 @@ enum Syscalls {
 
 	MALLOC = 100,
 	FREE,
+	GETMEMORYSTATE,
 };
 
 enum Figures {
