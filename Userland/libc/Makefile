@@ -6,7 +6,7 @@ CFLAGS = -m64 -fno-exceptions -std=c99 -Wall -ffreestanding -nostdlib \
 AR = ar
 GCC = gcc
 
-SOURCES = $(shell find . -name "*.c")
+SOURCES = $(shell find -L . -name "*.c")
 OBJDIR = BUILD
 OBJECTS = $(SOURCES:%.c=$(OBJDIR)/%.o)
 

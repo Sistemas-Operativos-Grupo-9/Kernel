@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <syscall.h>
+#include <shared-lib/print.h>
 
 int main(int argc, char **argv) {
 	if (argc == 0) {
@@ -18,7 +19,8 @@ int main(int argc, char **argv) {
 	KeyStroke key;
 	do {
 		reset();
-		if (execve(program, NULL, 0)) {
+		char **args = NULL;
+		if (execve(program, args)) {
 			puts("Program ");
 			puts(program);
 			puts(" does not exist.");

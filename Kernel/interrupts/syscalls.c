@@ -17,16 +17,14 @@
 
 int64_t read(uint64_t fd, char *buf, uint64_t count, uint64_t timeout) {
 	struct ProcessDescriptor process = *getCurrentProcess();
-	if (fd == 0)
-		return process.fdTable[0].read(process.tty, buf, count, timeout);
-	return 0;
+	struct FileDescriptor d = process.fdTable[fd];
+	return d.read(d.id, buf, count, timeout);
 }
 
-int64_t write(uint64_t fd, char *buf, uint64_t count) {
+int64_t write(uint64_t fd, const char *buf, uint64_t count) {
 	struct ProcessDescriptor process = *getCurrentProcess();
-	if (fd == 1 || fd == 2)
-		return process.fdTable[fd].write(process.tty, buf, count);
-	return 0;
+	struct FileDescriptor d = process.fdTable[fd];
+	return d.write(d.id, buf, count);
 }
 
 uint8_t getpid() { return getProcessPID(getCurrentProcess()); }
@@ -38,9 +36,10 @@ int fork() {
 
 int waitpid(int pid) { return waitPID(pid); }
 
-int execve(char *moduleName, char **argv, int argc) {
-	struct ProcessDescriptor *process = getCurrentProcess();
-	int pid = createProcess(process->tty, moduleName, argv, argc, false);
+// TODO: remove execve
+int execve(char *moduleName, char **argv) {
+	/*struct ProcessDescriptor *process = getCurrentProcess();*/
+	int pid = createProcess(focusedView, moduleName, argv);
 	if (pid == -1)
 		return -1;
 	_sti();
@@ -94,23 +93,26 @@ uint8_t getProcesses(struct Process processList[256]) {
 	return pi;
 }
 
-void setGraphic(bool value) { setViewGraphic(getCurrentProcess()->tty, value); }
+// TODO: choose view for process?.
+uint8_t viewForProcess() { return 0; }
+
+void setGraphic(bool value) { setViewGraphic(viewForProcess(), value); }
 
 void drawCircleCall(uint16_t x, uint16_t y, uint16_t radius) {
-	drawCircle(getCurrentProcess()->tty, x, y, radius);
+	drawCircle(viewForProcess(), x, y, radius);
 }
 
 void drawRectangleCall(uint16_t x, uint16_t y, uint16_t width,
                        uint16_t height) {
-	drawRectangle(getCurrentProcess()->tty, x, y, width, height);
+	drawRectangle(viewForProcess(), x, y, width, height);
 }
 
 void drawTextCall(char *text, uint16_t x, uint16_t y, bool center) {
-	drawText(getCurrentProcess()->tty, text, x, y, center);
+	drawText(viewForProcess(), text, x, y, center);
 }
 
 void drawLineCall(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2) {
-	drawLine(getCurrentProcess()->tty, x1, y1, x2, y2);
+	drawLine(viewForProcess(), x1, y1, x2, y2);
 }
 
 void drawFigure(enum Figures figure, uint64_t param2, uint64_t param3,
@@ -133,19 +135,22 @@ void drawFigure(enum Figures figure, uint64_t param2, uint64_t param3,
 
 void drawBitmapCall(uint16_t x, uint16_t y, const uint16_t width,
                     const uint16_t height, Color bitmap[][width]) {
-	drawBitmap(getCurrentProcess()->tty, x, y, width, height, bitmap);
+	drawBitmap(viewForProcess(), x, y, width, height, bitmap);
 }
 
 void setForegroundCall(uint8_t red, uint8_t green, uint8_t blue) {
-	setForeground(getCurrentProcess()->tty,
-	              (Color){.red = red, .green = green, .blue = blue});
+	setForeground(viewForProcess(), (Color){
+	                                    .red = red,
+	                                    .green = green,
+	                                    .blue = blue,
+	                                });
 }
 
 void getWindowInfo(WindowInfo *windowInfo) {
-	getViewInfo(getCurrentProcess()->tty, windowInfo);
+	getViewInfo(viewForProcess(), windowInfo);
 }
 
-void flipCall() { flip(getCurrentProcess()->tty); }
+void flipCall() { flip(viewForProcess()); }
 
 void switchToDesktop(uint8_t desktop) { focusDesktop(desktop); }
 
@@ -155,7 +160,7 @@ uint64_t syscallDispatcher(uint64_t rdi, uint64_t param1, uint64_t param2,
 	case READ: // drawChar: char, x, y
 		return read(param1, (char *)param2, param3, param4);
 	case WRITE: // getChar
-		return write(param1, (char *)param2, param3);
+		return write(param1, (const char *)param2, param3);
 
 	case SEMPOST:
 		return semPost(param1);
@@ -174,9 +179,11 @@ uint64_t syscallDispatcher(uint64_t rdi, uint64_t param1, uint64_t param2,
 	case GETPID:
 		return getpid();
 	case EXECVE:
-		return execve((char *)param1, (char **)param2, (int)param3);
+		return execve((char *)param1, (char **)param2);
 	case FORK:
 		return fork();
+	case EXEC:
+		return exec((char *)param1, (char **)param2);
 	case WAITPID:
 		return waitpid((int)param1);
 	case PROCCOUNT:

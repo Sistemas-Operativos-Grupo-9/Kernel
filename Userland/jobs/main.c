@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <syscall.h>
+#include <shared-lib/print.h>
 
 struct Process processes[256];
 

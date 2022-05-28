@@ -9,6 +9,7 @@
 #include "time.h"
 #include <graphics/views.h>
 #include <stddef.h>
+#include <stdint.h>
 #define NO_PID -1
 #define HALT_PID 0
 
@@ -24,14 +25,12 @@ Queue readyQueue;
 Queue waitingQueue;
 
 extern int PID;
-int PID = NO_PID;
-
-static int focusPID = 0;
+int PID = 0;
 
 static int getFreePID() {
 	static int lastPID = 0;
 
-	while (processes[lastPID].state == PROCESS_ACTIVE) {
+	while (processes[lastPID].state != PROCESS_DEAD) {
 		lastPID++;
 		if (lastPID >= sizeof(processes) / sizeof(*processes)) {
 			lastPID = 0;
@@ -47,11 +46,11 @@ struct ProcessDescriptor *getCurrentProcess() {
 	return &processes[PID];
 }
 
-struct ProcessDescriptor *getFocusedProcess() {
-	if (focusPID == NO_PID)
-		return NULL;
-	return &processes[focusPID];
-}
+/*struct ProcessDescriptor *getFocusedProcess() {*/
+/*if (focusPID == NO_PID)*/
+/*return NULL;*/
+/*return &processes[focusPID];*/
+/*}*/
 
 // Wakes up every process in the waiting list.
 // The ones that did not expect to get woken up by this event will go back to
@@ -75,9 +74,13 @@ void semaphoreUpdate() { unpauseProcesses(); }
 void enqueueHalt() { enqueueItem(&readyQueue, &processes[HALT_PID]); }
 
 extern void _nextProcess();
-uint64_t readTTY(uint8_t tty, char *buf, uint64_t count, uint64_t timeout) {
+int64_t readTTY(uint8_t tty, char *buf, uint64_t count, uint64_t timeout) {
 	uint64_t start = microseconds_elapsed() / 1000;
 	uint64_t read;
+	if (hasEof(tty)) {
+		setEof(tty, false);
+		return -1;
+	}
 	_sti();
 	for (read = 0; read < count && buf[read] != '\n'; read++) {
 		while (
@@ -85,6 +88,9 @@ uint64_t readTTY(uint8_t tty, char *buf, uint64_t count, uint64_t timeout) {
 		    (timeout == 0 || microseconds_elapsed() / 1000 < start + timeout)) {
 			// _nextProcess();
 			waitForIO();
+			if (hasEof(tty)) {
+				return read;
+			}
 
 			// _nextProcess();
 		}
@@ -100,7 +106,7 @@ uint64_t readTTY(uint8_t tty, char *buf, uint64_t count, uint64_t timeout) {
 	_cli();
 	return read;
 }
-uint64_t writeTTY(uint8_t tty, char *buf, uint64_t count) {
+uint64_t writeTTY(int tty, char *buf, uint64_t count) {
 	for (int i = 0; i < count; i++)
 		writeOutput(tty, buf[i]);
 	return count;
@@ -126,6 +132,13 @@ int waitPID(int pid) {
 	int ret = process->returnCode;
 	process->state = PROCESS_DEAD;
 	return ret;
+}
+
+void initializeLogProcess() {
+	processes[0].fdTable[1] = (struct FileDescriptor){
+	    .write = (int (*)(ID, const char *, uint64_t))writeTTY,
+	    .id = 0,
+	};
 }
 
 void terminateProcess() {
@@ -177,18 +190,8 @@ void initializeHaltProcess() {
 	// stack -= 14; // 16 - 2
 
 	struct ProcessDescriptor haltProcess = {
-	    .tty = 0,
 	    .name = "halt",
-	    .fdTable =
-	        {
-	            (struct FileDescriptor){
-	                .read =
-	                    (int (*)(uint8_t, char *, uint64_t, uint64_t))readTTY},
-	            (struct FileDescriptor){
-	                .write = (int (*)(uint8_t, char *, uint64_t))writeTTY},
-	            (struct FileDescriptor){
-	                .write = (int (*)(uint8_t, char *, uint64_t))writeTTY},
-	        },
+	    .fdTable = {},
 	    .state = PROCESS_ACTIVE,
 	    .stack = stack,
 	};
@@ -203,8 +206,37 @@ void getProcessBoundaries(int pid, void **processStart, void **processEnd) {
 	*processEnd = *processStart + PROCESS_MEMORY - 16;
 }
 
-int createProcess(uint8_t tty, char *name, char **argv, int argc,
-                  bool restartOnFinish) {
+uint64_t countToNull(char **values) {
+	if (values == NULL)
+		return 0;
+	uint64_t i;
+	for (i = 0; values[i] != NULL; i++)
+		;
+	return i;
+}
+
+void initializeProcessStack(uint64_t **stackStart, void *entryPoint,
+                            char **args) {
+	uint64_t *stack = *stackStart;
+	uint64_t *stackInit = stack;
+	*stack = (uint64_t)processReturned;
+	*--stack = (uint64_t)entryPoint;
+	*--stack = 0;
+	*--stack = (uint64_t)stackInit;
+	*--stack = 0x202;
+	*--stack = 8;
+	*--stack = (uint64_t)entryPoint;
+	*--stack = 0;
+	*--stack = 0; // Stack return address (changed in _switchContext)
+	*--stack = countToNull(args);
+	*--stack = (uint64_t)args;
+	for (int i = 0; i < 15; i++)
+		*--stack = 0;
+	// stack -= 14; // 16 - 2
+	*stackStart = stack;
+}
+
+int createProcess(uint8_t tty, char *name, char **args) {
 	struct Module *module = getModule(name);
 	if (module == NULL)
 		return -1;
@@ -216,35 +248,26 @@ int createProcess(uint8_t tty, char *name, char **argv, int argc,
 
 	memcpy((void *)entryPoint, (void *)module->address, module->size);
 
-	uint64_t *stackInit = stack;
-	*stack = (uint64_t)processReturned;
-	*--stack = (uint64_t)entryPoint;
-	*--stack = 0;
-	*--stack = (uint64_t)stackInit;
-	*--stack = 0x202;
-	*--stack = 8;
-	*--stack = (uint64_t)entryPoint;
-	*--stack = 0;
-	*--stack = 0; // Stack return address (changed in _switchContext)
-	*--stack = (uint64_t)argc;
-	*--stack = (uint64_t)argv;
-	for (int i = 0; i < 15; i++)
-		*--stack = 0;
-	// stack -= 14; // 16 - 2
+	initializeProcessStack(&stack, entryPoint, args);
 
 	processes[pid] = (struct ProcessDescriptor){
-	    .tty = tty,
-	    .name = name,
-		.entryPoint = entryPoint,
+	    .name = module->name,
+	    .entryPoint = entryPoint,
 	    .fdTable =
 	        {
 	            (struct FileDescriptor){
 	                .read =
-	                    (int (*)(uint8_t, char *, uint64_t, uint64_t))readTTY},
+	                    (int (*)(ID, const char *, uint64_t, uint64_t))readTTY,
+	                .id = tty,
+	            },
 	            (struct FileDescriptor){
-	                .write = (int (*)(uint8_t, char *, uint64_t))writeTTY},
+	                .write = (int (*)(ID, const char *, uint64_t))writeTTY,
+	                .id = tty,
+	            },
 	            (struct FileDescriptor){
-	                .write = (int (*)(uint8_t, char *, uint64_t))writeTTY},
+	                .write = (int (*)(ID, const char *, uint64_t))writeTTY,
+	                .id = tty,
+	            },
 	        },
 	    .state = PROCESS_ACTIVE,
 	    .stack = stack,
@@ -252,6 +275,31 @@ int createProcess(uint8_t tty, char *name, char **argv, int argc,
 	enqueueItem(&readyQueue, &processes[pid]);
 	endLock();
 	return pid;
+}
+
+bool exec(char *moduleName, char **args) {
+	struct Module *module = getModule(moduleName);
+	if (module == NULL)
+		return false;
+
+	int pid = PID;
+	void *entryPoint;
+	uint64_t *stack;
+	getProcessBoundaries(pid, &entryPoint, (void **)&stack);
+
+	memcpy((void *)entryPoint, (void *)module->address, module->size);
+
+	initializeProcessStack(&stack, entryPoint, args);
+
+	ProcessDescriptor *process = getProcess(pid);
+	process->name = module->name;
+	process->state = PROCESS_ACTIVE;
+	process->stack = stack;
+	enqueueItem(&readyQueue, &processes[pid]);
+
+	_killAndNextProcess();
+	__asm__ __volatile__("add $8, %rsp");
+	__asm__ __volatile__("iretq");
 }
 
 int getProcessPID(ProcessDescriptor *process) { return process - processes; }
@@ -331,13 +379,13 @@ uint64_t countProcesses() {
 
 void setFocus(uint8_t tty) {
 	changeFocusView(tty);
-	for (int i = 0; i < sizeof(processes) / sizeof(*processes); i++) {
-		if (processes[i].state != PROCESS_DEAD && processes[i].tty == tty) {
-			focusPID = i;
-			return;
-		}
-	}
-	focusPID = -1;
+	/*for (int i = 0; i < sizeof(processes) / sizeof(*processes); i++) {*/
+	/*if (processes[i].state != PROCESS_DEAD && processes[i].tty == tty) {*/
+	/*focusPID = i;*/
+	/*return;*/
+	/*}*/
+	/*}*/
+	/*focusPID = -1;*/
 }
 
 struct ProcessDescriptor *getProcess(int pid) {

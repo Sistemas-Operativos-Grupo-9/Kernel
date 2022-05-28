@@ -3,6 +3,7 @@
 #include "lib.h"
 #include "process.h"
 #include "queue.h"
+#include "shared-lib/print.h"
 #include <stdatomic.h>
 
 typedef struct Semaphore {
@@ -121,34 +122,30 @@ static SID semFindByName(const char *name) {
 SID semOpen(const char *name) { return semFindByName(name); }
 
 static void printProcess(ProcessDescriptor *process) {
-	uint8_t tty = getCurrentProcess()->tty;
-
-	printInt(tty, getProcessPID(process), 10);
-	putchar(tty, ' ');
+	printInt(getProcessPID(process), 10);
+	putchar(' ');
 }
 
 void semPrint(SID sid) {
-	uint8_t tty = getCurrentProcess()->tty;
-
 	Semaphore *sem = getSemaphore(sid);
 	if (sem->active) {
-		puts(tty, "Semaphore #:\n");
-		puts(tty, "    value: ");
-		printUnsigned(tty, sem->value, 10);
-		putchar(tty, '\n');
+		puts("Semaphore #:\n");
+		puts("    value: ");
+		printUnsigned(sem->value, 10);
+		putchar('\n');
 		if (sem->name[0] == '\0') {
-			puts(tty, "    no name\n");
+			puts("    no name\n");
 		} else {
-			puts(tty, "    name: ");
-			puts(tty, sem->name);
-			putchar(tty, '\n');
+			puts("    name: ");
+			puts(sem->name);
+			putchar('\n');
 		}
-		puts(tty, "    blocked processes: ");
+		puts("    blocked processes: ");
 		queueIterate(&sem->blockedProcesses, (void (*)(void *))printProcess);
-		putchar(tty, '\n');
+		putchar('\n');
 
 	} else {
-		puts(tty, "Semaphore #: inactive\n");
+		puts("Semaphore #: inactive\n");
 	}
 }
 

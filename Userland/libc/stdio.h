@@ -15,7 +15,5 @@ typedef struct {
 void moveCursorRight();
 void moveCursorLeft();
 void reset();
-void putchar(char ch);
-void puts(const char *str);
 int getch();
 KeyStroke readKeyStroke(uint64_t timeout);

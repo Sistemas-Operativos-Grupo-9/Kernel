@@ -4,6 +4,7 @@
 #include <string.h>
 #include <syscall.h>
 #include <time.h>
+#include <shared-lib/print.h>
 
 char commandHistory[10][256];
 const uint64_t historyLength = sizeof(commandHistory) / sizeof(*commandHistory);
@@ -25,7 +26,7 @@ void replaceComand(char *buffer, char *newCommand, int *length, int *position) {
 	*position = *length;
 }
 
-void inputCommand(char *buffer, int maxLength) {
+bool inputCommand(char *buffer, int maxLength) {
 	buffer[0] = 0;
 	int length = 0;
 	int position = 0;
@@ -52,7 +53,7 @@ void inputCommand(char *buffer, int maxLength) {
 				putchar('\b');
 			}
 		} else if (key.data == '\n') {
-			return;
+			return false;
 		} else if (key.arrow != NO_ARROW) {
 			if (key.arrow == ARROW_LEFT && position > 0) {
 				moveCursorLeft();
@@ -78,8 +79,11 @@ void inputCommand(char *buffer, int maxLength) {
 					replaceComand(buffer, "", &length, &position);
 				}
 			}
+		} else if (key.isEOF) {
+			return true;
 		}
 	}
+	return false;
 }
 
 bool validateCommand(char *command) {
@@ -111,13 +115,14 @@ bool execCommand(char *command) {
 	char *exec;
 	char *argv[10];
 	int argc = split(command, argv);
+	argv[argc] = NULL;
 	exec = argv[0];
 	if (strcmp(exec, "quit") == 0 || strcmp(exec, "exit") == 0) {
 		return true;
 	}
 	if (strcmp(exec, "pid") == 0) {
 		printInt(getpid(), 10);
-	} else if (execve(exec, argv + 1, argc - 1) == -1) {
+	} else if (execve(exec, argv + 1) == -1) {
 		putchar('\"');
 		puts(exec);
 		puts("\" is not a recognized program or module\n");
@@ -140,7 +145,9 @@ int main(int argc, char **argv) {
 	}
 	while (true) {
 		puts("\n~");
-		inputCommand(command, sizeof(command));
+		bool eof = inputCommand(command, sizeof(command));
+		if (eof)
+			return 0;
 		if (validateCommand(command)) {
 			commandsIssued++;
 			for (int i = historyLength - 1; i > 0; i--)

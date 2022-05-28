@@ -6,11 +6,14 @@
 int main(int argc, char **argv) {
 	while (true) {
 		char *module = argv[0];
-		char **args = NULL;
-		if (argc > 1) {
-			args = &argv[1];
+		char **args = argc > 0 ? &argv[1] : NULL;
+		int p;
+		switch(p = fork()) {
+			case 0:
+				exec(module, args);
+			default:
+				waitpid(p);
 		}
-		execve(module, args, argc - 1);
 	}
 	return 0;
 }

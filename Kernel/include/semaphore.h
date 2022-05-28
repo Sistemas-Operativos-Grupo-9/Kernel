@@ -17,5 +17,7 @@ bool semPost(SID sem);
 
 SID semOpen(const char *name);
 
+void semPrint(SID sid);
+
 void semPrintList();
 

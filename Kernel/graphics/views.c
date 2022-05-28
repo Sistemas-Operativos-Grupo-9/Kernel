@@ -16,6 +16,14 @@ void writeChar(uint8_t tty, char ch) {
 	keypressUpdate();
 }
 
+bool hasEof(uint8_t tty) {
+	return Views[tty].eof;
+}
+
+void setEof(uint8_t tty, bool value) {
+	Views[tty].eof = value;
+}
+
 char readInput(uint8_t tty) {
 	struct View *view = &Views[tty];
 	char ret = *view->inputBuffer;
@@ -26,4 +34,4 @@ char readInput(uint8_t tty) {
 	return ret;
 }
 
-void writeOutput(uint8_t tty, char ch) { putchar(tty, ch); }
+void writeOutput(uint8_t tty, char ch) { ttyPutchar(tty, ch); }

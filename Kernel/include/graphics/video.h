@@ -13,20 +13,20 @@ void initScreen();
 uint32_t getCursorY();
 uint32_t getCursorX();
 void setCursorAt(uint8_t viewNumber, int x, int y);
-void puts(uint8_t viewNumber, const char *str);
-void putchar(uint8_t viewNumber, char ch);
+void ttyPuts(uint8_t viewNumber, const char *str);
+void ttyPutchar(uint8_t viewNumber, char ch);
 
 void setForeground(uint8_t viewNumber, Color color);
 void setBackground(uint8_t viewNumber, Color color);
 
-void printIntN(uint8_t viewNumber, int value, uint8_t digits, uint8_t base);
-void printInt(uint8_t viewNumber, int value, uint8_t base);
-void printUnsignedN(uint8_t viewNumber, uint64_t value, uint8_t digits,
-                    uint8_t base);
-void printUnsigned(uint8_t viewNumber, uint64_t value, uint8_t base);
-void printHexPrefix(uint8_t viewNumber);
-void printHexByte(uint8_t viewNumber, uint8_t value);
-void printHexPointer(uint8_t viewNumber, void *ptr);
+//void printIntN(uint8_t viewNumber, int value, uint8_t digits, uint8_t base);
+//void printInt(uint8_t viewNumber, int value, uint8_t base);
+//void printUnsignedN(uint8_t viewNumber, uint64_t value, uint8_t digits,
+                    //uint8_t base);
+//void printUnsigned(uint8_t viewNumber, uint64_t value, uint8_t base);
+//void printHexPrefix(uint8_t viewNumber);
+//void printHexByte(uint8_t viewNumber, uint8_t value);
+//void printHexPointer(uint8_t viewNumber, void *ptr);
 
 void setViewGraphic(uint8_t viewNumber, bool value);
 void clear(uint8_t viewNumber);
