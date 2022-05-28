@@ -7,6 +7,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <window.h>
+#include <stddef.h>
 
 int read(uint64_t fd, char *buf, uint64_t count, uint64_t timeout);
 int64_t write(uint64_t fd, const char *buf, uint64_t count);
@@ -42,3 +43,10 @@ bool semWait(SID sem);
 bool semPost(SID sem);
 SID semOpen(const char *name);
 void semPrintList();
+
+// Allocates 'byteCount' bytes and returns it's memory location.
+void *ourMalloc(size_t byteCount);
+
+// Frees a previously allocated buffer.
+void ourFree(void *memPtr);
+

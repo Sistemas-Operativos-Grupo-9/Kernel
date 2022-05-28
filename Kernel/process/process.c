@@ -5,7 +5,6 @@
 #include "lock.h"
 #include "moduleLoader.h"
 #include "queue.h"
-#include "string.h"
 #include "time.h"
 #include <graphics/views.h>
 #include <stddef.h>
@@ -300,6 +299,8 @@ bool exec(char *moduleName, char **args) {
 	_killAndNextProcess();
 	__asm__ __volatile__("add $8, %rsp");
 	__asm__ __volatile__("iretq");
+
+	return true;
 }
 
 int getProcessPID(ProcessDescriptor *process) { return process - processes; }

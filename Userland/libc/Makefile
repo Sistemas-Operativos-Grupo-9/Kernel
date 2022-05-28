@@ -16,7 +16,7 @@ libc.a: $(OBJECTS)
 
 $(OBJDIR)/%.o: %.c
 	mkdir -p $(dir $@)
-	$(GCC) $(CFLAGS) -I"../../Constants" -c -o $@ $^
+	$(GCC) $(CFLAGS) -I"../../Memory-Manager/include" -I"../../Constants" -c -o $@ $^
 
 clean:
 	rm -rf -- libc.a BUILD

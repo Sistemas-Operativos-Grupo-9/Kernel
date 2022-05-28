@@ -1,5 +1,4 @@
 #include <stdint.h>
-#include <string.h>
 #include <stddef.h>
 
 __attribute__((used, optimize("-fno-tree-loop-distribute-patterns"))) void *

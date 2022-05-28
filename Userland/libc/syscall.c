@@ -116,3 +116,14 @@ SID semOpen(const char *name) {
 }
 
 void semPrintList() { syscall(SEMPRINTLIST, 0, 0, 0, 0, 0); }
+
+// Allocates 'byteCount' bytes and returns it's memory location.
+void *ourMalloc(size_t byteCount) {
+	return (void *)syscall(MALLOC, (uint64_t)byteCount, 0, 0, 0, 0);
+}
+
+// Frees a previously allocated buffer.
+void ourFree(void *memPtr) {
+	syscall(FREE, (uint64_t)memPtr, 0, 0, 0, 0);
+}
+

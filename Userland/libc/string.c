@@ -1,5 +1,6 @@
 
 #include "string.h"
+#include "memory_manager.h"
 
 uint64_t strlen(char *str) {
 	char *end = str;

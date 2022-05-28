@@ -31,6 +31,9 @@ enum Syscalls {
 	DRAWBITMAP,
 	FLIP,
 	SWITCHTODESKTOP,
+
+	MALLOC = 100,
+	FREE,
 };
 
 enum Figures {

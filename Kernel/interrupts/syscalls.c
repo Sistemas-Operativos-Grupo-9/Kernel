@@ -14,6 +14,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
+#include "memory_manager.h"
 
 int64_t read(uint64_t fd, char *buf, uint64_t count, uint64_t timeout) {
 	struct ProcessDescriptor process = *getCurrentProcess();
@@ -223,6 +224,11 @@ uint64_t syscallDispatcher(uint64_t rdi, uint64_t param1, uint64_t param2,
 		break;
 	case SWITCHTODESKTOP:
 		switchToDesktop(param1);
+		break;
+	case MALLOC:
+		return (uint64_t)ourMalloc(param1);
+	case FREE:
+		ourFree((void *)param1);
 		break;
 	}
 	return 0;
