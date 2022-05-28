@@ -84,8 +84,7 @@ char translate(char from) {
 	return from;
 }
 
-void sendChar(char c) { writeChar(getFocusedProcess()->tty, c); }
-void sendEOF() { getFocusedProcess()->fdTable->eof = true; }
+void sendChar(char c) { writeChar(focusedView, c); }
 
 extern bool eof;
 
@@ -193,8 +192,9 @@ void handleSingleByteKey(uint8_t key, bool pressed,
 				}
 			}
 			if (newKey) {
-				if ((ch == 'd' || ch == 'D') && ctrl) {
-					sendEOF();
+				char originalKey = charMap[key][0];
+				if (originalKey == 'd' && ctrl) {
+					setEof(focusedView, true);
 				} else {
 					sendChar(ch);
 				}
@@ -245,9 +245,8 @@ void keyboard_handler(struct RegistersState *registers) {
 		} else if (code == K_ALT) {
 			right_alt = pressed;
 		} else if ((code == K_PGUP || code == K_PGDN) && pressed) {
-			uint8_t tty = getFocusedProcess()->tty;
+			uint8_t tty = focusedView;
 			lookAround(tty, code == K_PGDN ? 1 : -1);
-
 		} else {
 			if (pressed) {
 				if (code == K_RETURN) {

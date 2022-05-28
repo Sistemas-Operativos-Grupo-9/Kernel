@@ -1,5 +1,6 @@
 #include "stdio.h"
-#include "myUtils.h"
+#include "shared-lib/myUtils.h"
+#include "shared-lib/print.h"
 #include "stdbool.h"
 #include "syscall.h"
 #include "syscalls.h"
@@ -24,20 +25,19 @@ void reset() {
 	putchar('c');
 }
 
-void putchar(char ch) { write(1, &ch, 1); }
-
-void puts(const char *str) {
-	while (*str != '\0') {
-		putchar(*str);
-		str++;
-	}
-}
-
 int getch(uint64_t timeout) {
 	char ch = 0;
-	if (read(0, &ch, 1, timeout) == 1)
-		return ch;
-	return TIMEOUT;
+	switch (read(0, &ch, 1, timeout)) {
+		case 1:
+			return ch;
+		case EOF:
+			return EOF;
+		case 0:
+			return TIMEOUT;
+		default:
+			// Unreachable!
+			return 0xDEAD;
+	}
 }
 
 KeyStroke readKeyStroke(uint64_t timeout) {

@@ -13,6 +13,7 @@ enum Syscalls {
 	SEMPRINTLIST,
 
 	GETPID = 39,
+	EXEC,
 	EXECVE = 59,
 	FORK,
 	WAITPID,

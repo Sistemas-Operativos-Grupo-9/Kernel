@@ -2,6 +2,7 @@
 #include "processes.h"
 #include "registers.h"
 #include "syscalls.h"
+#include <stdint.h>
 
 static uint64_t syscall(uint64_t code, uint64_t param1, uint64_t param2,
                         uint64_t param3, uint64_t param4, uint64_t param5) {
@@ -15,14 +16,14 @@ int read(uint64_t fd, char *buf, uint64_t count, uint64_t timeout) {
 	return syscall(READ, fd, (uint64_t)buf, count, timeout, 0);
 }
 
-int write(uint64_t fd, char *buf, uint64_t count) {
+int64_t write(uint64_t fd, const char *buf, uint64_t count) {
 	return syscall(WRITE, fd, (uint64_t)buf, count, 0, 0);
 }
 
 uint8_t getpid() { return syscall(GETPID, 0, 0, 0, 0, 0); }
 
-int execve(char *moduleName, char **argv, int argc) {
-	return syscall(EXECVE, (uint64_t)moduleName, (uint64_t)argv, argc, 0, 0);
+int execve(char *moduleName, char **argv) {
+	return syscall(EXECVE, (uint64_t)moduleName, (uint64_t)argv, 0, 0, 0);
 }
 
 uint64_t proccount() { return syscall(PROCCOUNT, 0, 0, 0, 0, 0); }
@@ -39,13 +40,13 @@ struct RegistersState getRegisters() {
 	return out;
 }
 
-int fork() {
-	return syscall(FORK, 0, 0, 0, 0, 0);
+int fork() { return syscall(FORK, 0, 0, 0, 0, 0); }
+
+bool exec(char *moduleName, char **args) {
+	return syscall(EXEC, (uint64_t)moduleName, (uint64_t)args, 0, 0, 0);
 }
 
-int waitpid(int pid) {
-	return syscall(WAITPID, pid, 0, 0, 0, 0);
-}
+int waitpid(int pid) { return syscall(WAITPID, pid, 0, 0, 0, 0); }
 
 bool kill(int pid) { return syscall(KILL, pid, 0, 0, 0, 0); }
 
@@ -104,22 +105,14 @@ SID semInit(const char *name, semValue value) {
 	return syscall(SEMINIT, (uint64_t)name, value, 0, 0, 0);
 }
 
-bool semClose(SID sem) {
-	return syscall(SEMCLOSE, sem, 0, 0, 0, 0);
-}
+bool semClose(SID sem) { return syscall(SEMCLOSE, sem, 0, 0, 0, 0); }
 
-bool semWait(SID sem) {
-	return syscall(SEMWAIT, sem, 0, 0, 0, 0);
-}
+bool semWait(SID sem) { return syscall(SEMWAIT, sem, 0, 0, 0, 0); }
 
-bool semPost(SID sem) {
-	return syscall(SEMPOST, sem, 0, 0, 0, 0);
-}
+bool semPost(SID sem) { return syscall(SEMPOST, sem, 0, 0, 0, 0); }
 
 SID semOpen(const char *name) {
 	return syscall(SEMOPEN, (uint64_t)name, 0, 0, 0, 0);
 }
 
-void semPrintList() {
-	syscall(SEMPRINTLIST, 0, 0, 0, 0, 0);
-}
+void semPrintList() { syscall(SEMPRINTLIST, 0, 0, 0, 0, 0); }

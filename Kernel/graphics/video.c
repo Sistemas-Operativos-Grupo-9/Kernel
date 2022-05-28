@@ -1,6 +1,6 @@
 #include <graphics/video.h>
 #include <lib.h>
-#include <myUtils.h>
+#include <shared-lib/myUtils.h>
 #include <stdbool.h>
 
 #include "graphics/basicVideo.h"
@@ -500,7 +500,7 @@ void setChar(uint8_t viewNumber, char ch) {
 	redrawChar(view, view->cursorX, view->cursorY);
 }
 
-void putchar(uint8_t viewNumber, char ch) {
+void ttyPutchar(uint8_t viewNumber, char ch) {
 	struct View *view = Views[viewNumber];
 	view->outputBuffer[view->outputLength++] = ch;
 
@@ -615,9 +615,9 @@ void setCursorAt(uint8_t viewNumber, int x, int y) {
 //     return cursorX;
 // }
 
-void puts(uint8_t viewNumber, const char *str) {
+void ttyPuts(uint8_t viewNumber, const char *str) {
 	while (*str) {
-		putchar(viewNumber, *str++);
+		ttyPutchar(viewNumber, *str++);
 	}
 }
 
@@ -635,41 +635,41 @@ void clear(uint8_t viewNumber) {
 	reDraw(view);
 }
 
-// Helper print functions for Kernel space
-void printIntN(uint8_t viewNumber, int value, uint8_t digits, uint8_t base) {
-	char str[digits + 1];
-	numToString(value, digits, str, base);
-	puts(viewNumber, str);
-}
-void printInt(uint8_t viewNumber, int value, uint8_t base) {
-	printIntN(viewNumber, value, countDigits(value, base), base);
-}
+/*// Helper print functions for Kernel space*/
+/*void printIntN(uint8_t viewNumber, int value, uint8_t digits, uint8_t base) {*/
+	/*char str[digits + 1];*/
+	/*numToString(value, digits, str, base);*/
+	/*ttyPuts(viewNumber, str);*/
+/*}*/
+/*void printInt(uint8_t viewNumber, int value, uint8_t base) {*/
+	/*printIntN(viewNumber, value, countDigits(value, base), base);*/
+/*}*/
 
-void printUnsignedN(uint8_t viewNumber, uint64_t value, uint8_t digits,
-                    uint8_t base) {
-	char str[digits + 1];
-	unsignedToString(value, digits, str, base);
-	puts(viewNumber, str);
-}
+/*void printUnsignedN(uint8_t viewNumber, uint64_t value, uint8_t digits,*/
+                    /*uint8_t base) {*/
+	/*char str[digits + 1];*/
+	/*unsignedToString(value, digits, str, base);*/
+	/*puts(viewNumber, str);*/
+/*}*/
 
-void printUnsigned(uint8_t viewNumber, uint64_t value, uint8_t base) {
-	printUnsignedN(viewNumber, value, countDigits(value, base), base);
-}
+/*void printUnsigned(uint8_t viewNumber, uint64_t value, uint8_t base) {*/
+	/*printUnsignedN(viewNumber, value, countDigits(value, base), base);*/
+/*}*/
 
-void printHexPrefix(uint8_t viewNumber) {
-	putchar(viewNumber, '0');
-	putchar(viewNumber, 'x');
-}
+/*void printHexPrefix(uint8_t viewNumber) {*/
+	/*ttyPutchar(viewNumber, '0');*/
+	/*ttyPutchar(viewNumber, 'x');*/
+/*}*/
 
-void printHexByte(uint8_t viewNumber, uint8_t value) {
-	printHexPrefix(viewNumber);
-	printUnsignedN(viewNumber, value, 2, 16);
-}
+/*void printHexByte(uint8_t viewNumber, uint8_t value) {*/
+	/*printHexPrefix(viewNumber);*/
+	/*printUnsignedN(viewNumber, value, 2, 16);*/
+/*}*/
 
-void printHexPointer(uint8_t viewNumber, void *ptr) {
-	printHexPrefix(viewNumber);
-	printUnsignedN(viewNumber, (uint64_t)ptr, 16, 16);
-}
+/*void printHexPointer(uint8_t viewNumber, void *ptr) {*/
+	/*printHexPrefix(viewNumber);*/
+	/*printUnsignedN(viewNumber, (uint64_t)ptr, 16, 16);*/
+/*}*/
 
 #define min(a, b) ((a) < (b) ? (a) : (b))
 #define max(a, b) ((a) > (b) ? (a) : (b))

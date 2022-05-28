@@ -1,5 +1,6 @@
 #include "pipe.h"
 #include "process.h"
+#include "time.h"
 
 // https://github.com/mit-pdos/xv6-public/blob/master/pipe.c
 
@@ -57,7 +58,7 @@ int pipeClose(int fd) {
 
 int pipeDup2(int olderFd, int newFd);
 
-int pipeRead(int fd, char *buf, int n) {
+int pipeRead(int fd, char *buf, int n, uint64_t timeout) {
 	Pipe *pipe = getPipe(fd);
 	if (!pipe->active) {
 		return -1;
@@ -66,7 +67,8 @@ int pipeRead(int fd, char *buf, int n) {
 	// mut_wait(getSemaphore(pipe->lock), &pipe->lock);
 	semWait(pipe->lock);
 	// Si no hay nada que leer, esperar
-	while (pipe->nread == 0) {
+	uint64_t start = microseconds_elapsed() / 1000;
+	while (pipe->nread == 0 && (timeout == 0 || microseconds_elapsed() / 1000 < start + timeout)) {
 		_yield();
 	}
 

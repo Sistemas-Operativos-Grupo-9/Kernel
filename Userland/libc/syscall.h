@@ -9,10 +9,12 @@
 #include <window.h>
 
 int read(uint64_t fd, char *buf, uint64_t count, uint64_t timeout);
-int write(uint64_t fd, char *buf, uint64_t count);
+int64_t write(uint64_t fd, const char *buf, uint64_t count);
 uint8_t getpid();
-int execve(char *moduleName, char **argv, int argc);
+int execve(char *moduleName, char **argv);
 int fork();
+bool exec(char *moduleName, char **args);
+
 int waitpid(int pid);
 uint64_t proccount();
 Time gettime();

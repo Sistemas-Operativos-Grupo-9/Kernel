@@ -1,7 +1,7 @@
 # include Makefile.inc
 
 KERNEL=kernel.bin
-SOURCES=$(shell find . -name "*.c" -not -name ".*")
+SOURCES=$(shell find -L . -name "*.c" -not -name ".*")
 SOURCES_ASM=$(shell find . -name "*.asm" ! -name "loader.asm")
 BUILDDIR=BUILD
 OBJECTS=$(SOURCES:%.c=$(BUILDDIR)/%.o)

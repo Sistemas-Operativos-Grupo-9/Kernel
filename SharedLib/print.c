@@ -1,6 +1,14 @@
-#include "print.h"
 #include "myUtils.h"
-#include "stdio.h"
+#include "print.h"
+
+void putchar(char ch) { write(1, &ch, 1); }
+
+void puts(const char *str) {
+	while (*str != '\0') {
+		putchar(*str);
+		str++;
+	}
+}
 
 void printIntN(int value, uint8_t digits, uint8_t base) {
 	char str[digits + 1];

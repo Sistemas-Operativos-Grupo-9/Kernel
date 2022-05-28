@@ -1,10 +1,11 @@
 #include "idtLoader.h"
 #include "keyboard.h"
-#include "myUtils.h"
+#include "shared-lib/myUtils.h"
 #include "process.h"
 #include "time.h"
 #include <graphics/basicVideo.h>
 #include <graphics/video.h>
+#include <shared-lib/print.h>
 #include <lib.h>
 #include <moduleLoader.h>
 #include <stdbool.h>
@@ -33,23 +34,20 @@ void *getStackBase() { return &endOfKernelStack; }
 void *initializeKernelBinary() {
 	clearBSS(&bss, &endOfKernel - &bss);
 	initScreen();
+	initializeLogProcess();
 
 	char buffer[10];
 
-#define printHexPointer(ptr) printHexPointer(0, ptr);
-#define printChar(str) putchar(0, str);
-#define print(str) puts(0, str);
+	puts("[x64BareBones]\n");
 
-	print("[x64BareBones]\n");
+	puts("CPU Vendor:");
+	puts(cpuVendor(buffer));
+	putchar('\n');
 
-	print("CPU Vendor:");
-	print(cpuVendor(buffer));
-	printChar('\n');
-
-	print("[Loading modules]\n");
+	puts("[Loading modules]\n");
 
 	if (loadModules(&startOfModules)) {
-		print("FAILED TO LOAD MODULES!");
+		puts("FAILED TO LOAD MODULES!");
 	} else {
 		// struct Module *modules = (struct Module *)&endOfKernelStack;
 		// uint32_t moduleCount =
@@ -63,31 +61,27 @@ void *initializeKernelBinary() {
 		// 	printChar('\n');
 		// }
 	}
-	print("[Done]\n\n");
+	puts("[Done]\n\n");
 
-	print("[Initializing kernel's binary]\n");
+	puts("[Initializing kernel's binary]\n");
 	// readBackup();
 
-	print("  text: ");
+	puts("  text: ");
 	printHexPointer(&text);
-	printChar('\n');
-	print("  rodata: ");
+	putchar('\n');
+	puts("  rodata: ");
 	printHexPointer(&rodata);
-	printChar('\n');
-	print("  data: ");
+	putchar('\n');
+	puts("  data: ");
 	printHexPointer(&data);
-	printChar('\n');
-	print("  bss: ");
+	putchar('\n');
+	puts("  bss: ");
 	printHexPointer(&bss);
-	printChar('\n');
+	putchar('\n');
 
-	print("[Done]\n");
+	puts("[Done]\n");
 
-	printChar('\n');
-
-#undef print
-#undef printChar
-#undef printHexPointer
+	putchar('\n');
 
 	return getStackBase();
 }
@@ -121,16 +115,16 @@ int main() {
 #undef PRINT_MODULE
 
 	initializeHaltProcess();
-	char *helpArgs[] = {"shell", "--print-help"};
-	char *args[] = {"shell"};
+	char *helpArgs[] = {"shell", "--print-help", NULL};
+	char *args[] = {"shell", NULL};
 
 	/*createProcess(0, "fork", NULL, 0, true);*/
-	createProcess(0, "rerun", helpArgs, 2, true);
-	createProcess(1, "rerun", args, 1, true);
-	createProcess(2, "rerun", args, 1, true);
-	createProcess(3, "rerun", args, 1, true);
-	createProcess(4, "rerun", args, 1, true);
-	createProcess(5, "rerun", args, 1, true);
+	createProcess(0, "rerun", helpArgs);
+	createProcess(1, "rerun", args);
+	createProcess(2, "rerun", args);
+	createProcess(3, "rerun", args);
+	createProcess(4, "rerun", args);
+	createProcess(5, "rerun", args);
 
 	_startScheduler();
 

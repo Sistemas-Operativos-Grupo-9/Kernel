@@ -93,9 +93,11 @@ _killAndNextProcess:
 	mov r12, [rsp + (8 * 16)]
 	mov rdi, 0
 	sub rsp, 8
+	call startLock
 	mov rsi, rsp
 	call doSwitch
 	mov rsp, rax
+	call endLock
 	add rsp, 8
 	mov [rsp + (8 * 16)], r12
 	popState

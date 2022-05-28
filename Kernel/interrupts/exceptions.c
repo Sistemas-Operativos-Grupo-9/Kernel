@@ -1,4 +1,5 @@
 #include "graphics/video.h"
+#include "shared-lib/print.h"
 #include "interrupts.h"
 #include "process.h"
 #include "registers.h"
@@ -9,50 +10,48 @@
 
 extern struct RegistersState registersState;
 
-void printReg(uint8_t viewNumber, uint64_t value, const char *name) {
-	puts(viewNumber, name);
-	puts(viewNumber, " = ");
-	printHexPrefix(viewNumber);
-	printUnsignedN(viewNumber, value, 16, 16);
+void printReg(uint64_t value, const char *name) {
+	puts(name);
+	puts(" = ");
+	printHexPrefix();
+	printUnsignedN(value, 16, 16);
 }
 
-void printRegs(uint8_t viewNumber, uint64_t value1, const char *name1,
+void printRegs(uint64_t value1, const char *name1,
                uint64_t value2, const char *name2) {
-	printReg(viewNumber, value1, name1);
-	puts(viewNumber, "   -   ");
-	printReg(viewNumber, value2, name2);
-	putchar(viewNumber, '\n');
+	printReg(value1, name1);
+	puts("   -   ");
+	printReg(value2, name2);
+	putchar('\n');
 }
 
-void printRegisters(uint8_t viewNumber) {
+void printRegisters() {
 	struct RegistersState s = registersState;
-	printRegs(viewNumber, s.rdi, "rdi", s.rsi, "  rsi");
-	printRegs(viewNumber, s.rax, "rax", s.rbx, "  rbx");
-	printRegs(viewNumber, s.rcx, "rcx", s.rdx, "  rdx");
-	printRegs(viewNumber, s.rip, "rip", s.rsp, "  rsp");
-	printRegs(viewNumber, s.rbp, "rbp", s.flags, "flags");
-	printRegs(viewNumber, s.r8, " r8", s.r9, "   r9");
-	printRegs(viewNumber, s.r10, "r10", s.r11, "  r11");
-	printRegs(viewNumber, s.r12, "r12", s.r13, "  r13");
-	printRegs(viewNumber, s.r14, "r14", s.r15, "  r15");
+	printRegs(s.rdi, "rdi", s.rsi, "  rsi");
+	printRegs(s.rax, "rax", s.rbx, "  rbx");
+	printRegs(s.rcx, "rcx", s.rdx, "  rdx");
+	printRegs(s.rip, "rip", s.rsp, "  rsp");
+	printRegs(s.rbp, "rbp", s.flags, "flags");
+	printRegs(s.r8, " r8", s.r9, "   r9");
+	printRegs(s.r10, "r10", s.r11, "  r11");
+	printRegs(s.r12, "r12", s.r13, "  r13");
+	printRegs(s.r14, "r14", s.r15, "  r15");
 }
 
 void exceptionDispatcher(int exception, struct RegistersState *registers) {
-	struct ProcessDescriptor *process = getCurrentProcess();
-
-	puts(process->tty, "Exception: ");
-	printUnsigned(process->tty, exception, 10);
-	putchar(process->tty, '\n');
+	puts("Exception: ");
+	printUnsigned(exception, 10);
+	putchar('\n');
 	if (exception == 0) {
-		puts(process->tty, "Division by zero\n");
+		puts("Division by zero\n");
 	} else if (exception == 6) {
-		puts(process->tty, "Invalid opcode\n");
+		puts("Invalid opcode\n");
 	}
 
 	// printHexPointer((void *)returnAddress);
 	// putchar('\n');
 	_storeRegisters(registers);
-	printRegisters(process->tty);
+	printRegisters();
 	// puts("Finished\n");
 	// while (1);
 	terminateProcess();
