@@ -89,7 +89,6 @@ int main(int argc, char **argv) {
 	}
 
 	waitBackgroundProcesses();
-	printInt(getpid(), 10);
 
 	return 0;
 }
