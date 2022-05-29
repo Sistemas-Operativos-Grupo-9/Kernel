@@ -20,6 +20,8 @@ SECTIONS
 	. += 0x200000-1;
 	. = ALIGN(0x100000);
 	endOfModules = .;
+	sharedMemory = .;
+	. += 512;
 	.bss ALIGN(0x1000) : AT(ADDR(.bss))
 	{
 		bss = .;

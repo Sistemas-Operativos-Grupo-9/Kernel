@@ -53,19 +53,20 @@ size_t split2(char *str, char delim, char **splitArray);
  * from tokens
  * @returns size of filtered string (without counting the final '\0')
  */
-size_t filterTokens(char *str, char **tokens, char *dest);
+size_t filterTokens(char *buf, char **tokens, char *dest);
 
 /**
- * @brief filters from str all appearences of any charachter in tokens and
+ * @brief filters from buf all appearences of any charachter in tokens and
  * stores the result on dest
  *
- * @param str input string
+ * @param buf input buffer
  * @param tokens list of tokens to filter (each char of the string)
+ * @param n max size
  * @param dest pointer to store the string based on str but without any token
  * from tokens
- * @returns size of filtered string (without counting the final '\0')
+ * @returns size of filtered buffer
  */
-size_t filterChars(char *str, char *tokens, char *dest);
+size_t filterCharsN(char *buf, char *tokens, size_t n, char *dest);
 
 void deleteCharAtIndex(char *str, size_t index);
 // returns the amount of deleted characters

@@ -28,6 +28,7 @@ struct RegistersState getRegisters();
 bool kill(int pid);
 void microsleep(uint64_t micros);
 void millisleep(uint64_t millis);
+void sleep(uint64_t seconds);
 uint64_t millis();
 uint8_t getProcesses(struct Process processes[256]);
 void setGraphic(bool value);

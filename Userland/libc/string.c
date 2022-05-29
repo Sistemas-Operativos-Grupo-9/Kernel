@@ -106,22 +106,22 @@ size_t filterTokens(char *str, char **tokens, char *dest) {
 	return destIndex - 1;
 }
 
-size_t filterChars(char *str, char *tokens, char *dest) {
+size_t filterCharsN(char *buf, char *tokens, size_t n, char *dest) {
 	size_t tokensAmount = strlen(tokens);
 	size_t strIndex = 0;
 	size_t destIndex = 0;
-	while (str[strIndex] != '\0') {
+	while (strIndex < n) {
 		for (size_t t = 0; t < tokensAmount; t++) {
-			if (str[strIndex] == tokens[t]) {
+			if (buf[strIndex] == tokens[t]) {
 				strIndex++;
 				// reset t to check for tokens on the new strIndex position
 				t = -1;
 			}
 		}
-		dest[destIndex++] = str[strIndex++];
+		dest[destIndex++] = buf[strIndex++];
 	}
 	dest[destIndex] = '\0';
-	return destIndex - 1;
+	return destIndex;
 }
 
 char **split(const char *str, char delim, size_t *size) {

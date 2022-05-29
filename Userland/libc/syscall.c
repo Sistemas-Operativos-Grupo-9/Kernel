@@ -58,6 +58,7 @@ bool kill(int pid) { return syscall(KILL, pid, 0, 0, 0, 0); }
 
 void microsleep(uint64_t micros) { syscall(MICROSLEEP, micros, 0, 0, 0, 0); }
 void millisleep(uint64_t millis) { microsleep(millis * 1000); }
+void sleep(uint64_t seconds) { millisleep(seconds * 1000); }
 
 uint64_t millis() { return syscall(MILLIS, 0, 0, 0, 0, 0); }
 
