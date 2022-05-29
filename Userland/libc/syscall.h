@@ -1,6 +1,7 @@
 #pragma once
 
 #include "color.h"
+#include "memory.h"
 #include "processes.h"
 #include "semaphores.h"
 #include <datetime.h>
@@ -53,3 +54,5 @@ int pipeInit(int *pipe);
 void pipePrintList();
 // Frees a previously allocated buffer.
 void ourFree(void *memPtr);
+
+MemoryState getMemoryState();

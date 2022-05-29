@@ -130,3 +130,9 @@ void *ourMalloc(size_t byteCount) {
 
 // Frees a previously allocated buffer.
 void ourFree(void *memPtr) { syscall(FREE, (uint64_t)memPtr, 0, 0, 0, 0); }
+
+MemoryState getMemoryState() {
+	MemoryState state;
+	syscall(GETMEMORYSTATE, (uint64_t)&state, 0, 0, 0, 0);
+	return state;
+}
