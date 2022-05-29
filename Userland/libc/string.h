@@ -10,18 +10,38 @@ int strcmp(char *str1, char *str2);
 int strncmp(const char *s1, const char *s2, size_t n);
 size_t tokencount(char *str, char c);
 /**
+ * @brief Does not allocate memory.
+ * Destroys str.
+ * @return a pointer to the trimmed string
+ */
+char *trim(char *str);
+/**
  * @brief splits str into an array of strings according to the given delimiter
  * delim.
- * If str does not contain delim, returns an array of 1 element with str copied
- * into it. If the first or last character of str is delim, it ignores it. If
- * there are two or more delims together, it treats them as one.
+ *
+ *  If does not contain delim, returns an array of 1 element with str
+ * copied into it. If the first or last character of str is delim, it ignores
+ * it. If there are two or more delims together, it treats them as one.
+ *
+ * This function allocates memory for the return value, so this must be
+ * freed later by the user.
  *
  * @param str the input string
  * @param delim the delimiter to split str
  * @param size the size of the resulting array
- * @return an array of strings with the splitted input string
+ * @return an array of strings with the splitted input string, NULL on error
  */
-char **split(char *str, char delim, size_t *size);
+char **split(const char *str, char delim, size_t *size);
+
+/**
+ * @brief splits str contents like the split function but without allocating
+ * memory. It saves the pointers to the split strings in splitArray and destroys
+ * str in the proces, so it cannot be used after a split2 call
+ *
+ * @return the size of the resulting array.
+ */
+size_t split2(char *str, char delim, char **splitArray);
+
 /**
  * @brief filters from str all appearences of any token in tokens and stores the
  * result on dest

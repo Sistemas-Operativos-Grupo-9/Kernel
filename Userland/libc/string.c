@@ -120,7 +120,7 @@ size_t filterChars(char *str, char *tokens, char *dest) {
 	return destIndex - 1;
 }
 
-char **split(char *str, char delim, size_t *size) {
+char **split(const char *str, char delim, size_t *size) {
 	size_t delimAmount = tokencount(str, delim);
 	size_t lastDelimIndex = -1;
 
@@ -172,6 +172,46 @@ char **split(char *str, char delim, size_t *size) {
 	}
 	*size = splitIndex;
 	return splitArray;
+}
+
+size_t split2(char *str, char delim, char **splitArray) {
+
+	size_t splitIndex = 0;
+	size_t strIndex = 0;
+
+	while (str[strIndex] != '\0') {
+
+		while (str[strIndex] == delim)
+			str[strIndex++] = '\0';
+
+		if (str[strIndex] == '\0')
+			break;
+
+		if (strIndex == 0 || str[strIndex - 1] == '\0')
+			splitArray[splitIndex++] = str + strIndex;
+
+		strIndex++;
+	}
+
+	return splitIndex;
+}
+
+char *trim(char *str) {
+	size_t index = 0;
+	char *trimmedStr;
+
+	while (str[index] == ' ')
+		str[index++] = '\0';
+
+	trimmedStr = str + index;
+
+	while (str[index++] != '\0')
+		;
+	index--;
+	while (str[--index] == ' ')
+		str[index] = '\0';
+
+	return trimmedStr;
 }
 
 __attribute__((used, optimize("-fno-tree-loop-distribute-patterns"))) void *
