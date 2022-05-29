@@ -1,7 +1,8 @@
+#include "processes.h"
 #include "shared-lib/print.h"
 #include "stdio.h"
+#include "string.h"
 #include "syscall.h"
-
 #define MAX_PHILOSOPHERS 20
 #define SEM_ANON ""
 
@@ -35,8 +36,12 @@ struct TableState {
 	Philosopher philosophers[MAX_PHILOSOPHERS];
 } *table = (struct TableState *)0x0000000000400000; // &sharedMemory
 
+// Function Signatures
 void philosopher(int num);
 void printTableState();
+void incrementActivePhilosophers();
+void decrementActivePhilosophers();
+size_t getActivePhilosophers();
 
 // Philosofers
 
@@ -64,39 +69,50 @@ void initPhilosofer(int phnum) {
 }
 
 void addPhilosofer() {
-	if (table->activePhilosophers == MAX_PHILOSOPHERS) {
+	if (getActivePhilosophers() == MAX_PHILOSOPHERS) {
 		return;
 	}
-	int nextPhilosopher = table->activePhilosophers;
-	semWait(tableLock);
-	table->activePhilosophers++;
-	semPost(tableLock);
+	int nextPhilosopher = getActivePhilosophers();
+	incrementActivePhilosophers();
 	int pid;
 	switch ((pid = fork())) {
 	case 0:
 		philosopher(nextPhilosopher);
 		break;
 	default:
-		table->philosophers[table->activePhilosophers].pid = pid;
+		philoSetPID(nextPhilosopher, pid);
 		break;
 	}
 }
 
 int removePhilosofer() {
-	if (table->activePhilosophers == 1)
+	int activePhilosophers = getActivePhilosophers();
+	if (activePhilosophers == 1)
 		return -1;
 
-	semWait(tableLock);
-	table->activePhilosophers--;
-	semPost(tableLock);
+	decrementActivePhilosophers();
 
-	int pid = philoGetPID(table->activePhilosophers);
-	philoSetPID(table->activePhilosophers, -1);
+	int pid = philoGetPID(activePhilosophers);
+	philoSetPID(activePhilosophers, -1);
 	return pid;
 }
 
 /////////////////
 // Table
+
+void incrementActivePhilosophers() {
+	semWait(tableLock);
+	table->activePhilosophers++;
+	semPost(tableLock);
+}
+
+void decrementActivePhilosophers() {
+	semWait(tableLock);
+	table->activePhilosophers--;
+	semPost(tableLock);
+}
+
+size_t getActivePhilosophers() { return table->activePhilosophers; }
 
 void test(int phnum) {
 	if (philoGetState(phnum) == HUNGRY && philoGetState(LEFT) != EATING &&
@@ -139,7 +155,7 @@ void thinkWait(int phnum) { sleep(3); }
 void eatWait(int phnum) { sleep(2); }
 
 void philosopher(int num) {
-	while (table->activePhilosophers > num && table->running) {
+	while (getActivePhilosophers() > num && table->running) {
 		thinkWait(num);
 
 		pickupChopsticks(num);
@@ -156,7 +172,7 @@ void printTableState() {
 		return;
 	}
 	size_t currentPhilo = 0;
-	while (currentPhilo < table->activePhilosophers) {
+	while (currentPhilo < getActivePhilosophers()) {
 		putchar(philoGetState(currentPhilo++));
 	}
 	putchar('\n');
@@ -184,7 +200,26 @@ Command parseInput() {
 	return DO_NOTHING;
 }
 
+bool checkIfOtherIsRunning() {
+	struct Process processes[256];
+	size_t count = getProcesses(processes);
+	size_t phyloCount = 0;
+	for (size_t i = 0; i < count; i++) {
+		if (strcmp("phylo", processes[i].name) == 0) {
+			phyloCount++;
+			if (phyloCount == 2)
+				return true;
+		}
+	}
+	return false;
+}
+
 void main(int argc, char **argv) {
+	if (checkIfOtherIsRunning()) {
+		puts("phylo is already running\n");
+		return;
+	}
+
 	int i;
 	int startingPhilosofers = 5;
 
