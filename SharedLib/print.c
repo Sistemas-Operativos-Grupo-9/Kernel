@@ -1,5 +1,6 @@
 #include "myUtils.h"
 #include "print.h"
+#include "stdbool.h"
 
 void putchar(char ch) { write(1, &ch, 1); }
 
@@ -11,8 +12,9 @@ void puts(const char *str) {
 }
 
 void printIntN(int value, uint8_t digits, uint8_t base) {
-	char str[digits + 1];
-	numToString(value, digits, str, base);
+	bool neg = value < 0;
+	char str[digits + 1 + (neg ? 1 : 0)];
+	numToString(value, digits + (neg ? 1 : 0), str, base);
 	puts(str);
 }
 void printInt(int value, uint8_t base) {

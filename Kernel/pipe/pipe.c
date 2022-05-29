@@ -109,7 +109,7 @@ int pipeRead(PIPID fd, char *buf, int n, uint64_t timeout) {
 	semWait(pipe->lock);
 	// Si no hay nada que leer, esperar
 	uint64_t start = microseconds_elapsed() / 1000;
-	while (pipe->nread == 0 &&
+	while (pipe->nread == pipe->nwrite &&
 	       (timeout == 0 || microseconds_elapsed() / 1000 < start + timeout) &&
 	       pipe->writeopen > 0) {
 		semPost(pipe->lock);
@@ -117,16 +117,14 @@ int pipeRead(PIPID fd, char *buf, int n, uint64_t timeout) {
 		semWait(pipe->lock);
 	}
 
-	if (pipe->writeopen == 0) {
-		semPost(pipe->lock);
-		return -1;
+	int nread = 0;
+	while (nread < n && pipe->nread != pipe->nwrite) {
+		buf[nread++] = pipe->data[pipe->nread++ % PIPE_SIZE];
 	}
 
-	int nread = 0;
-	while (nread < n && pipe->nread > 0) {
-		if (pipe->nread == pipe->nwrite)
-			break;
-		buf[nread++] = pipe->data[pipe->nread++ % PIPE_SIZE];
+	if (nread == 0 && pipe->writeopen == 0) {
+		semPost(pipe->lock);
+		return -1;
 	}
 
 	// mut_signal(getSemaphore(pipe->lock), &pipe->lock);

@@ -13,7 +13,7 @@ static uint64_t syscall(uint64_t code, uint64_t param1, uint64_t param2,
 }
 
 int read(uint64_t fd, char *buf, uint64_t count, uint64_t timeout) {
-	return syscall(READ, fd, (uint64_t)buf, count, timeout, 0);
+	return (int)syscall(READ, fd, (uint64_t)buf, count, timeout, 0);
 }
 
 int64_t write(uint64_t fd, const char *buf, uint64_t count) {
