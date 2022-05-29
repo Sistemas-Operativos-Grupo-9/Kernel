@@ -5,9 +5,9 @@
 #include "semaphores.h"
 #include <datetime.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <window.h>
-#include <stddef.h>
 
 int read(uint64_t fd, char *buf, uint64_t count, uint64_t timeout);
 int64_t write(uint64_t fd, const char *buf, uint64_t count);
@@ -47,6 +47,9 @@ void semPrintList();
 // Allocates 'byteCount' bytes and returns it's memory location.
 void *ourMalloc(size_t byteCount);
 
+// Pipes
+int pipeInit(int *pipe);
+
+void pipePrintList();
 // Frees a previously allocated buffer.
 void ourFree(void *memPtr);
-

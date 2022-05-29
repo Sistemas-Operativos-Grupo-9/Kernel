@@ -1,5 +1,7 @@
 #include "pipe.h"
 #include "process.h"
+#include "semaphore.h"
+#include "shared-lib/print.h"
 #include "syscall.h"
 #include "time.h"
 
@@ -105,7 +107,9 @@ int pipeRead(int fd, char *buf, int n, uint64_t timeout) {
 	semWait(pipe->lock);
 	// Si no hay nada que leer, esperar
 	uint64_t start = microseconds_elapsed() / 1000;
-	while (pipe->nread == 0 && (timeout == 0 || microseconds_elapsed() / 1000 < start + timeout) && pipe->writeopen > 0) {
+	while (pipe->nread == 0 &&
+	       (timeout == 0 || microseconds_elapsed() / 1000 < start + timeout) &&
+	       pipe->writeopen > 0) {
 		semPost(pipe->lock);
 		_yield();
 		semWait(pipe->lock);
@@ -150,11 +154,21 @@ int pipeWrite(int fd, char *buf, int n) {
 
 Pipe *getPipe(PIPID pipid) { return &pipes[pipid]; }
 
+void pipePrint(PIPID pipid) {
+	Pipe *p = getPipe(pipid);
+	if (p->active) {
+		puts("Pipe: ");
+		printInt(pipid, 10);
+		putchar('\n');
+		printBlockedProcesses(p->lock);
+	}
+}
+
 void pipePrintList() {
 	for (int i = 0; i < MAX_PIPES; i++) {
 		Pipe *pipe = getPipe(i);
 		if (pipe->active) {
-			semPrint(i);
+			pipePrint(i);
 		}
 	}
 }

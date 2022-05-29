@@ -5,6 +5,7 @@
 #include "graphics/video.h"
 #include "interrupts.h"
 #include "lock.h"
+#include "memory_manager.h"
 #include "process.h"
 #include "processes.h"
 #include "registers.h"
@@ -14,7 +15,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
-#include "memory_manager.h"
 
 int64_t read(uint64_t fd, char *buf, uint64_t count, uint64_t timeout) {
 	struct ProcessDescriptor process = *getCurrentProcess();
@@ -229,6 +229,12 @@ uint64_t syscallDispatcher(uint64_t rdi, uint64_t param1, uint64_t param2,
 		return (uint64_t)ourMalloc(param1);
 	case FREE:
 		ourFree((void *)param1);
+		break;
+	case PIPEINIT:
+		return pipeInit((int *)param1);
+		break;
+	case PIPEPRINTLIST:
+		pipePrintList();
 		break;
 	}
 	return 0;

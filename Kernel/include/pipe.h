@@ -31,4 +31,5 @@ void pipeDecWrite(int fd);
 int pipeRead(int fd, char *buf, int n, uint64_t timeout);
 int pipeWrite(int fd, char *buf, int n);
 Pipe *getPipe(PIPID pipid);
+void pipePrint(PIPID pipid);
 void pipePrintList();
