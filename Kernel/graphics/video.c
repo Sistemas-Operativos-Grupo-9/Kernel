@@ -73,6 +73,7 @@ static struct Desktop {
 		bool graphic;
 		int desktop;
 		int subIndex;
+		SID mutex;
 	} Views[4];
 } Desktops[] = {
     {
@@ -240,6 +241,7 @@ void initScreen() {
 			view->outputLength = 0;
 			view->scrollY = 0;
 			view->colors = NORMAL_COLORS;
+			view->mutex = semInit("", 1);
 		}
 	}
 	// for (int y = 0; y < TEXT_HEIGHT; y++) {
@@ -502,6 +504,7 @@ void setChar(uint8_t viewNumber, char ch) {
 
 void ttyPutchar(uint8_t viewNumber, char ch) {
 	struct View *view = Views[viewNumber];
+	semWait(view->mutex);
 	view->outputBuffer[view->outputLength++] = ch;
 
 	int newCursorX = view->cursorX, newCursorY = view->cursorY;
@@ -577,6 +580,7 @@ void ttyPutchar(uint8_t viewNumber, char ch) {
 		newCursorX = view->cursorX;
 		newCursorY = view->cursorY;
 	}
+	semPost(view->mutex);
 }
 
 void setViewGraphic(uint8_t viewNumber, bool value) {
@@ -636,39 +640,40 @@ void clear(uint8_t viewNumber) {
 }
 
 /*// Helper print functions for Kernel space*/
-/*void printIntN(uint8_t viewNumber, int value, uint8_t digits, uint8_t base) {*/
-	/*char str[digits + 1];*/
-	/*numToString(value, digits, str, base);*/
-	/*ttyPuts(viewNumber, str);*/
+/*void printIntN(uint8_t viewNumber, int value, uint8_t digits, uint8_t base)
+ * {*/
+/*char str[digits + 1];*/
+/*numToString(value, digits, str, base);*/
+/*ttyPuts(viewNumber, str);*/
 /*}*/
 /*void printInt(uint8_t viewNumber, int value, uint8_t base) {*/
-	/*printIntN(viewNumber, value, countDigits(value, base), base);*/
+/*printIntN(viewNumber, value, countDigits(value, base), base);*/
 /*}*/
 
 /*void printUnsignedN(uint8_t viewNumber, uint64_t value, uint8_t digits,*/
-                    /*uint8_t base) {*/
-	/*char str[digits + 1];*/
-	/*unsignedToString(value, digits, str, base);*/
-	/*puts(viewNumber, str);*/
+/*uint8_t base) {*/
+/*char str[digits + 1];*/
+/*unsignedToString(value, digits, str, base);*/
+/*puts(viewNumber, str);*/
 /*}*/
 
 /*void printUnsigned(uint8_t viewNumber, uint64_t value, uint8_t base) {*/
-	/*printUnsignedN(viewNumber, value, countDigits(value, base), base);*/
+/*printUnsignedN(viewNumber, value, countDigits(value, base), base);*/
 /*}*/
 
 /*void printHexPrefix(uint8_t viewNumber) {*/
-	/*ttyPutchar(viewNumber, '0');*/
-	/*ttyPutchar(viewNumber, 'x');*/
+/*ttyPutchar(viewNumber, '0');*/
+/*ttyPutchar(viewNumber, 'x');*/
 /*}*/
 
 /*void printHexByte(uint8_t viewNumber, uint8_t value) {*/
-	/*printHexPrefix(viewNumber);*/
-	/*printUnsignedN(viewNumber, value, 2, 16);*/
+/*printHexPrefix(viewNumber);*/
+/*printUnsignedN(viewNumber, value, 2, 16);*/
 /*}*/
 
 /*void printHexPointer(uint8_t viewNumber, void *ptr) {*/
-	/*printHexPrefix(viewNumber);*/
-	/*printUnsignedN(viewNumber, (uint64_t)ptr, 16, 16);*/
+/*printHexPrefix(viewNumber);*/
+/*printUnsignedN(viewNumber, (uint64_t)ptr, 16, 16);*/
 /*}*/
 
 #define min(a, b) ((a) < (b) ? (a) : (b))

@@ -1,141 +1,62 @@
-#include <print.h>
+#include "executor.h"
+#include "input.h"
+#include "parse.h"
+#include <shared-lib/print.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
 #include <syscall.h>
 #include <time.h>
-#include <shared-lib/print.h>
 
-char commandHistory[10][256];
-const uint64_t historyLength = sizeof(commandHistory) / sizeof(*commandHistory);
-int commandsIssued = 0;
-char command[256];
+// bool validateCommand(char *command) {
+// 	if (strlen(command) > 0) {
+// 		return true;
+// 	}
+// 	return false;
+// }
 
-void replaceComand(char *buffer, char *newCommand, int *length, int *position) {
-	for (int i = *position; i < *length; i++) {
-		moveCursorRight();
-	}
-	for (int i = 0; i < *length; i++) {
-		putchar('\b');
-	}
-	strcpy(buffer, newCommand);
-	*length = strlen(buffer);
-	for (int i = 0; i < *length; i++) {
-		putchar(buffer[i]);
-	}
-	*position = *length;
-}
+// // Returns the arg count
+// void splitArguments(char *command, char **splitted) {
+// 	int count = 0;
+// 	char *start = command;
+// 	bool out = false;
+// 	do {
+// 		out = *command == '\0';
+// 		if (*command == ' ' || out) {
+// 			*command = '\0';
+// 			splitted[count] = start;
+// 			start = command + 1;
+// 			count++;
+// 		}
+// 	} while (command++, !out);
+// 	splitted[count] = NULL;
+// }
 
-bool inputCommand(char *buffer, int maxLength) {
-	buffer[0] = 0;
-	int length = 0;
-	int position = 0;
-	int historyIndex = -1;
-	while (true) {
-		KeyStroke key = readKeyStroke(0);
-		if (!key.isPrintable && key.data == '\n') {
-			break;
-		}
-		if (key.isPrintable) {
-			length++;
-			for (int i = length; i > position; i--) {
-				buffer[i] = buffer[i - 1];
-			}
-			buffer[position++] = key.data;
-			putchar(key.data);
-		} else if (key.data == '\b') {
-			if (position > 0) {
-				for (int i = position - 1; i < length; i++) {
-					buffer[i] = buffer[i + 1];
-				}
-				length--;
-				position--;
-				putchar('\b');
-			}
-		} else if (key.data == '\n') {
-			return false;
-		} else if (key.arrow != NO_ARROW) {
-			if (key.arrow == ARROW_LEFT && position > 0) {
-				moveCursorLeft();
-				position--;
-			} else if (key.arrow == ARROW_RIGHT && position < length) {
-				moveCursorRight();
-				position++;
-			}
+// // Returns true if exit
+// bool execCommand(char *command) {
+// 	char *exec;
+// 	char *argv[10];
+// 	splitArguments(command, argv);
+// 	exec = argv[0];
+// 	if (strcmp(exec, "quit") == 0 || strcmp(exec, "exit") == 0) {
+// 		return true;
+// 	}
+// 	if (strcmp(exec, "pid") == 0) {
+// 		printInt(getpid(), 10);
+// 	} else if (execve(exec, argv + 1) == -1) {
+// 		putchar('\"');
+// 		puts(exec);
+// 		puts("\" is not a recognized program or module\n");
+// 	}
 
-			if (key.arrow == ARROW_UP && historyIndex + 1 < historyLength) {
-				historyIndex++;
-				replaceComand(buffer, commandHistory[historyIndex], &length,
-				              &position);
-			}
+// 	// puts(process->name);
+// 	// puts(" -> ");
+// 	// printInt(retCode, 10);
+// 	// putchar('\n');
 
-			if (key.arrow == ARROW_DOWN) {
-				if (historyIndex + 1 > 0) {
-					historyIndex--;
-					replaceComand(buffer, commandHistory[historyIndex], &length,
-					              &position);
-				} else if (historyIndex == 0) {
-					historyIndex--;
-					replaceComand(buffer, "", &length, &position);
-				}
-			}
-		} else if (key.isEOF) {
-			return true;
-		}
-	}
-	return false;
-}
-
-bool validateCommand(char *command) {
-	if (strlen(command) > 0) {
-		return true;
-	}
-	return false;
-}
-
-// Returns the arg count
-int splitArguments(char *command, char **splitted) {
-	int count = 0;
-	char *start = command;
-	bool out = false;
-	do {
-		out = *command == '\0';
-		if (*command == ' ' || out) {
-			*command = '\0';
-			splitted[count] = start;
-			start = command + 1;
-			count++;
-		}
-	} while (command++, !out);
-	return count;
-}
-
-// Returns true if exit
-bool execCommand(char *command) {
-	char *exec;
-	char *argv[10];
-	int argc = splitArguments(command, argv);
-	argv[argc] = NULL;
-	exec = argv[0];
-	if (strcmp(exec, "quit") == 0 || strcmp(exec, "exit") == 0) {
-		return true;
-	}
-	if (strcmp(exec, "pid") == 0) {
-		printInt(getpid(), 10);
-	} else if (execve(exec, argv + 1) == -1) {
-		putchar('\"');
-		puts(exec);
-		puts("\" is not a recognized program or module\n");
-	}
-
-	// puts(process->name);
-	// puts(" -> ");
-	// printInt(retCode, 10);
-	// putchar('\n');
-
-	setForeground(WHITE);
-	return false;
-}
+// 	setForeground(WHITE);
+// 	return false;
+// }
 
 int main(int argc, char **argv) {
 	if (argc == 1 && strcmp(argv[0], "--print-help") == 0) {
@@ -143,22 +64,32 @@ int main(int argc, char **argv) {
 		puts("View command history with up and down arrows.\n");
 		puts("Type \"help\" to see all the programs and commands.\n");
 	}
+	char command[MAX_COMMAND_SIZE];
 	while (true) {
 		puts("\n~");
 		bool eof = inputCommand(command, sizeof(command));
 		if (eof)
-			return 0;
-		if (validateCommand(command)) {
-			commandsIssued++;
-			for (int i = historyLength - 1; i > 0; i--)
-				strcpy(commandHistory[i], commandHistory[i - 1]);
-			strcpy(commandHistory[0], command);
+			break;
+		/*puts(command);*/
+		char commandCopy[MAX_COMMAND_SIZE];
+		strncpy(commandCopy, command, MAX_COMMAND_SIZE);
+		struct ParseData data;
+		if (parseCommands(command, &data)) {
+			/*for (int i = 0; data.commandMatrix[i] != NULL; i++) {*/
+			/*for (int j = 0; data.commandMatrix[i][j] != NULL; j++) {*/
+			/*putchar(' ');*/
+			/*puts(data.commandMatrix[i][j]);*/
+			/*}*/
+			/*puts("|\n");*/
+			/*}*/
+			saveCommand(commandCopy);
 			putchar('\n');
-			if (execCommand(command)) {
-				return 0;
-			}
+			executeCommands(data);
 		}
 	}
+
+	waitBackgroundProcesses();
+	printInt(getpid(), 10);
 
 	return 0;
 }

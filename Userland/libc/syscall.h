@@ -14,6 +14,7 @@ int read(uint64_t fd, char *buf, uint64_t count, uint64_t timeout);
 int64_t write(uint64_t fd, const char *buf, uint64_t count);
 bool dup2(int fd1, int fd2);
 bool close(int fd);
+void exit(int retCode);
 
 uint8_t getpid();
 int execve(char *moduleName, char **argv);
@@ -59,4 +60,3 @@ void pipePrintList();
 void ourFree(void *memPtr);
 
 MemoryState getMemoryState();
-

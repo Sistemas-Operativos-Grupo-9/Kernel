@@ -1,8 +1,8 @@
 #include "graphics/video.h"
-#include "shared-lib/print.h"
 #include "interrupts.h"
 #include "process.h"
 #include "registers.h"
+#include "shared-lib/print.h"
 
 #define ZERO_EXCEPTION_ID 0
 #define INVALID_OPCODE_ID 6
@@ -17,8 +17,8 @@ void printReg(uint64_t value, const char *name) {
 	printUnsignedN(value, 16, 16);
 }
 
-void printRegs(uint64_t value1, const char *name1,
-               uint64_t value2, const char *name2) {
+void printRegs(uint64_t value1, const char *name1, uint64_t value2,
+               const char *name2) {
 	printReg(value1, name1);
 	puts("   -   ");
 	printReg(value2, name2);

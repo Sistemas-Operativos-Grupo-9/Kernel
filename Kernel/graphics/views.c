@@ -16,13 +16,9 @@ void writeChar(uint8_t tty, char ch) {
 	keypressUpdate();
 }
 
-bool hasEof(uint8_t tty) {
-	return Views[tty].eof;
-}
+bool hasEof(uint8_t tty) { return Views[tty].eof; }
 
-void setEof(uint8_t tty, bool value) {
-	Views[tty].eof = value;
-}
+void setEof(uint8_t tty, bool value) { Views[tty].eof = value; }
 
 char readInput(uint8_t tty) {
 	struct View *view = &Views[tty];

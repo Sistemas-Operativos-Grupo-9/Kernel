@@ -1,9 +1,8 @@
 
-#include <print.h>
+#include <shared-lib/print.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <syscall.h>
-#include <shared-lib/print.h>
 
 int main(int argc, char **argv) {
 	if (argc != 1) {

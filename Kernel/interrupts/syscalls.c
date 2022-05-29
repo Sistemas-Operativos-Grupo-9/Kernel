@@ -29,25 +29,30 @@ int64_t write(uint64_t fd, const char *buf, uint64_t count) {
 	return d.write(d.id, buf, count);
 }
 
-bool dup2(int fd1, int fd2) {
-	struct ProcessDescriptor process = *getCurrentProcess();
-	struct FileDescriptor *d1 = &process.fdTable[fd1];
-	struct FileDescriptor *d2 = &process.fdTable[fd2];
-	if (d2->active) {
+extern int PID;
+bool close(int fd) {
+	struct ProcessDescriptor *process = getCurrentProcess();
+	struct FileDescriptor *d = &process->fdTable[fd];
+	if (!d->active)
 		return true;
-	}
-	d1->dup2(d1->id);
-	*d2 = *d1;
+	if (d->close != NULL)
+		d->close(d->id);
+	d->active = false;
 	return false;
 }
 
-bool close(int fd) {
-	struct ProcessDescriptor process = *getCurrentProcess();
-	struct FileDescriptor *d = &process.fdTable[fd];
-	if (!d->active)
-		return true;
-	d->close(d->id);
-	d->active = false;
+bool dup2(int fd1, int fd2) {
+	if (fd1 == fd2)
+		return false;
+	struct ProcessDescriptor *process = getCurrentProcess();
+	struct FileDescriptor *d1 = &process->fdTable[fd1];
+	struct FileDescriptor *d2 = &process->fdTable[fd2];
+	if (d2->active) {
+		close(fd2);
+	}
+	if (d1->dup2 != NULL)
+		d1->dup2(d1->id);
+	*d2 = *d1;
 	return false;
 }
 
@@ -68,7 +73,6 @@ bool pipe(int *readFD, int *writeFD) {
 		return true;
 	}
 
-
 	readD->id = pipe;
 	readD->write = NULL;
 	readD->read = (int (*)(ID, const char *, uint64_t, uint64_t))pipeRead;
@@ -76,7 +80,7 @@ bool pipe(int *readFD, int *writeFD) {
 	readD->dup2 = (void (*)(ID))pipeIncRead;
 
 	writeD->id = pipe;
-	writeD->read= NULL;
+	writeD->read = NULL;
 	writeD->write = (int (*)(ID, const char *, uint64_t))pipeWrite;
 	writeD->close = (void (*)(ID))pipeDecWrite;
 	writeD->dup2 = (void (*)(ID))pipeIncWrite;
@@ -222,6 +226,9 @@ uint64_t syscallDispatcher(uint64_t rdi, uint64_t param1, uint64_t param2,
 		return dup2(param1, param2);
 	case CLOSE:
 		return close(param1);
+	case EXIT:
+		exit(param1);
+		break;
 
 	case SEMPOST:
 		return semPost(param1);

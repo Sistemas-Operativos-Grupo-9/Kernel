@@ -160,6 +160,12 @@ void pipePrint(PIPID pipid) {
 		puts("Pipe: ");
 		printInt(pipid, 10);
 		putchar('\n');
+		puts("Read end open count:");
+		printUnsigned(p->readopen, 10);
+		putchar('\n');
+		puts("Write end open count:");
+		printUnsigned(p->writeopen, 10);
+		putchar('\n');
 		printBlockedProcesses(p->lock);
 	}
 }

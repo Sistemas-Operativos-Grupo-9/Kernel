@@ -28,15 +28,15 @@ void reset() {
 int getch(uint64_t timeout) {
 	char ch = 0;
 	switch (read(0, &ch, 1, timeout)) {
-		case 1:
-			return ch;
-		case EOF:
-			return EOF;
-		case 0:
-			return TIMEOUT;
-		default:
-			// Unreachable!
-			return 0xDEAD;
+	case 1:
+		return ch;
+	case EOF:
+		return EOF;
+	case 0:
+		return TIMEOUT;
+	default:
+		// Unreachable!
+		return 0xDEAD;
 	}
 }
 

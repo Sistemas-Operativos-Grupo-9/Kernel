@@ -1,5 +1,5 @@
-#include <stdio.h>
 #include <shared-lib/print.h>
+#include <stdio.h>
 #include <syscall.h>
 #include <time.h>
 

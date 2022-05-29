@@ -1,5 +1,5 @@
-#include "myUtils.h"
 #include "print.h"
+#include "myUtils.h"
 #include "stdbool.h"
 
 void putchar(char ch) { write(1, &ch, 1); }

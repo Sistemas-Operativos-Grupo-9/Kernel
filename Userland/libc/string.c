@@ -2,8 +2,8 @@
 #include "string.h"
 #include "memory_manager.h"
 
-uint64_t strlen(char *str) {
-	char *end = str;
+uint64_t strlen(const char *str) {
+	char const *end = str;
 	while (*end++ != '\0')
 		;
 	return end - str - 1;
@@ -22,7 +22,7 @@ void strncpy(char *dst, const char *src, size_t n) {
 		;
 }
 
-int strcmp(char *str1, char *str2) {
+int strcmp(const char *str1, const char *str2) {
 	do {
 		if (*str1 > *str2)
 			return 1;
@@ -45,15 +45,18 @@ int strncmp(const char *s1, const char *s2, size_t n) {
 		return (*(unsigned char *)s1 - *(unsigned char *)s2);
 }
 
-size_t tokencount(char *str, char c) {
+size_t tokencount(const char *str, char c) {
+	return tokencountn(str, c, strlen(str));
+}
+
+size_t tokencountn(const char *buf, char c, size_t n) {
 	size_t count = 0;
-	size_t i = 0;
-	while (str[i] != '\0') {
-		if (str[i] == c)
+	while (n > 0) {
+		if (buf[n - 1] == c)
 			count++;
-		i++;
+		n--;
 	}
-	return i;
+	return count;
 }
 
 size_t deleteNCharsAtIndex(char *str, size_t index, size_t n) {

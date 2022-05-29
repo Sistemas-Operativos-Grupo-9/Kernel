@@ -1,9 +1,8 @@
 #include "processes.h"
-#include <print.h>
+#include <shared-lib/print.h>
 #include <stdio.h>
 #include <string.h>
 #include <syscall.h>
-#include <shared-lib/print.h>
 
 struct Process processes[256];
 
@@ -25,15 +24,15 @@ int main() {
 			putchar(' ');
 		puts(processes[i].waiting ? "[WAITING]" : "  [READY]");
 		switch (processes[i].state) {
-			case PROCESS_DEAD:
-				puts(" [DEAD]");
-				break;
-			case PROCESS_ACTIVE:
-				puts(" [ACTIVE]");
-				break;
-			case PROCESS_ZOMBIE:
-				puts(" [ZOMBIE]");
-				break;
+		case PROCESS_DEAD:
+			puts(" [DEAD]");
+			break;
+		case PROCESS_ACTIVE:
+			puts(" [ACTIVE]");
+			break;
+		case PROCESS_ZOMBIE:
+			puts(" [ZOMBIE]");
+			break;
 		}
 		puts(": ");
 		printHexPointer(processes[i].entryPoint);

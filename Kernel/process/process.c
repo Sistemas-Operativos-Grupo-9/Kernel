@@ -3,6 +3,7 @@
 #include "interrupts.h"
 #include "lib.h"
 #include "lock.h"
+#include "memory_manager.h"
 #include "moduleLoader.h"
 #include "queue.h"
 #include "time.h"
@@ -52,7 +53,8 @@ struct FileDescriptor *createFileDescriptor() {
 }
 
 int getFileDescriptorNumber(struct FileDescriptor *fd) {
-	if (fd == NULL) return -1;
+	if (fd == NULL)
+		return -1;
 	ProcessDescriptor *process = getProcess(PID);
 	return fd - process->fdTable;
 }
@@ -99,7 +101,8 @@ int64_t readTTY(uint8_t tty, char *buf, uint64_t count, uint64_t timeout) {
 		return -1;
 	}
 	_sti();
-	for (read = 0; read < count && buf[read] != '\n'; read++) {
+	for (read = 0; read < count && (read == 0 || buf[read - 1] != '\n');
+	     read++) {
 		while (
 		    inputAvailable(tty) == 0 &&
 		    (timeout == 0 || microseconds_elapsed() / 1000 < start + timeout)) {
@@ -134,6 +137,17 @@ void waitForIO() {
 	_yield();
 }
 
+void exit(int retCode) {
+	ProcessDescriptor *process = getProcess(PID);
+	process->returnCode = retCode;
+
+	childDeadUpdate();
+	terminateProcess();
+
+	// ¯\_(ツ)_/¯
+	exit(retCode);
+}
+
 bool killProcess(int pid) {
 	if (processes[pid].state == PROCESS_DEAD)
 		return false;
@@ -153,15 +167,30 @@ int waitPID(int pid) {
 
 void initializeLogProcess() {
 	processes[0].fdTable[1] = (struct FileDescriptor){
-		.active = true,
+	    .active = true,
 	    .write = (int (*)(ID, const char *, uint64_t))writeTTY,
 	    .id = 0,
 	};
 }
 
+void freeArgs() {
+	ProcessDescriptor *process = getCurrentProcess();
+	for (int i = 0; process->args[i] != NULL; i++) {
+		ourFree(process->args[i]);
+	}
+	ourFree(process->args);
+}
+
+bool close(int fd);
 void terminateProcess() {
 	ProcessDescriptor *process = getCurrentProcess();
+	close(0);
+	close(1);
+	close(2);
 	process->state = PROCESS_ZOMBIE;
+
+	freeArgs();
+
 	_killAndNextProcess();
 	__asm__ __volatile__("add $8, %rsp");
 	__asm__ __volatile__("iretq");
@@ -233,6 +262,18 @@ uint64_t countToNull(char **values) {
 	return i;
 }
 
+char **copyArgs(char **args) {
+	int argc = countToNull(args);
+	char **argscopy = ourMalloc((argc + 1) * sizeof(char *));
+	for (int i = 0; args[i] != NULL; i++) {
+		int arglen = strlen(args[i]);
+		argscopy[i] = ourMalloc(arglen + 1);
+		strcpy(argscopy[i], args[i]);
+	}
+	argscopy[argc] = NULL;
+	return argscopy;
+}
+
 void initializeProcessStack(uint64_t **stackStart, void *entryPoint,
                             char **args) {
 	uint64_t *stack = *stackStart;
@@ -266,7 +307,8 @@ int createProcess(uint8_t tty, char *name, char **args) {
 
 	memcpy((void *)entryPoint, (void *)module->address, module->size);
 
-	initializeProcessStack(&stack, entryPoint, args);
+	char **argscopy = copyArgs(args);
+	initializeProcessStack(&stack, entryPoint, argscopy);
 
 	processes[pid] = (struct ProcessDescriptor){
 	    .name = module->name,
@@ -274,24 +316,25 @@ int createProcess(uint8_t tty, char *name, char **args) {
 	    .fdTable =
 	        {
 	            (struct FileDescriptor){
-					.active = true,
+	                .active = true,
 	                .read =
 	                    (int (*)(ID, const char *, uint64_t, uint64_t))readTTY,
 	                .id = tty,
 	            },
 	            (struct FileDescriptor){
-					.active = true,
+	                .active = true,
 	                .write = (int (*)(ID, const char *, uint64_t))writeTTY,
 	                .id = tty,
 	            },
 	            (struct FileDescriptor){
-					.active = true,
+	                .active = true,
 	                .write = (int (*)(ID, const char *, uint64_t))writeTTY,
 	                .id = tty,
 	            },
 	        },
 	    .state = PROCESS_ACTIVE,
 	    .stack = stack,
+	    .args = argscopy,
 	};
 	enqueueItem(&readyQueue, &processes[pid]);
 	endLock();
@@ -310,12 +353,14 @@ bool exec(char *moduleName, char **args) {
 
 	memcpy((void *)entryPoint, (void *)module->address, module->size);
 
-	initializeProcessStack(&stack, entryPoint, args);
+	char **argscopy = copyArgs(args);
+	initializeProcessStack(&stack, entryPoint, argscopy);
 
 	ProcessDescriptor *process = getProcess(pid);
 	process->name = module->name;
 	process->state = PROCESS_ACTIVE;
 	process->stack = stack;
+	process->args = argscopy;
 	enqueueItem(&readyQueue, &processes[pid]);
 
 	_killAndNextProcess();
@@ -338,6 +383,12 @@ int cloneProcess(int pid) {
 	ProcessDescriptor *process = getProcess(pid);
 	ProcessDescriptor *newProcess = getProcess(newPid);
 	*newProcess = *process;
+	// Fix pipes not counting forked process pipe ends.
+	for (int i = 0; i < MAX_FILE_DESCRIPTORS; i++) {
+		struct FileDescriptor *fd = &process->fdTable[i];
+		if (fd->active && fd->dup2 != NULL)
+			fd->dup2(fd->id);
+	}
 	int64_t separation = dstStart - start;
 	newProcess->stack = process->stack + separation;
 	newProcess->entryPoint = dstStart;

@@ -1,5 +1,4 @@
 #include "words.h"
-#include <print.h>
 #include <random.h>
 #include <stdbool.h>
 #include <stddef.h>

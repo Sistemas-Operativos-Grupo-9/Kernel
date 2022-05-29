@@ -30,6 +30,7 @@ typedef struct ProcessDescriptor {
 	void *entryPoint;
 	ProcessState state;
 	int returnCode;
+	char **args;
 	struct FileDescriptor fdTable[MAX_FILE_DESCRIPTORS];
 } ProcessDescriptor;
 
@@ -39,7 +40,10 @@ extern int _yield();
 extern void _killAndNextProcess();
 
 void initializeLogProcess();
+
+void exit(int retCode);
 bool killProcess(int pid);
+
 void restartProcess();
 void terminateProcess();
 int getProcessPID(ProcessDescriptor *process);

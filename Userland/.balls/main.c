@@ -1,5 +1,4 @@
 #include <color.h>
-#include <print.h>
 #include <random.h>
 #include <stdio.h>
 #include <syscall.h>

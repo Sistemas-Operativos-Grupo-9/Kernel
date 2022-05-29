@@ -3,12 +3,13 @@
 #include "stdint.h"
 #include <stddef.h>
 
-uint64_t strlen(char *str);
+uint64_t strlen(const char *str);
 void strcpy(char *dst, const char *src);
 void strncpy(char *dst, const char *src, size_t n);
-int strcmp(char *str1, char *str2);
+int strcmp(const char *str1, const char *str2);
 int strncmp(const char *s1, const char *s2, size_t n);
-size_t tokencount(char *str, char c);
+size_t tokencount(const char *str, char c);
+size_t tokencountn(const char *buf, char c, size_t n);
 /**
  * @brief Does not allocate memory.
  * Destroys str.

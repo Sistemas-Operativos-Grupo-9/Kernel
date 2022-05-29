@@ -1,7 +1,6 @@
 
-#include "syscall.h"
 #include "shared-lib/print.h"
-
+#include "syscall.h"
 
 void main(int argc, char **argv) {
 	MemoryState state = getMemoryState();
