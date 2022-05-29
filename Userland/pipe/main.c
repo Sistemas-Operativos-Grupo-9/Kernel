@@ -4,8 +4,9 @@
 #include <shared-lib/print.h>
 
 void main() {
-	int a, c;
-	pipeInit(&a);
-	pipeInit(&c);
+	int r, w;
+	pipe(&r, &w);
 	pipePrintList();
+	close(r);
+	close(w);
 }

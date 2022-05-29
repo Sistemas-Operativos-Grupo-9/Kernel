@@ -4,6 +4,8 @@
 enum Syscalls {
 	READ = 0,
 	WRITE = 1,
+	DUP2,
+	CLOSE,
 
 	SEMPOST = 10,
 	SEMWAIT,
@@ -12,8 +14,9 @@ enum Syscalls {
 	SEMCLOSE,
 	SEMPRINTLIST,
 
-	PIPEINIT = 20,
+	PIPE = 20,
 	PIPEPRINTLIST,
+
 
 	GETPID = 39,
 	EXEC,

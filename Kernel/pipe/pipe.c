@@ -64,6 +64,8 @@ static void tryClose(int fd) {
 	semWait(pipe->lock);
 	if (pipe->readopen == 0 && pipe->writeopen == 0) {
 		pipeClose(fd);
+	} else {
+		semPost(pipe->lock);
 	}
 }
 
@@ -97,7 +99,7 @@ void pipeDecWrite(int fd) {
 	tryClose(fd);
 }
 
-int pipeRead(int fd, char *buf, int n, uint64_t timeout) {
+int pipeRead(PIPID fd, char *buf, int n, uint64_t timeout) {
 	Pipe *pipe = getPipe(fd);
 	if (!pipe->active) {
 		return -2;

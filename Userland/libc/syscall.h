@@ -12,6 +12,9 @@
 
 int read(uint64_t fd, char *buf, uint64_t count, uint64_t timeout);
 int64_t write(uint64_t fd, const char *buf, uint64_t count);
+bool dup2(int fd1, int fd2);
+bool close(int fd);
+
 uint8_t getpid();
 int execve(char *moduleName, char **argv);
 int fork();
@@ -49,10 +52,11 @@ void semPrintList();
 void *ourMalloc(size_t byteCount);
 
 // Pipes
-int pipeInit(int *pipe);
+bool pipe(int *readFD, int *writeFD);
 
 void pipePrintList();
 // Frees a previously allocated buffer.
 void ourFree(void *memPtr);
 
 MemoryState getMemoryState();
+

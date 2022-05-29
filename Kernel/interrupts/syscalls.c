@@ -6,6 +6,7 @@
 #include "interrupts.h"
 #include "lock.h"
 #include "memory_manager.h"
+#include "pipe.h"
 #include "process.h"
 #include "processes.h"
 #include "registers.h"
@@ -26,6 +27,64 @@ int64_t write(uint64_t fd, const char *buf, uint64_t count) {
 	struct ProcessDescriptor process = *getCurrentProcess();
 	struct FileDescriptor d = process.fdTable[fd];
 	return d.write(d.id, buf, count);
+}
+
+bool dup2(int fd1, int fd2) {
+	struct ProcessDescriptor process = *getCurrentProcess();
+	struct FileDescriptor *d1 = &process.fdTable[fd1];
+	struct FileDescriptor *d2 = &process.fdTable[fd2];
+	if (d2->active) {
+		return true;
+	}
+	d1->dup2(d1->id);
+	*d2 = *d1;
+	return false;
+}
+
+bool close(int fd) {
+	struct ProcessDescriptor process = *getCurrentProcess();
+	struct FileDescriptor *d = &process.fdTable[fd];
+	if (!d->active)
+		return true;
+	d->close(d->id);
+	d->active = false;
+	return false;
+}
+
+bool pipe(int *readFD, int *writeFD) {
+	PIPID pipe;
+	if (pipeInit(&pipe)) {
+		return true;
+	}
+	struct FileDescriptor *readD = createFileDescriptor();
+	struct FileDescriptor *writeD = createFileDescriptor();
+
+	if (readD == NULL || writeD == NULL) {
+		if (readD != NULL)
+			readD->active = false;
+		if (writeD != NULL)
+			writeD->active = false;
+		pipeClose(pipe);
+		return true;
+	}
+
+
+	readD->id = pipe;
+	readD->write = NULL;
+	readD->read = (int (*)(ID, const char *, uint64_t, uint64_t))pipeRead;
+	readD->close = (void (*)(ID))pipeDecRead;
+	readD->dup2 = (void (*)(ID))pipeIncRead;
+
+	writeD->id = pipe;
+	writeD->read= NULL;
+	writeD->write = (int (*)(ID, const char *, uint64_t))pipeWrite;
+	writeD->close = (void (*)(ID))pipeDecWrite;
+	writeD->dup2 = (void (*)(ID))pipeIncWrite;
+
+	*readFD = getFileDescriptorNumber(readD);
+	*writeFD = getFileDescriptorNumber(writeD);
+
+	return false;
 }
 
 uint8_t getpid() { return getProcessPID(getCurrentProcess()); }
@@ -162,6 +221,10 @@ uint64_t syscallDispatcher(uint64_t rdi, uint64_t param1, uint64_t param2,
 		return read(param1, (char *)param2, param3, param4);
 	case WRITE: // getChar
 		return write(param1, (const char *)param2, param3);
+	case DUP2:
+		return dup2(param1, param2);
+	case CLOSE:
+		return close(param1);
 
 	case SEMPOST:
 		return semPost(param1);
@@ -230,9 +293,8 @@ uint64_t syscallDispatcher(uint64_t rdi, uint64_t param1, uint64_t param2,
 	case FREE:
 		ourFree((void *)param1);
 		break;
-	case PIPEINIT:
-		return pipeInit((int *)param1);
-		break;
+	case PIPE:
+		return pipe((int *)param1, (int *)param2);
 	case PIPEPRINTLIST:
 		pipePrintList();
 		break;

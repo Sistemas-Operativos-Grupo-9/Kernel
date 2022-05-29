@@ -8,16 +8,19 @@
 typedef int ID;
 
 struct FileDescriptor {
+	bool active;
 	bool eof;
 	ID id;
 	int (*read)(ID id, const char *buf, uint64_t count, uint64_t timeout);
 	int (*write)(ID id, const char *buf, uint64_t count);
+	void (*dup2)(ID id);
+	void (*close)(ID id);
 };
 
 #define PROCESS_MEMORY 0x200000
-#define MAX_FILE_DESCRIPTORS 3
+#define MAX_FILE_DESCRIPTORS 256
 
-typedef struct __attribute__((packed)) ProcessDescriptor {
+typedef struct ProcessDescriptor {
 	void *stack;
 	bool initialized;
 	bool toKill;
@@ -48,6 +51,9 @@ void setFocus(uint8_t tty);
 uint64_t countProcesses();
 struct ProcessDescriptor *getProcess(int pid);
 bool exec(char *moduleName, char **args);
+
+struct FileDescriptor *createFileDescriptor();
+int getFileDescriptorNumber(struct FileDescriptor *fd);
 
 void initializeHaltProcess();
 
