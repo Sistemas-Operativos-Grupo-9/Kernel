@@ -94,7 +94,7 @@ bool validateCommand(char *command) {
 }
 
 // Returns the arg count
-int split(char *command, char **splitted) {
+int splitArguments(char *command, char **splitted) {
 	int count = 0;
 	char *start = command;
 	bool out = false;
@@ -114,7 +114,7 @@ int split(char *command, char **splitted) {
 bool execCommand(char *command) {
 	char *exec;
 	char *argv[10];
-	int argc = split(command, argv);
+	int argc = splitArguments(command, argv);
 	argv[argc] = NULL;
 	exec = argv[0];
 	if (strcmp(exec, "quit") == 0 || strcmp(exec, "exit") == 0) {

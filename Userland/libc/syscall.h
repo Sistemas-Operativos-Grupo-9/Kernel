@@ -1,15 +1,20 @@
 #pragma once
 
 #include "color.h"
+#include "memory.h"
 #include "processes.h"
 #include "semaphores.h"
 #include <datetime.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <window.h>
 
 int read(uint64_t fd, char *buf, uint64_t count, uint64_t timeout);
 int64_t write(uint64_t fd, const char *buf, uint64_t count);
+bool dup2(int fd1, int fd2);
+bool close(int fd);
+
 uint8_t getpid();
 int execve(char *moduleName, char **argv);
 int fork();
@@ -42,3 +47,16 @@ bool semWait(SID sem);
 bool semPost(SID sem);
 SID semOpen(const char *name);
 void semPrintList();
+
+// Allocates 'byteCount' bytes and returns it's memory location.
+void *ourMalloc(size_t byteCount);
+
+// Pipes
+bool pipe(int *readFD, int *writeFD);
+
+void pipePrintList();
+// Frees a previously allocated buffer.
+void ourFree(void *memPtr);
+
+MemoryState getMemoryState();
+

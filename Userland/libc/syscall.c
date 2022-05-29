@@ -13,11 +13,19 @@ static uint64_t syscall(uint64_t code, uint64_t param1, uint64_t param2,
 }
 
 int read(uint64_t fd, char *buf, uint64_t count, uint64_t timeout) {
-	return syscall(READ, fd, (uint64_t)buf, count, timeout, 0);
+	return (int)syscall(READ, fd, (uint64_t)buf, count, timeout, 0);
 }
 
 int64_t write(uint64_t fd, const char *buf, uint64_t count) {
 	return syscall(WRITE, fd, (uint64_t)buf, count, 0, 0);
+}
+
+bool dup2(int fd1, int fd2) {
+	return syscall(DUP2, fd1, fd2, 0, 0, 0);
+}
+
+bool close(int fd) {
+	return syscall(CLOSE, fd, 0, 0, 0, 0);
 }
 
 uint8_t getpid() { return syscall(GETPID, 0, 0, 0, 0, 0); }
@@ -116,3 +124,23 @@ SID semOpen(const char *name) {
 }
 
 void semPrintList() { syscall(SEMPRINTLIST, 0, 0, 0, 0, 0); }
+
+bool pipe(int *readFD, int *writeFD) {
+	return syscall(PIPE, (uint64_t)readFD, (uint64_t)writeFD, 0, 0, 0);
+}
+
+void pipePrintList() { syscall(PIPEPRINTLIST, 0, 0, 0, 0, 0); }
+
+// Allocates 'byteCount' bytes and returns it's memory location.
+void *ourMalloc(size_t byteCount) {
+	return (void *)syscall(MALLOC, (uint64_t)byteCount, 0, 0, 0, 0);
+}
+
+// Frees a previously allocated buffer.
+void ourFree(void *memPtr) { syscall(FREE, (uint64_t)memPtr, 0, 0, 0, 0); }
+
+MemoryState getMemoryState() {
+	MemoryState state;
+	syscall(GETMEMORYSTATE, (uint64_t)&state, 0, 0, 0, 0);
+	return state;
+}

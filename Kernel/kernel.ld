@@ -31,4 +31,6 @@ SECTIONS
 	. += 0x8000;
 	. = ALIGN(0x100000);
 	endOfKernelStack = .;
+	. += 0x200000 * 256;
+	startOfHeap = .;
 }

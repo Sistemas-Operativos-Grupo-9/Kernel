@@ -1,0 +1,3 @@
+[submodule "Memory-Manager"]
+	path = Memory-Manager
+	url = git@github.com:Sistemas-Operativos-Grupo-9/Memory-Manager.git

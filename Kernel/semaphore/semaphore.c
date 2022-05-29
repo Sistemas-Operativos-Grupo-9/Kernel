@@ -16,9 +16,7 @@ typedef struct Semaphore {
 
 static Semaphore semaphores[MAX_SEMAPHORES];
 
-static void mut_signal(atomic_flag *lock) {
-	atomic_flag_clear(lock);
-}
+static void mut_signal(atomic_flag *lock) { atomic_flag_clear(lock); }
 
 static void mut_wait(Semaphore *sem, atomic_flag *lock) {
 	while (atomic_flag_test_and_set(lock)) {
@@ -84,7 +82,7 @@ bool semWait(SID sid) {
 		mut_signal(&sem->lock);
 	}
 	/*puts(getCurrentProcess()->tty, "s\n");*/
-	
+
 	return false;
 }
 
@@ -102,7 +100,6 @@ bool semPost(SID sid) {
 
 		semaphoreUpdate();
 	}
-
 
 	return false;
 }
@@ -126,6 +123,13 @@ static void printProcess(ProcessDescriptor *process) {
 	putchar(' ');
 }
 
+void printBlockedProcesses(SID sid) {
+	puts("    blocked processes: ");
+	queueIterate(&getSemaphore(sid)->blockedProcesses,
+	             (void (*)(void *))printProcess);
+	putchar('\n');
+}
+
 void semPrint(SID sid) {
 	Semaphore *sem = getSemaphore(sid);
 	if (sem->active) {
@@ -140,9 +144,7 @@ void semPrint(SID sid) {
 			puts(sem->name);
 			putchar('\n');
 		}
-		puts("    blocked processes: ");
-		queueIterate(&sem->blockedProcesses, (void (*)(void *))printProcess);
-		putchar('\n');
+		printBlockedProcesses(sid);
 
 	} else {
 		puts("Semaphore #: inactive\n");

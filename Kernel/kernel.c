@@ -1,13 +1,14 @@
 #include "idtLoader.h"
 #include "keyboard.h"
-#include "shared-lib/myUtils.h"
+#include "memory_manager.h"
 #include "process.h"
+#include "shared-lib/myUtils.h"
 #include "time.h"
 #include <graphics/basicVideo.h>
 #include <graphics/video.h>
-#include <shared-lib/print.h>
 #include <lib.h>
 #include <moduleLoader.h>
+#include <shared-lib/print.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -21,6 +22,7 @@ extern uint8_t bss;
 extern uint8_t endOfKernelBinary;
 extern uint8_t endOfKernel;
 extern uint8_t endOfKernelStack;
+extern uint8_t startOfHeap;
 extern uint8_t startOfModules;
 
 typedef int (*EntryPoint)();
@@ -82,6 +84,9 @@ void *initializeKernelBinary() {
 	puts("[Done]\n");
 
 	putchar('\n');
+
+	memoryManagerInitialize((size_t)&startOfHeap,
+	                        (size_t)&startOfHeap + 0x1000000);
 
 	return getStackBase();
 }

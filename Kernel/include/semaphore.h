@@ -5,8 +5,6 @@
 #define MAX_SEMAPHORES 128
 #include <stdbool.h>
 
-
-
 SID semInit(const char *name, semValue value);
 
 bool semClose(SID sem);
@@ -21,3 +19,4 @@ void semPrint(SID sid);
 
 void semPrintList();
 
+void printBlockedProcesses(SID sid);

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ARGS="-hda Image/x64BareBonesImage.qcow2 -m 512 -display gtk,zoom-to-fit=on -rtc base=localtime -cpu Nehalem -enable-kvm"
+ARGS="-hda Image/x64BareBonesImage.qcow2 -m 1024 -display gtk,zoom-to-fit=on -rtc base=localtime -cpu Nehalem -enable-kvm"
 
 if [ "$1" = "gdb" ]
 then

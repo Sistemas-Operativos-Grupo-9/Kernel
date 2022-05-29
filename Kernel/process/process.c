@@ -5,7 +5,6 @@
 #include "lock.h"
 #include "moduleLoader.h"
 #include "queue.h"
-#include "string.h"
 #include "time.h"
 #include <graphics/views.h>
 #include <stddef.h>
@@ -38,6 +37,24 @@ static int getFreePID() {
 	}
 
 	return lastPID;
+}
+
+struct FileDescriptor *createFileDescriptor() {
+	ProcessDescriptor *process = getProcess(PID);
+	for (int i = 0; i < MAX_FILE_DESCRIPTORS; i++) {
+		struct FileDescriptor *fd = &process->fdTable[i];
+		if (!fd->active) {
+			fd->active = true;
+			return fd;
+		}
+	}
+	return NULL;
+}
+
+int getFileDescriptorNumber(struct FileDescriptor *fd) {
+	if (fd == NULL) return -1;
+	ProcessDescriptor *process = getProcess(PID);
+	return fd - process->fdTable;
 }
 
 struct ProcessDescriptor *getCurrentProcess() {
@@ -136,6 +153,7 @@ int waitPID(int pid) {
 
 void initializeLogProcess() {
 	processes[0].fdTable[1] = (struct FileDescriptor){
+		.active = true,
 	    .write = (int (*)(ID, const char *, uint64_t))writeTTY,
 	    .id = 0,
 	};
@@ -256,15 +274,18 @@ int createProcess(uint8_t tty, char *name, char **args) {
 	    .fdTable =
 	        {
 	            (struct FileDescriptor){
+					.active = true,
 	                .read =
 	                    (int (*)(ID, const char *, uint64_t, uint64_t))readTTY,
 	                .id = tty,
 	            },
 	            (struct FileDescriptor){
+					.active = true,
 	                .write = (int (*)(ID, const char *, uint64_t))writeTTY,
 	                .id = tty,
 	            },
 	            (struct FileDescriptor){
+					.active = true,
 	                .write = (int (*)(ID, const char *, uint64_t))writeTTY,
 	                .id = tty,
 	            },
@@ -300,6 +321,8 @@ bool exec(char *moduleName, char **args) {
 	_killAndNextProcess();
 	__asm__ __volatile__("add $8, %rsp");
 	__asm__ __volatile__("iretq");
+
+	return true;
 }
 
 int getProcessPID(ProcessDescriptor *process) { return process - processes; }

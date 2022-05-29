@@ -23,17 +23,17 @@ LDFLAGS=-Wl,--warn-common,--oformat=elf64-x86-64,--build-id=none -static
 # LDFLAGS=--warn-common -z max-page-size=0x1000 -T kernel.ld --oformat=elf64-x86-64 -nostdlib -g
 
 LOADEROBJECT=$(LOADERSRC:%.asm=$(BUILDDIR)/%.asm.o)
-STATICLIBS=
+STATICLIBS=-L../Memory-Manager/build/ -lmemory_manager
 
 all: $(KERNEL)
 
-$(KERNEL): $(LOADEROBJECT) $(OBJECTS) $(STATICLIBS) $(OBJECTS_ASM)
+$(KERNEL): $(LOADEROBJECT) $(OBJECTS) $(OBJECTS_ASM)
 	$(LD) $(CFLAGS) $(LDFLAGS) -T kernel.ld -o $@.elf $(LOADEROBJECT) $(OBJECTS) $(OBJECTS_ASM) $(STATICLIBS)
 	objcopy -O binary $@.elf $@
 
 $(BUILDDIR)/%.o: %.c
 	mkdir -p $(dir $@)
-	$(GCC) $(CFLAGS) -I./include -I../Constants -I../Userland/libc -c $< -o $@
+	$(GCC) $(CFLAGS) -I./include -I"../Memory-Manager/include" -I../Constants -I./ -c $< -o $@
 
 $(BUILDDIR)/%.asm.o : %.asm
 	mkdir -p $(dir $@)

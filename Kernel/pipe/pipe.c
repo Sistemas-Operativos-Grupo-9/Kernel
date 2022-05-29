@@ -1,5 +1,8 @@
 #include "pipe.h"
 #include "process.h"
+#include "semaphore.h"
+#include "shared-lib/print.h"
+#include "syscall.h"
 #include "time.h"
 
 // https://github.com/mit-pdos/xv6-public/blob/master/pipe.c
@@ -56,27 +59,72 @@ int pipeClose(int fd) {
 	}
 }
 
-int pipeDup2(int olderFd, int newFd);
+static void tryClose(int fd) {
+	Pipe *pipe = getPipe(fd);
+	semWait(pipe->lock);
+	if (pipe->readopen == 0 && pipe->writeopen == 0) {
+		pipeClose(fd);
+	} else {
+		semPost(pipe->lock);
+	}
+}
 
-int pipeRead(int fd, char *buf, int n, uint64_t timeout) {
+void pipeIncRead(int fd) {
+	Pipe *pipe = getPipe(fd);
+	semWait(pipe->lock);
+	pipe->readopen++;
+	semPost(pipe->lock);
+}
+
+void pipeIncWrite(int fd) {
+	Pipe *pipe = getPipe(fd);
+	semWait(pipe->lock);
+	pipe->writeopen++;
+	semPost(pipe->lock);
+}
+
+void pipeDecRead(int fd) {
+	Pipe *pipe = getPipe(fd);
+	semWait(pipe->lock);
+	pipe->readopen--;
+	semPost(pipe->lock);
+	tryClose(fd);
+}
+
+void pipeDecWrite(int fd) {
+	Pipe *pipe = getPipe(fd);
+	semWait(pipe->lock);
+	pipe->writeopen--;
+	semPost(pipe->lock);
+	tryClose(fd);
+}
+
+int pipeRead(PIPID fd, char *buf, int n, uint64_t timeout) {
 	Pipe *pipe = getPipe(fd);
 	if (!pipe->active) {
-		return -1;
+		return -2;
 	}
 
 	// mut_wait(getSemaphore(pipe->lock), &pipe->lock);
 	semWait(pipe->lock);
 	// Si no hay nada que leer, esperar
 	uint64_t start = microseconds_elapsed() / 1000;
-	while (pipe->nread == 0 && (timeout == 0 || microseconds_elapsed() / 1000 < start + timeout)) {
+	while (pipe->nread == pipe->nwrite &&
+	       (timeout == 0 || microseconds_elapsed() / 1000 < start + timeout) &&
+	       pipe->writeopen > 0) {
+		semPost(pipe->lock);
 		_yield();
+		semWait(pipe->lock);
 	}
 
 	int nread = 0;
-	while (nread < n && pipe->nread > 0) {
-		if (pipe->nread == pipe->nwrite)
-			break;
+	while (nread < n && pipe->nread != pipe->nwrite) {
 		buf[nread++] = pipe->data[pipe->nread++ % PIPE_SIZE];
+	}
+
+	if (nread == 0 && pipe->writeopen == 0) {
+		semPost(pipe->lock);
+		return -1;
 	}
 
 	// mut_signal(getSemaphore(pipe->lock), &pipe->lock);
@@ -106,11 +154,21 @@ int pipeWrite(int fd, char *buf, int n) {
 
 Pipe *getPipe(PIPID pipid) { return &pipes[pipid]; }
 
+void pipePrint(PIPID pipid) {
+	Pipe *p = getPipe(pipid);
+	if (p->active) {
+		puts("Pipe: ");
+		printInt(pipid, 10);
+		putchar('\n');
+		printBlockedProcesses(p->lock);
+	}
+}
+
 void pipePrintList() {
 	for (int i = 0; i < MAX_PIPES; i++) {
 		Pipe *pipe = getPipe(i);
 		if (pipe->active) {
-			semPrint(i);
+			pipePrint(i);
 		}
 	}
 }

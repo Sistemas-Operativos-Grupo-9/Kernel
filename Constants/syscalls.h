@@ -4,6 +4,8 @@
 enum Syscalls {
 	READ = 0,
 	WRITE = 1,
+	DUP2,
+	CLOSE,
 
 	SEMPOST = 10,
 	SEMWAIT,
@@ -11,6 +13,10 @@ enum Syscalls {
 	SEMOPEN,
 	SEMCLOSE,
 	SEMPRINTLIST,
+
+	PIPE = 20,
+	PIPEPRINTLIST,
+
 
 	GETPID = 39,
 	EXEC,
@@ -31,6 +37,10 @@ enum Syscalls {
 	DRAWBITMAP,
 	FLIP,
 	SWITCHTODESKTOP,
+
+	MALLOC = 100,
+	FREE,
+	GETMEMORYSTATE,
 };
 
 enum Figures {
