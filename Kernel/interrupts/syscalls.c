@@ -103,9 +103,6 @@ int execve(char *moduleName, char **argv) {
 	if (pid == -1)
 		return -1;
 	_sti();
-	while (getProcess(pid)->state == PROCESS_ACTIVE) {
-		waitForIO();
-	}
 	waitPID(pid);
 	_cli();
 	return 0;
