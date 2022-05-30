@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdbool.h>
+#include <stdint.h>
 
 typedef enum ProcessState {
 	PROCESS_DEAD = 0,
@@ -14,5 +15,6 @@ struct Process {
 	void *entryPoint;
 	void *stackStart;
 	bool waiting;
+	uint8_t priority;
 	ProcessState state;
 };

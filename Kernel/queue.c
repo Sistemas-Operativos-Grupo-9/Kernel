@@ -1,6 +1,7 @@
 #include "queue.h"
 #include "interrupts.h"
 #include "lock.h"
+#include <stddef.h>
 
 void enqueueItem(Queue *queue, void *item) {
 	if ((queue->head + 1) % QUEUE_SIZE == queue->tail) {
@@ -12,7 +13,7 @@ void enqueueItem(Queue *queue, void *item) {
 
 void *dequeueItem(Queue *queue) {
 	if (queue->head == queue->tail) {
-		// TODO: error
+		return NULL;
 	}
 	void *ret;
 	LOCK(ret = queue->items[queue->tail++];

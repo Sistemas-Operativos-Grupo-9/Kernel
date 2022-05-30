@@ -43,7 +43,8 @@ void printHexByte_generic(int fd, uint8_t value) {
 
 void printHexPointer_generic(int fd, void *ptr) {
 	printHexPrefix_generic(fd);
-	printUnsignedN_generic(fd, (uint64_t)ptr, 16, 16);
+	/*printUnsignedN_generic(fd, (uint64_t)ptr, 16, 16);*/
+	printUnsigned_generic(fd, (uint64_t)ptr, 16);
 }
 
 void printPercentage_generic(int fd, float value) {

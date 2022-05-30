@@ -11,19 +11,23 @@ int main() {
 	int count = getProcesses(processes);
 	printUnsigned(count, 10);
 	puts(" processes running.\n");
-	for (int i = 0; i < count; i++) {
-		setForeground(processes[i].waiting ? RED : GREEN);
+	for (int i = 1; i < count; i++) {
+		struct Process *process = &processes[i];
+		setForeground(process->waiting ? RED : GREEN);
 		puts("[PID=");
-		printUnsignedN(processes[i].pid, 3, 10);
+		printUnsignedN(process->pid, 3, 10);
 		puts("] ");
-		puts(processes[i].name);
+		puts("[PRIO=");
+		printUnsignedN(process->priority, 1, 10);
+		puts("] ");
+		puts(process->name);
 		putchar(' ');
 
 		// Strange bug when set to <= 10 and trying to print with strlen >= 11
-		for (int j = 0; j < 10 - (int)strlen(processes[i].name); j++)
+		for (int j = 0; j < 10 - (int)strlen(process->name); j++)
 			putchar(' ');
-		puts(processes[i].waiting ? "[WAITING]" : "  [READY]");
-		switch (processes[i].state) {
+		puts(process->waiting ? "[WAITING]" : "  [READY]");
+		switch (process->state) {
 		case PROCESS_DEAD:
 			puts(" [DEAD]");
 			break;
@@ -35,9 +39,9 @@ int main() {
 			break;
 		}
 		puts(": ");
-		printHexPointer(processes[i].entryPoint);
+		printHexPointer(process->entryPoint);
 		puts(" - ");
-		printHexPointer(processes[i].stackStart);
+		printHexPointer(process->stackStart);
 		putchar('\n');
 	}
 	setForeground(WHITE);

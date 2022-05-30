@@ -2,6 +2,7 @@
 #include "syscalls.h"
 #include "datetime.h"
 #include "gettime.h"
+#include "priorityQueue.h"
 #include "graphics/video.h"
 #include "interrupts.h"
 #include "lock.h"
@@ -93,6 +94,16 @@ bool pipe(int *readFD, int *writeFD) {
 
 uint8_t getpid() { return getProcessPID(getCurrentProcess()); }
 
+bool setprio(int pid, uint8_t prio) {
+	if (prio >= PRIORITY_COUNT)
+		return true;
+	ProcessDescriptor *process = getProcess(pid);
+	if (process->state == PROCESS_DEAD)
+		return true;
+	process->priority = prio;
+	return false;
+}
+
 int fork() {
 	getCurrentProcess()->toFork = true;
 	return _yield();
@@ -134,10 +145,10 @@ void microsleep(uint64_t micros) {
 
 uint64_t millis() { return microseconds_elapsed() / 1000; }
 
-extern struct ProcessDescriptor processes[256];
-uint8_t getProcesses(struct Process processList[256]) {
+extern struct ProcessDescriptor processes[MAX_PROCESS_COUNT];
+uint8_t getProcesses(struct Process processList[MAX_PROCESS_COUNT]) {
 	int pi = 0;
-	for (int i = 0; i < 256; i++) {
+	for (int i = 0; i < MAX_PROCESS_COUNT; i++) {
 		struct ProcessDescriptor *process = getProcess(i);
 		if (process->state != PROCESS_DEAD) {
 			processList[pi] = (struct Process){
@@ -146,6 +157,7 @@ uint8_t getProcesses(struct Process processList[256]) {
 			    .stackStart = process->entryPoint + PROCESS_MEMORY,
 			    .waiting = process->waiting,
 			    .state = process->state,
+			    .priority = process->priority,
 			};
 			strcpy(processList[pi].name, process->name);
 			pi++;
@@ -246,6 +258,8 @@ uint64_t syscallDispatcher(uint64_t rdi, uint64_t param1, uint64_t param2,
 
 	case GETPID:
 		return getpid();
+	case NICE:
+		return setprio(param1, param2);
 	case EXECVE:
 		return execve((char *)param1, (char **)param2);
 	case FORK:

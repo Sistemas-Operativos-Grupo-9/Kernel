@@ -27,3 +27,26 @@ bool strtonum(char *num, uint64_t *out, uint8_t base) {
 
 	return true;
 }
+
+bool strtoint(char *num, int64_t *out, uint8_t base) {
+	*out = 0;
+	if (*num == '\0')
+		return false;
+	bool neg = false;
+	if (*num == '-') {
+		neg = true;
+		num++;
+	}
+	uint64_t abs;
+	bool ret = strtonum(num, &abs, base);
+	if (!ret) {
+		return ret;
+	}
+
+	*out = (int64_t)abs;
+	if (neg) {
+		*out = -*out;
+	}
+
+	return true;
+}

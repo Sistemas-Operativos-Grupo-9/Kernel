@@ -28,6 +28,10 @@ void exit(int retCode) { syscall(EXIT, retCode, 0, 0, 0, 0); }
 
 uint8_t getpid() { return syscall(GETPID, 0, 0, 0, 0, 0); }
 
+bool setprio(int pid, uint8_t prio) {
+	return syscall(NICE, pid, prio, 0, 0, 0);
+}
+
 int execve(char *moduleName, char **argv) {
 	return syscall(EXECVE, (uint64_t)moduleName, (uint64_t)argv, 0, 0, 0);
 }

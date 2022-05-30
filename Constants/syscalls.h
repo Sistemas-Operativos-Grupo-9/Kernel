@@ -19,6 +19,7 @@ enum Syscalls {
 	PIPEPRINTLIST,
 
 	GETPID = 39,
+	NICE,
 	EXEC,
 	EXECVE = 59,
 	FORK,

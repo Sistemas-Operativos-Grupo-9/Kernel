@@ -2,6 +2,7 @@
 #include <lib.h>
 #include <shared-lib/myUtils.h>
 #include <stdbool.h>
+#include "lock.h"
 
 #include "graphics/basicVideo.h"
 #include "keys.h"
@@ -504,6 +505,7 @@ void setChar(uint8_t viewNumber, char ch) {
 
 void ttyPutchar(uint8_t viewNumber, char ch) {
 	struct View *view = Views[viewNumber];
+	startLock();
 	semWait(view->mutex);
 	view->outputBuffer[view->outputLength++] = ch;
 
@@ -581,6 +583,7 @@ void ttyPutchar(uint8_t viewNumber, char ch) {
 		newCursorY = view->cursorY;
 	}
 	semPost(view->mutex);
+	endLock();
 }
 
 void setViewGraphic(uint8_t viewNumber, bool value) {

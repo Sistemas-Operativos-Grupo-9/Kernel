@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#define MAX_PROCESS_COUNT 256
 typedef int ID;
 
 struct FileDescriptor {
@@ -31,6 +32,7 @@ typedef struct ProcessDescriptor {
 	ProcessState state;
 	int returnCode;
 	char **args;
+	uint8_t priority;
 	struct FileDescriptor fdTable[MAX_FILE_DESCRIPTORS];
 } ProcessDescriptor;
 

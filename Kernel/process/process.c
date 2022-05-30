@@ -5,6 +5,7 @@
 #include "lock.h"
 #include "memory_manager.h"
 #include "moduleLoader.h"
+#include "priorityQueue.h"
 #include "queue.h"
 #include "time.h"
 #include <graphics/views.h>
@@ -13,15 +14,13 @@
 #define NO_PID -1
 #define HALT_PID 0
 
-#define MAX_PROCESS_COUNT 256
-
 static struct ProcessDescriptor processes[MAX_PROCESS_COUNT];
 static uint64_t maxProcessCount = sizeof(processes) / sizeof(*processes);
 extern bool schedulerEnabled;
 bool schedulerEnabled = false;
 extern void *ret00;
 
-Queue readyQueue;
+PriorityQueue readyQueue;
 Queue waitingQueue;
 
 extern int PID;
@@ -78,7 +77,7 @@ void unpauseProcesses() {
 	while (getLength(&waitingQueue)) {
 		ProcessDescriptor *process = dequeueItem(&waitingQueue);
 		process->waiting = false;
-		enqueueItem(&readyQueue, process);
+		enqueueItemInPriority(&readyQueue, process, process->priority);
 	}
 }
 
@@ -89,8 +88,6 @@ void keypressUpdate() { unpauseProcesses(); }
 void childDeadUpdate() { unpauseProcesses(); }
 
 void semaphoreUpdate() { unpauseProcesses(); }
-
-void enqueueHalt() { enqueueItem(&readyQueue, &processes[HALT_PID]); }
 
 extern void _nextProcess();
 int64_t readTTY(uint8_t tty, char *buf, uint64_t count, uint64_t timeout) {
@@ -209,6 +206,7 @@ void processReturned() {
 
 void haltMain() {
 	while (true) {
+		/*_sti();*/
 		__asm__ __volatile__("hlt");
 		// __asm__("nop");
 	}
@@ -263,6 +261,7 @@ uint64_t countToNull(char **values) {
 }
 
 char **copyArgs(char **args) {
+	if (args == NULL) return NULL;
 	int argc = countToNull(args);
 	char **argscopy = ourMalloc((argc + 1) * sizeof(char *));
 	for (int i = 0; args[i] != NULL; i++) {
@@ -310,7 +309,8 @@ int createProcess(uint8_t tty, char *name, char **args) {
 	char **argscopy = copyArgs(args);
 	initializeProcessStack(&stack, entryPoint, argscopy);
 
-	processes[pid] = (struct ProcessDescriptor){
+	ProcessDescriptor *process = &processes[pid];
+	*process = (struct ProcessDescriptor){
 	    .name = module->name,
 	    .entryPoint = entryPoint,
 	    .fdTable =
@@ -335,8 +335,9 @@ int createProcess(uint8_t tty, char *name, char **args) {
 	    .state = PROCESS_ACTIVE,
 	    .stack = stack,
 	    .args = argscopy,
+		.priority = 1,
 	};
-	enqueueItem(&readyQueue, &processes[pid]);
+	enqueueItemInPriority(&readyQueue, process, process->priority);
 	endLock();
 	return pid;
 }
@@ -361,7 +362,7 @@ bool exec(char *moduleName, char **args) {
 	process->state = PROCESS_ACTIVE;
 	process->stack = stack;
 	process->args = argscopy;
-	enqueueItem(&readyQueue, &processes[pid]);
+	enqueueItemInPriority(&readyQueue, process, process->priority);
 
 	_killAndNextProcess();
 	__asm__ __volatile__("add $8, %rsp");
@@ -402,7 +403,7 @@ int cloneProcess(int pid) {
 		}
 	}
 
-	enqueueItem(&readyQueue, newProcess);
+	enqueueItemInPriority(&readyQueue, newProcess, newProcess->priority);
 	return newPid;
 }
 
@@ -413,27 +414,33 @@ void *doSwitch(bool pushCurrent, uint64_t *stackPointer) {
 		process->stack = stackPointer;
 		if (process->toKill) {
 			process->toKill = false;
-			processReturned();
-		}
-		int pid = getProcessPID(process);
-		if (pid != HALT_PID) {
-			if (process->toFork) {
-				process->toFork = false;
-				cloneProcess(PID);
+			endLock();
+			freeArgs();
+			process->returnCode = -127;
+			close(0);
+			close(1);
+			close(2);
+			process->state = PROCESS_ZOMBIE;
+			childDeadUpdate();
+		} else {
+			int pid = getProcessPID(process);
+			if (pid != HALT_PID) {
+				if (process->toFork) {
+					process->toFork = false;
+					cloneProcess(PID);
+				}
+				if (process->waiting) {
+					enqueueItem(&waitingQueue, process);
+				} else {
+					enqueueItemInPriority(&readyQueue, process, process->priority);
+				}
 			}
-			Queue *queue;
-			if (process->waiting) {
-				queue = &waitingQueue;
-			} else {
-				queue = &readyQueue;
-			}
-			enqueueItem(queue, process);
 		}
 	}
-	if (getLength(&readyQueue) == 0) {
-		enqueueHalt();
+	ProcessDescriptor *newProcess = dequeueHighestPriority(&readyQueue);
+	if (newProcess == NULL) {
+		newProcess = getProcess(HALT_PID);
 	}
-	ProcessDescriptor *newProcess = dequeueItem(&readyQueue);
 
 	int newPid = getProcessPID(newProcess);
 	PID = newPid;
