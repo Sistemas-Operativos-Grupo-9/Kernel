@@ -206,9 +206,7 @@ void processReturned() {
 
 void haltMain() {
 	while (true) {
-		/*_sti();*/
 		__asm__ __volatile__("hlt");
-		// __asm__("nop");
 	}
 }
 
@@ -332,6 +330,7 @@ int createProcess(uint8_t tty, char *name, char **args) {
 	                .id = tty,
 	            },
 	        },
+		.view = tty,
 	    .state = PROCESS_ACTIVE,
 	    .stack = stack,
 	    .args = argscopy,

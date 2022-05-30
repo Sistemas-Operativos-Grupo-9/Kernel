@@ -7,6 +7,7 @@
 #include "graphics/basicVideo.h"
 #include "keys.h"
 #include "process.h"
+#include "semaphore.h"
 
 struct TextColors {
 	Color foreground;
@@ -762,9 +763,13 @@ void drawLine(uint8_t viewNumber, uint16_t x1, uint16_t y1, uint16_t x2,
 
 void flip(uint8_t viewNumber) {
 	struct View *view = Views[viewNumber];
+	startLock();
+	semWait(view->mutex);
 	if (view->desktop == currentDesktop) {
 		drawBitmapRaw(VIEWCLIP, (Color(*)[])view->frameBuffer, VIEWCLIP);
 	}
+	semPost(view->mutex);
+	endLock();
 }
 
 void getViewInfo(uint8_t viewNumber, WindowInfo *windowInfo) {

@@ -1,5 +1,6 @@
 
 #include "graphics/basicVideo.h"
+#include "semaphore.h"
 #include <stdbool.h>
 
 mode_info_block *const infoBlock = (mode_info_block *)0x0000000000005C00;

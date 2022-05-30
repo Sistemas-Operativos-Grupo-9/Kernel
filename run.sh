@@ -7,7 +7,7 @@ ARGS="-hda Image/x64BareBonesImage.qcow2 -m 1024 -display gtk,zoom-to-fit=on -cp
 
 while [[ $# -gt 0 ]]; do
 	case $1 in
-		--debug|--gdb|gdb)
+		--debug|debug|--gdb|gdb)
 			ARGS="-s -S $ARGS" 
 			shift
 			;;
@@ -21,6 +21,10 @@ while [[ $# -gt 0 ]]; do
 			;;
 		--rtc|rtc)
 			ARGS="$ARGS -rtc base=localtime"
+			shift
+			;;
+		--kvm|kvm)
+			ARGS="$ARGS -enable-kvm"
 			shift
 			;;
 	esac

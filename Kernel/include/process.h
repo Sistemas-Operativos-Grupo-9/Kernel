@@ -33,6 +33,7 @@ typedef struct ProcessDescriptor {
 	int returnCode;
 	char **args;
 	uint8_t priority;
+	uint8_t view;
 	struct FileDescriptor fdTable[MAX_FILE_DESCRIPTORS];
 } ProcessDescriptor;
 
