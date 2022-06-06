@@ -15,7 +15,7 @@ static uint8_t chartodig(char ch) {
 	return 255;
 }
 
-bool strtonum(char *num, uint64_t *out, uint8_t base) {
+bool strtonum(const char *num, uint64_t *out, uint8_t base) {
 	*out = 0;
 	if (*num == '\0')
 		return false;
@@ -28,7 +28,7 @@ bool strtonum(char *num, uint64_t *out, uint8_t base) {
 	return true;
 }
 
-bool strtoint(char *num, int64_t *out, uint8_t base) {
+bool strtoint(const char *num, int64_t *out, uint8_t base) {
 	*out = 0;
 	if (*num == '\0')
 		return false;

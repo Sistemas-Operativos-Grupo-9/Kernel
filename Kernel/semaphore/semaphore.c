@@ -1,6 +1,7 @@
 #include "semaphore.h"
 #include "graphics/video.h"
 #include "lib.h"
+#include "priorityQueue.h"
 #include "process.h"
 #include "queue.h"
 #include "shared-lib/print.h"
@@ -18,13 +19,18 @@ static Semaphore semaphores[MAX_SEMAPHORES];
 
 static void mut_signal(atomic_flag *lock) { atomic_flag_clear(lock); }
 
-static void mut_wait(Semaphore *sem, atomic_flag *lock) {
+static void mut_wait(atomic_flag *lock) {
 	while (atomic_flag_test_and_set(lock)) {
-		ProcessDescriptor *process = getCurrentProcess();
-		enqueueItem(&sem->blockedProcesses, process);
-		process->waiting = true;
-		_yield();
+		wait();
 	}
+}
+
+static void block(Semaphore *sem) {
+	ProcessDescriptor *process = getCurrentProcess();
+	enqueueItem(&sem->blockedProcesses, process);
+	process->waiting = true;
+	process->blockedOnSem = true;
+	_yield();
 }
 
 static SID getFreeSID() {
@@ -71,15 +77,20 @@ bool semWait(SID sid) {
 		return true;
 
 	while (true) {
-		mut_wait(sem, &sem->lock);
+		mut_wait(&sem->lock);
 
-		if (sem->value > 0) {
+		bool decremented = sem->value > 0;
+		if (decremented) {
 			sem->value--;
 			mut_signal(&sem->lock);
 			break;
 		}
 
 		mut_signal(&sem->lock);
+
+		if (!decremented) {
+			block(sem);
+		}
 	}
 	/*puts(getCurrentProcess()->tty, "s\n");*/
 
@@ -91,14 +102,16 @@ bool semPost(SID sid) {
 	if (!sem->active)
 		return true;
 
-	if (sem->value++ == 0) {
+	mut_wait(&sem->lock);
+	bool unblocked = sem->value == 0;
+	sem->value++;
+	mut_signal(&sem->lock);
+	if (unblocked) {
 		/*puts(getCurrentProcess()->tty, "p\n");*/
 		// Wake up blocked process
-		while (getLength(&sem->blockedProcesses) > 0) {
-			dequeueItem(&sem->blockedProcesses);
-		}
+		unpauseSomeProcesses(&sem->blockedProcesses);
 
-		semaphoreUpdate();
+		/*semaphoreUpdate();*/
 	}
 
 	return false;

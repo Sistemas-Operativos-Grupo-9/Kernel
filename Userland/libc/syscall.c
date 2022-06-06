@@ -56,6 +56,10 @@ int waitpid(int pid) { return syscall(WAITPID, pid, 0, 0, 0, 0); }
 
 bool kill(int pid) { return syscall(KILL, pid, 0, 0, 0, 0); }
 
+bool setblock(int pid, bool block) {
+	return syscall(SETBLOCK, pid, block, 0, 0, 0);
+}
+
 void microsleep(uint64_t micros) { syscall(MICROSLEEP, micros, 0, 0, 0, 0); }
 void millisleep(uint64_t millis) { microsleep(millis * 1000); }
 void sleep(uint64_t seconds) { millisleep(seconds * 1000); }

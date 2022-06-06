@@ -1,4 +1,5 @@
 #include "executor.h"
+#include "stdlib.h"
 #include "string.h"
 #include <shared-lib/print.h>
 #include <syscall.h>
@@ -22,6 +23,16 @@ bool tryExecuteBuiltinCommand(const char *command, const char **args) {
 	} else if ((strcmp(command, "quit") == 0 || strcmp(command, "exit") == 0) &&
 	           argc == 0) {
 		exit(0);
+		return true;
+	} else if (strcmp(command, "block") == 0 && argc == 1) {
+		int64_t pid;
+		strtoint(args[0], &pid, 10);
+		setblock(pid, true);
+		return true;
+	} else if (strcmp(command, "unblock") == 0 && argc == 1) {
+		int64_t pid;
+		strtoint(args[0], &pid, 10);
+		setblock(pid, false);
 		return true;
 	}
 	return false;

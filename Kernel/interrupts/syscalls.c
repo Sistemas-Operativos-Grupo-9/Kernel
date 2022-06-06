@@ -124,10 +124,12 @@ void getRegisters(struct RegistersState *out) { *out = registersState; }
 
 bool kill(int pid) { return killProcess(pid); }
 
+bool setblock(int pid, bool block) { return setBlock(pid, block); }
+
 void microsleep(uint64_t micros) {
 	uint64_t start = microseconds_elapsed();
 	while (microseconds_elapsed() - start < micros) {
-		waitForIO();
+		wait();
 	}
 }
 
@@ -144,6 +146,7 @@ uint8_t getProcesses(struct Process processList[MAX_PROCESS_COUNT]) {
 			    .entryPoint = process->entryPoint,
 			    .stackStart = process->entryPoint + PROCESS_MEMORY,
 			    .waiting = process->waiting,
+			    .blocked = process->blocked || process->blockedOnSem,
 			    .state = process->state,
 			    .priority = process->priority,
 			};
@@ -264,6 +267,8 @@ uint64_t syscallDispatcher(uint64_t rdi, uint64_t param1, uint64_t param2,
 		break;
 	case KILL:
 		return kill(param1);
+	case SETBLOCK:
+		return setblock(param1, param2);
 	case MICROSLEEP:
 		microsleep(param1);
 		break;

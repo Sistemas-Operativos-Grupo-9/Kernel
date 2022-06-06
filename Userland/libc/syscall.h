@@ -26,6 +26,7 @@ uint64_t proccount();
 Time gettime();
 struct RegistersState getRegisters();
 bool kill(int pid);
+bool setblock(int pid, bool block);
 void microsleep(uint64_t micros);
 void millisleep(uint64_t millis);
 void sleep(uint64_t seconds);

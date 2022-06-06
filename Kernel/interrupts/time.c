@@ -8,7 +8,8 @@ extern bool schedulerEnabled;
 
 void timer_handler() {
 	ticks++;
-	timerUpdate();
+	if (ticks % 10 == 0)
+		timerUpdate();
 }
 
 int ticks_elapsed() { return ticks; }

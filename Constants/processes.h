@@ -15,6 +15,7 @@ struct Process {
 	void *entryPoint;
 	void *stackStart;
 	bool waiting;
+	bool blocked;
 	uint8_t priority;
 	ProcessState state;
 };

@@ -27,6 +27,8 @@ typedef struct ProcessDescriptor {
 	bool toKill;
 	bool toFork;
 	bool waiting;
+	bool blocked;
+	bool blockedOnSem;
 	char *name;
 	void *entryPoint;
 	ProcessState state;
@@ -46,6 +48,7 @@ void initializeLogProcess();
 
 void exit(int retCode);
 bool killProcess(int pid);
+bool setBlock(int pid, bool block);
 
 void restartProcess();
 void terminateProcess();
@@ -64,10 +67,11 @@ int getFileDescriptorNumber(struct FileDescriptor *fd);
 
 void initializeHaltProcess();
 
+void unpauseSomeProcesses(Queue *processQueue);
 void timerUpdate();
 void keypressUpdate();
 void childDeadUpdate();
 void semaphoreUpdate();
 
 int waitPID(int pid);
-void waitForIO();
+void wait();

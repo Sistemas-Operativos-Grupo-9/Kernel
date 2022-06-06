@@ -26,7 +26,7 @@ int main() {
 		// Strange bug when set to <= 10 and trying to print with strlen >= 11
 		for (int j = 0; j < 10 - (int)strlen(process->name); j++)
 			putchar(' ');
-		puts(process->waiting ? "[WAITING]" : "  [READY]");
+		puts(process->blocked ? "[BLOCKED]" : process->waiting ? "[WAITING]" : "  [READY]");
 		switch (process->state) {
 		case PROCESS_DEAD:
 			puts(" [DEAD]");

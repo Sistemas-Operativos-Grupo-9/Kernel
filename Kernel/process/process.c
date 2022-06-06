@@ -74,11 +74,29 @@ struct ProcessDescriptor *getCurrentProcess() {
 // The ones that did not expect to get woken up by this event will go back to
 // the waiting queue by their own
 void unpauseProcesses() {
-	while (getLength(&waitingQueue)) {
+	startLock();
+	int size = getLength(&waitingQueue);
+	for (int i = 0; i < size; i++) {
 		ProcessDescriptor *process = dequeueItem(&waitingQueue);
+		if (process->blocked) {
+			enqueueItem(&waitingQueue, process);
+		} else {
+			process->waiting = false;
+			enqueueItemInPriority(&readyQueue, process, process->priority);
+		}
+	}
+	endLock();
+}
+
+void unpauseSomeProcesses(Queue *processQueue) {
+	startLock();
+	while (getLength(processQueue) > 0) {
+		ProcessDescriptor *process = dequeueItem(processQueue);
 		process->waiting = false;
+		process->blockedOnSem = false;
 		enqueueItemInPriority(&readyQueue, process, process->priority);
 	}
+	endLock();
 }
 
 void timerUpdate() { unpauseProcesses(); }
@@ -86,8 +104,6 @@ void timerUpdate() { unpauseProcesses(); }
 void keypressUpdate() { unpauseProcesses(); }
 
 void childDeadUpdate() { unpauseProcesses(); }
-
-void semaphoreUpdate() { unpauseProcesses(); }
 
 extern void _nextProcess();
 int64_t readTTY(uint8_t tty, char *buf, uint64_t count, uint64_t timeout) {
@@ -104,7 +120,7 @@ int64_t readTTY(uint8_t tty, char *buf, uint64_t count, uint64_t timeout) {
 		    inputAvailable(tty) == 0 &&
 		    (timeout == 0 || microseconds_elapsed() / 1000 < start + timeout)) {
 			// _nextProcess();
-			waitForIO();
+			wait();
 			if (hasEof(tty)) {
 				return read;
 			}
@@ -129,7 +145,7 @@ uint64_t writeTTY(int tty, char *buf, uint64_t count) {
 	return count;
 }
 
-void waitForIO() {
+void wait() {
 	getCurrentProcess()->waiting = true;
 	_yield();
 }
@@ -146,16 +162,25 @@ void exit(int retCode) {
 }
 
 bool killProcess(int pid) {
-	if (processes[pid].state == PROCESS_DEAD)
+	ProcessDescriptor *process = getProcess(pid);
+	if (process->state == PROCESS_DEAD)
 		return false;
-	processes[pid].toKill = true;
+	process->toKill = true;
+	return true;
+}
+
+bool setBlock(int pid, bool block) {
+	ProcessDescriptor *process = getProcess(pid);
+	if (process->state == PROCESS_DEAD)
+		return false;
+	process->blocked = block;
 	return true;
 }
 
 int waitPID(int pid) {
 	ProcessDescriptor *process = getProcess(pid);
 	while (process->state != PROCESS_ZOMBIE) {
-		waitForIO();
+		wait();
 	}
 	int ret = process->returnCode;
 	process->state = PROCESS_DEAD;
@@ -428,10 +453,12 @@ void *doSwitch(bool pushCurrent, uint64_t *stackPointer) {
 					process->toFork = false;
 					cloneProcess(PID);
 				}
-				if (process->waiting) {
-					enqueueItem(&waitingQueue, process);
-				} else {
-					enqueueItemInPriority(&readyQueue, process, process->priority);
+				if (!process->blockedOnSem) {
+					if (process->waiting) {
+						enqueueItem(&waitingQueue, process);
+					} else {
+						enqueueItemInPriority(&readyQueue, process, process->priority);
+					}
 				}
 			}
 		}
