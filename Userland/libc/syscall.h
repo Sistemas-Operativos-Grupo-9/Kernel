@@ -18,7 +18,6 @@ void exit(int retCode);
 
 uint8_t getpid();
 bool setprio(int pid, uint8_t prio);
-int execve(char *moduleName, char **argv);
 int fork();
 bool exec(char *moduleName, char **args);
 

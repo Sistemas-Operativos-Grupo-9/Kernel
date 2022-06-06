@@ -111,18 +111,6 @@ int fork() {
 
 int waitpid(int pid) { return waitPID(pid); }
 
-// TODO: remove execve
-int execve(char *moduleName, char **argv) {
-	/*struct ProcessDescriptor *process = getCurrentProcess();*/
-	int pid = createProcess(focusedView, moduleName, argv);
-	if (pid == -1)
-		return -1;
-	_sti();
-	waitPID(pid);
-	_cli();
-	return 0;
-}
-
 uint64_t proccount() { return countProcesses(); }
 
 void gettime(Time *time) { *time = getTime(); }
@@ -260,8 +248,6 @@ uint64_t syscallDispatcher(uint64_t rdi, uint64_t param1, uint64_t param2,
 		return getpid();
 	case NICE:
 		return setprio(param1, param2);
-	case EXECVE:
-		return execve((char *)param1, (char **)param2);
 	case FORK:
 		return fork();
 	case EXEC:

@@ -8,56 +8,6 @@
 #include <syscall.h>
 #include <time.h>
 
-// bool validateCommand(char *command) {
-// 	if (strlen(command) > 0) {
-// 		return true;
-// 	}
-// 	return false;
-// }
-
-// // Returns the arg count
-// void splitArguments(char *command, char **splitted) {
-// 	int count = 0;
-// 	char *start = command;
-// 	bool out = false;
-// 	do {
-// 		out = *command == '\0';
-// 		if (*command == ' ' || out) {
-// 			*command = '\0';
-// 			splitted[count] = start;
-// 			start = command + 1;
-// 			count++;
-// 		}
-// 	} while (command++, !out);
-// 	splitted[count] = NULL;
-// }
-
-// // Returns true if exit
-// bool execCommand(char *command) {
-// 	char *exec;
-// 	char *argv[10];
-// 	splitArguments(command, argv);
-// 	exec = argv[0];
-// 	if (strcmp(exec, "quit") == 0 || strcmp(exec, "exit") == 0) {
-// 		return true;
-// 	}
-// 	if (strcmp(exec, "pid") == 0) {
-// 		printInt(getpid(), 10);
-// 	} else if (execve(exec, argv + 1) == -1) {
-// 		putchar('\"');
-// 		puts(exec);
-// 		puts("\" is not a recognized program or module\n");
-// 	}
-
-// 	// puts(process->name);
-// 	// puts(" -> ");
-// 	// printInt(retCode, 10);
-// 	// putchar('\n');
-
-// 	setForeground(WHITE);
-// 	return false;
-// }
-
 int main(int argc, char **argv) {
 	if (argc == 1 && strcmp(argv[0], "--print-help") == 0) {
 		puts("Use PgUp and PgDown to scroll.\n");
