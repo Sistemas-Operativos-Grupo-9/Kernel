@@ -1,0 +1,5 @@
+It receives as an argument the type of test given by the professors to be executed.
+    mm - Memory manager - receives the maximum amount of memory.
+    prio - Priorities
+    sync - Synchronization - receives amount of times that applies +1 and -1 and if I want to use semaphores or not (0 or 1)
+    process - Processes - receive the maximum number of processes

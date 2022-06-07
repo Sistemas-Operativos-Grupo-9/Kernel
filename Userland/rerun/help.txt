@@ -1,0 +1,1 @@
+It receives a pid and every time it finishes it reopens it.

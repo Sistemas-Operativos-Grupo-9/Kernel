@@ -1,11 +1,25 @@
-date: prints the current date and time in ISO 8601.
-help: prints this help message
-jobs: prints count and information about each running process.
-kill: kills a process by PID.
+balls: random colored balls bouncing (graphic mode).
+cat: Receives by string by standard input and returns it to the output.
+filter: Receives a string by standard input and returns that string without the vowels.
+help: Prints this help message
+kill: Kills a process by PID.
+loop: Usage: loop
+    runs infinite loop
+mem: Prints memory state.
+nice: Modifies the priority of a process.
+phylo: Simulate the problem of the philosophers and prints the state.
+    a - add philosopher
+    r - remove philosopher
+    q - quit
+ps: prints count and information about each running process.
+rerun: It receives a pid and every time it finishes it reopens it.
 shell: it's the shell program:
     Shell extra commands: 
         pid: prints the pid of the current shell.
         exit/quit: exits the shell.
-simple-date: prints the current time of the day in HH:MM:SS format.
-watch: Usage: watch <program> [n=1000]
-    runs program periodically every n milliseconds until "q" is pressed.
+tests: It receives as an argument the type of test given by the professors to be executed.
+    mm - Memory manager - receives the maximum amount of memory.
+    prio - Priorities
+    sync - Synchronization - receives amount of times that applies +1 and -1 and if I want to use semaphores or not (0 or 1)
+    process - Processes - receive the maximum number of processes
+wc: Receives a string and returns the number of lines.

@@ -1,0 +1,1 @@
+Receives a string by standard input and returns that string without the vowels.

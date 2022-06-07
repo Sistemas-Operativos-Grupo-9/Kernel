@@ -1,0 +1,4 @@
+Simulate the problem of the philosophers and prints the state.
+    a - add philosopher
+    r - remove philosopher
+    q - quit

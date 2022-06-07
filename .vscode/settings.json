@@ -63,6 +63,7 @@
         "window.h": "c",
         "random.h": "c",
         "words.h": "c",
-        "help.h": "c"
+        "help.h": "c",
+        "semaphore.h": "c"
     },
 }

@@ -1,0 +1,1 @@
+Receives a string and returns the number of lines.

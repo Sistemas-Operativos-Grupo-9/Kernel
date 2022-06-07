@@ -1,0 +1,1 @@
+Receives by string by standard input and returns it to the output.
