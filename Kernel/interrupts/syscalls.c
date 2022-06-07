@@ -157,7 +157,6 @@ uint8_t getProcesses(struct Process processList[MAX_PROCESS_COUNT]) {
 	return pi;
 }
 
-// TODO: choose view for process?.
 uint8_t viewForProcess() { return getCurrentProcess()->view; }
 
 void setGraphic(bool value) { setViewGraphic(viewForProcess(), value); }
