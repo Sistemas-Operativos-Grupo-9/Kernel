@@ -21,6 +21,9 @@ SECTIONS
 	. = ALIGN(0x100000);
 	endOfModules = .;
 	sharedMemory = .;
+	phyloMemory = .;
+	. += 512;
+	testsMemory = .;
 	. += 512;
 	.bss ALIGN(0x1000) : AT(ADDR(.bss))
 	{

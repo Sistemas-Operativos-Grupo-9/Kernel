@@ -4,6 +4,10 @@
 #include "syscalls.h"
 #include <stdint.h>
 
+void yield() {
+	__asm__ __volatile__("int $0x81");
+}
+
 static uint64_t syscall(uint64_t code, uint64_t param1, uint64_t param2,
                         uint64_t param3, uint64_t param4, uint64_t param5) {
 	__asm__ __volatile__("int $0x80");

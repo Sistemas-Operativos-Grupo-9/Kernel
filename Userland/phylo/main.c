@@ -34,7 +34,7 @@ struct TableState {
 	SID printLock;
 	size_t activePhilosophers;
 	Philosopher philosophers[MAX_PHILOSOPHERS];
-} *table = (struct TableState *)0x0000000000400000; // &sharedMemory
+} *table = (struct TableState *)0x0000000000400000; // &phyloMemory
 
 // Function Signatures
 void philosopher(int num);

@@ -2,7 +2,7 @@
 #include "shared-lib/print.h"
 #include "syscall.h"
 
-void main(int argc, char **argv) {
+int main(int argc, char **argv) {
 	MemoryState state = getMemoryState();
 	puts("Total Memory: ");
 	printUnsigned(state.totalMemory, 10);
@@ -16,4 +16,6 @@ void main(int argc, char **argv) {
 	puts("Heap Start: ");
 	printHexPointer((void *)state.heapStart);
 	putchar('\n');
+
+	return 0;
 }

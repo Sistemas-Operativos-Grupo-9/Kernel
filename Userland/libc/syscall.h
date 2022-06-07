@@ -10,6 +10,7 @@
 #include <stdint.h>
 #include <window.h>
 
+void yield();
 int read(uint64_t fd, char *buf, uint64_t count, uint64_t timeout);
 int64_t write(uint64_t fd, const char *buf, uint64_t count);
 bool dup2(int fd1, int fd2);
