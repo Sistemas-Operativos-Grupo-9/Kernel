@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <syscall.h>
+#include <shared-lib/print.h>
 
 int64_t my_getpid() { return getpid(); }
 
@@ -9,6 +10,9 @@ int64_t my_create_process(int64_t (*func)(uint64_t argc, char *argv[]), uint64_t
 	case 0:
 		func(argc, argv);
 		exit(0);
+
+	case -1:
+		return -1;
 
 	default:
 		return pid;

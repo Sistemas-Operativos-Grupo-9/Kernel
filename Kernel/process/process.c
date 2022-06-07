@@ -28,11 +28,15 @@ int PID = 0;
 
 static int getFreePID() {
 	static int lastPID = 0;
+	int startPid = lastPID;
 
 	while (processes[lastPID].state != PROCESS_DEAD) {
 		lastPID++;
 		if (lastPID >= sizeof(processes) / sizeof(*processes)) {
 			lastPID = 0;
+		}
+		if (lastPID == startPid) {
+			return NO_PID;
 		}
 	}
 
@@ -401,11 +405,15 @@ int getProcessPID(ProcessDescriptor *process) { return process - processes; }
 int cloneProcess(int pid) {
 	void *start, *end;
 	void *dstStart, *dstEnd;
+	ProcessDescriptor *process = getProcess(pid);
 	getProcessBoundaries(pid, &start, &end);
 	int newPid = getFreePID();
+	if (newPid == NO_PID) {
+		((uint64_t *)process->stack)[13] = (int)-1;
+		return -1;
+	}
 	getProcessBoundaries(newPid, &dstStart, &dstEnd);
 	memcpy(dstStart, start, (uint64_t)end - (uint64_t)start + 1 * 8);
-	ProcessDescriptor *process = getProcess(pid);
 	ProcessDescriptor *newProcess = getProcess(newPid);
 	*newProcess = *process;
 	// Fix pipes not counting forked process pipe ends.

@@ -64,6 +64,16 @@
         "random.h": "c",
         "words.h": "c",
         "help.h": "c",
+<<<<<<< Updated upstream
         "semaphore.h": "c"
+=======
+        "registers.h": "c",
+        "stddef.h": "c",
+        "input.h": "c",
+        "parse.h": "c",
+        "regex": "c",
+        "*.inc": "c",
+        "complex": "c"
+>>>>>>> Stashed changes
     },
 }

@@ -6,7 +6,7 @@
         {
             "label": "Build",
             "type": "shell",
-            "command": "./dcom make all",
+            "command": "make all",
             "problemMatcher": {
                 "base": "$gcc",
                 "fileLocation": [
@@ -22,13 +22,13 @@
         {
             "label": "Clean",
             "type": "shell",
-            "command": "./dcom make clean",
+            "command": "make clean",
             "problemMatcher": []
         },
         {
             "label": "Rebuild",
             "type": "shell",
-            "command": "./dcom make rebuild",
+            "command": "make rebuild",
             "problemMatcher": {
                 "base": "$gcc",
                 "fileLocation": [

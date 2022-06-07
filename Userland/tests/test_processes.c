@@ -13,7 +13,7 @@ typedef struct P_rq {
 } p_rq;
 
 int64_t test_processes(uint64_t argc, char *argv[]) {
-	uint8_t rq;
+	uint64_t rq;
 	uint8_t alive = 0;
 	uint8_t action;
 	uint64_t max_processes;
@@ -35,11 +35,19 @@ int64_t test_processes(uint64_t argc, char *argv[]) {
 
 			if (p_rqs[rq].pid == -1) {
 				puts("test_processes: ERROR creating process\n");
+				for (int i = rq - 1; i >= 0; i--) {
+					kill(p_rqs[i].pid);
+					my_wait(p_rqs[i].pid);
+				}
 				return -1;
 			} else {
 				p_rqs[rq].state = RUNNING;
 				alive++;
 			}
+
+			puts("Process: ");
+			printUnsigned(rq, 10);
+			putchar('\n');
 		}
 
 		// Randomly kills, blocks or unblocks processes until every one has been
